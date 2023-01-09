@@ -33,6 +33,8 @@ class NoteRepository @Inject constructor(
 
     fun getNotes() = noteDao.getNotes().toFlowListOfUiNote()
 
+    suspend fun getNoteById(noteId:Long) = noteDao.getNoteById(noteId)?.toUiNote()
+
     suspend fun insertNote(uiNote: UiNote) = noteDao.insertNote(uiNote.toLocalNote())
 
     suspend fun updateNote(uiNote: UiNote) = noteDao.updateNote(uiNote.toLocalNote())

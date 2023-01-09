@@ -50,6 +50,7 @@ android {
     }
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -81,9 +82,14 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
-
     // Datastore
     implementation "androidx.datastore:datastore-preferences:$datastore"
+
+//    // Kotlin Date-Time
+//    implementation "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
+
+    // Java Date-Time desugar
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:1.1.5"
 
     //// Compose
     implementation "androidx.compose.ui:ui:$compose_version_2"

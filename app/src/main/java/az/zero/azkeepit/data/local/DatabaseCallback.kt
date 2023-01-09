@@ -4,6 +4,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import az.zero.azkeepit.data.local.entities.LocalFolder
 import az.zero.azkeepit.data.local.entities.LocalNote
+import az.zero.azkeepit.util.JDateTimeUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -33,12 +34,14 @@ val notes = List(20) {
     val ownerFolderId = if (it < 10) 0 else 1
     LocalNote(title = "title $it",
         content = "content $it",
-        false,
-        1L,
-        1L,
-        folderName,
-        ownerFolderId.toLong(),
-        it.toLong())
+        isLocked = false,
+        isUpdated = false,
+        createdAt = JDateTimeUtil.now(),
+        updatedAt = null,
+        folderName = folderName,
+        ownerFolderId = ownerFolderId.toLong(),
+        noteId = it.toLong()
+    )
 }
 
 val folders = List(2) {

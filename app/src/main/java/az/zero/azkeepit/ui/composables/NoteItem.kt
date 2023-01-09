@@ -12,7 +12,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.domain.model.UiNote
-import az.zero.azkeepit.ui.theme.cardBgColor
 
 @Composable
 fun NoteItem(
@@ -27,8 +26,7 @@ fun NoteItem(
     Card(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .clickableSafeClick(onClick = onNoteClick),
-        backgroundColor = cardBgColor
+            .clickableSafeClick(onClick = onNoteClick)
     ) {
         Box(
             modifier = Modifier.fillMaxSize()
@@ -47,6 +45,8 @@ fun NoteItem(
                     Text(text = uiNote.title, style = textStyle)
                     Text(text = uiNote.content, style = textStyle)
                     Text(text = uiNote.folderName, style = textStyle)
+                    Text(text = uiNote.createdShortDateTime, style = textStyle)
+                    Text(text = uiNote.createdLongDateTime, style = textStyle)
                     Spacer(modifier = Modifier.size(30.dp))
                 }
 

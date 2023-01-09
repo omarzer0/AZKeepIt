@@ -6,4 +6,8 @@
     <string name="more">More</string>
     <string name="add">Add</string>
     <string name="folder">folder</string>
+    <string name="done">Done</string>
+    <string name="title">Title</string>
+    <string name="hint">Hint</string>
+    <string name="content">Content</string>
 </resources>

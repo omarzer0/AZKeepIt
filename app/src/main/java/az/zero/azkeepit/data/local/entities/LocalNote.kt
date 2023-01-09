@@ -11,8 +11,9 @@ data class LocalNote(
     val title: String,
     val content: String,
     val isLocked: Boolean,
-    val date: Long,
-    val time: Long,
+    val isUpdated: Boolean,
+    val createdAt: Long,
+    val updatedAt: Long?,
     val folderName: String,
     val ownerFolderId: Long?,
     @PrimaryKey(autoGenerate = true)
