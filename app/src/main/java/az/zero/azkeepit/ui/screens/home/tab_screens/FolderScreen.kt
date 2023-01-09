@@ -1,4 +1,4 @@
-package az.zero.azkeepit.ui.screens.tab_screens
+package az.zero.azkeepit.ui.screens.home.tab_screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -23,11 +24,11 @@ import az.zero.azkeepit.R
 import az.zero.azkeepit.domain.model.UiFolder
 import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.screens.destinations.FolderDetailsScreenDestination
-import az.zero.azkeepit.ui.screens.details.folder.FolderDetailsScreenArgs
+import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
-import az.zero.azkeepit.ui.theme.cardBgColor
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+@ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
 fun FolderScreen(
@@ -69,7 +70,6 @@ fun FolderItem(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .clickableSafeClick(onClick = onFolderClick),
-        backgroundColor = cardBgColor
     ) {
         Column(
             modifier = Modifier

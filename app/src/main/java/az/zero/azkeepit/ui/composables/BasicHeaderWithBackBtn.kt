@@ -27,12 +27,15 @@ fun BasicHeaderWithBackBtn(
         modifier = modifier.fillMaxWidth(),
         elevation = elevation,
         title = {
-            Text(
-                text = text,
-                color = MaterialTheme.colors.onPrimary,
-                maxLines = singleLineValue,
-                overflow = TextOverflow.Ellipsis
-            )
+            if (text.isEmpty()) Unit
+            else {
+                Text(
+                    text = text,
+                    color = MaterialTheme.colors.onPrimary,
+                    maxLines = singleLineValue,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         },
         actions = actions,
         backgroundColor = backgroundColor,

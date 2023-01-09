@@ -19,10 +19,11 @@ import java.util.*
 fun Modifier.mirror(
     direction: Int = LayoutDirection.RTL,
 ): Modifier {
-    return if (Locale.getDefault().layoutDirection == direction)
-        this.scale(scaleX = -1f, scaleY = 1f)
-    else
-        this
+//    return if (Locale.getDefault().layoutDirection == direction)
+//        this.scale(scaleX = -1f, scaleY = 1f)
+//    else
+//        this
+    return this
 }
 
 

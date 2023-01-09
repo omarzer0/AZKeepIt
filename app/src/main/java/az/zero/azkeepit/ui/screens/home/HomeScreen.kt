@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -23,14 +24,17 @@ import az.zero.azkeepit.R
 import az.zero.azkeepit.ui.composables.BasicHeaderWithBackBtn
 import az.zero.azkeepit.ui.composables.DrawCircleBorder
 import az.zero.azkeepit.ui.composables.TabPager
-import az.zero.azkeepit.ui.screens.tab_screens.FolderScreen
-import az.zero.azkeepit.ui.screens.tab_screens.NotesScreen
+import az.zero.azkeepit.ui.screens.note.add_edit.AddEditNoteScreenArgs
+import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
+import az.zero.azkeepit.ui.screens.home.tab_screens.FolderScreen
+import az.zero.azkeepit.ui.screens.home.tab_screens.NotesScreen
 import az.zero.azkeepit.ui.theme.selectedColor
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+@ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @RootNavGraph(start = true)
 @Destination
@@ -54,7 +58,9 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            HomeFab(onClick = {})
+            HomeFab(onClick = {
+                navigator.navigate(AddEditNoteScreenDestination(null))
+            })
         }
     ) { paddingValues ->
 

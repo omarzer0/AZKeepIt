@@ -35,6 +35,9 @@ interface NoteDao {
     @Query("SELECT * FROM LocalNote")
     fun getNotes(): Flow<List<LocalNote>>
 
+    @Query("SELECT * FROM LocalNote WHERE noteId=:noteId")
+    suspend fun getNoteById(noteId: Long): LocalNote?
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertNote(localNote: LocalNote)
 
