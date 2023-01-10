@@ -10,10 +10,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -35,14 +37,20 @@ fun AddEditNoteScreen(
     navigator: DestinationsNavigator,
 ) {
 
-    val note by viewModel.note.collectAsState()
-
-    var title by rememberSaveable(note.title) { mutableStateOf(note.title) }
-    var content by rememberSaveable(note.content) { mutableStateOf(note.content) }
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
-            AddEditHeader(navigator = navigator)
+            AddEditHeader(
+                enabled = state.isSaveActive,
+                onDoneClick = {
+                    viewModel.saveNote()
+                    navigator.popBackStack()
+                },
+                onBackPressed = {
+                    navigator.popBackStack()
+                }
+            )
         },
     ) { paddingValues ->
         Column(
@@ -51,38 +59,34 @@ fun AddEditNoteScreen(
                 .fillMaxSize()
                 .padding(16.dp)
                 .background(MaterialTheme.colors.background),
-            ) {
+        ) {
 
             TransparentHintTextField(
                 textModifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
-                text = title,
+                text = state.title,
                 hint = stringResource(R.string.title),
                 singleLine = true,
                 maxLines = 1,
                 textStyle = MaterialTheme.typography.h1.copy(
                     color = MaterialTheme.colors.onBackground
                 ),
-                onValueChanged = {
-                    title = it
-                }
+                onValueChanged = viewModel::updateTitle
             )
 
             Text(
                 modifier = Modifier.padding(vertical = 8.dp),
-                text = note.createdLongDateTime,
+                text = "${state.dateTime} | ${state.numberOfWordsForContent}",
                 style = MaterialTheme.typography.body2
             )
 
             TransparentHintTextField(
                 textModifier = Modifier
                     .fillMaxSize(),
-                text = content,
+                text = state.content,
                 hint = stringResource(R.string.content),
-                onValueChanged = {
-                    content = it
-                },
+                onValueChanged = viewModel::updateContent,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 textStyle = MaterialTheme.typography.body1.copy(
                     color = MaterialTheme.colors.onBackground,
@@ -96,20 +100,23 @@ fun AddEditNoteScreen(
 
 @Composable
 fun AddEditHeader(
-    navigator: DestinationsNavigator,
+    onBackPressed: () -> Unit,
+    onDoneClick: () -> Unit,
+    enabled: Boolean = true,
 ) {
     BasicHeaderWithBackBtn(
         text = "",
         elevation = 0.dp,
-        onBackPressed = { navigator.popBackStack() },
+        onBackPressed = onBackPressed,
         actions = {
             IconButton(
-                onClick = {}
+                enabled = enabled,
+                onClick = onDoneClick
             ) {
                 Icon(
                     Icons.Filled.Done,
                     stringResource(id = R.string.done),
-                    tint = MaterialTheme.colors.onBackground,
+                    tint = if (enabled) MaterialTheme.colors.onBackground else Color.Gray,
                 )
             }
         }

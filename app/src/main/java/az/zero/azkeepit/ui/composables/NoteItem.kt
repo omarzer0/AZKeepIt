@@ -11,12 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import az.zero.azkeepit.domain.model.UiNote
+import az.zero.azkeepit.data.local.entities.Note
 
 @Composable
 fun NoteItem(
     modifier: Modifier = Modifier,
-    uiNote: UiNote,
+    note: Note,
     textStyle: TextStyle = TextStyle(
         color = MaterialTheme.colors.onBackground
     ),
@@ -36,17 +36,15 @@ fun NoteItem(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (uiNote.noteId.toInt() % 2 == 0) {
+                if (note.noteId?.toInt()?.mod( 2 ) == 0) {
                     Spacer(modifier = Modifier.size(30.dp))
-                    Text(text = uiNote.title, style = textStyle)
+                    Text(text = note.title, style = textStyle)
                     Spacer(modifier = Modifier.size(30.dp))
                 } else {
                     Spacer(modifier = Modifier.size(30.dp))
-                    Text(text = uiNote.title, style = textStyle)
-                    Text(text = uiNote.content, style = textStyle)
-                    Text(text = uiNote.folderName, style = textStyle)
-                    Text(text = uiNote.createdShortDateTime, style = textStyle)
-                    Text(text = uiNote.createdLongDateTime, style = textStyle)
+                    Text(text = note.title, style = textStyle)
+                    Text(text = note.content, style = textStyle)
+                    Text(text = note.folderName, style = textStyle)
                     Spacer(modifier = Modifier.size(30.dp))
                 }
 

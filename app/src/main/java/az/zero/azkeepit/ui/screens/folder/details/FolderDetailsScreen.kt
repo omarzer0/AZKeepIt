@@ -1,4 +1,3 @@
-
 package az.zero.azkeepit.ui.screens.folder.details
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -58,10 +57,9 @@ fun FolderDetailsScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
 
-
-            items(notes, key = { it.noteId }) { uiNote ->
+            items(notes) { uiNote ->
                 NoteItem(
-                    uiNote = uiNote,
+                    note = uiNote,
                     onNoteClick = {
 
                     }

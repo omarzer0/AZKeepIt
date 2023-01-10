@@ -31,7 +31,7 @@ fun NotesScreen(
 
     val notes by viewModel.notes.collectAsState(initial = emptyList())
 
-    LaunchedEffect(notes){
+    LaunchedEffect(notes) {
         if (notes.isEmpty()) return@LaunchedEffect
         Log.e("NotesScreenTest", JDateTimeUtil.toShortDateTimeFormat(notes[0].createdAt))
         Log.e("NotesScreenTest", JDateTimeUtil.toLongDateTimeFormat(notes[0].createdAt))
@@ -45,7 +45,7 @@ fun NotesScreen(
     ) {
         items(notes) { uiNote ->
             NoteItem(
-                uiNote = uiNote,
+                note = uiNote,
                 onNoteClick = {
                     navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
                 }

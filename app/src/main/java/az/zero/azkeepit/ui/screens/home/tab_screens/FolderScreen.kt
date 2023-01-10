@@ -21,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
-import az.zero.azkeepit.domain.model.UiFolder
+import az.zero.azkeepit.data.local.entities.Folder
 import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.screens.destinations.FolderDetailsScreenDestination
 import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
@@ -44,13 +44,13 @@ fun FolderScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        items(folders, key = { it.folderId }) { uiFolder ->
+        items(folders) { folder ->
             FolderItem(
-                uiFolder = uiFolder,
+                folder = folder,
                 onFolderClick = {
                     val args = FolderDetailsScreenArgs(
-                        id = uiFolder.folderId,
-                        folderName = uiFolder.folderName
+                        id = folder.folderId ?: -1,
+                        folderName = folder.name
                     )
 
                     navigator.navigate(FolderDetailsScreenDestination(navArgs = args))
@@ -63,7 +63,7 @@ fun FolderScreen(
 @Composable
 fun FolderItem(
     modifier: Modifier = Modifier,
-    uiFolder: UiFolder,
+    folder: Folder,
     onFolderClick: () -> Unit,
 ) {
     Card(
@@ -84,7 +84,7 @@ fun FolderItem(
                 contentDescription = stringResource(R.string.folder)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = uiFolder.folderName)
+            Text(text = folder.name)
         }
     }
 }
