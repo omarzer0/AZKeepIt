@@ -1,9 +1,8 @@
 package az.zero.azkeepit.data.repository
 
 import az.zero.azkeepit.data.local.NoteDao
-import az.zero.azkeepit.data.mappers.*
-import az.zero.azkeepit.domain.model.UiFolder
-import az.zero.azkeepit.domain.model.UiNote
+import az.zero.azkeepit.data.local.entities.Folder
+import az.zero.azkeepit.data.local.entities.Note
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,32 +12,33 @@ class NoteRepository @Inject constructor(
     private val noteDao: NoteDao,
 ) {
 
-    fun getFolders() = noteDao.getFolders().toFlowListOfUiFolders()
+    fun getFolders() = noteDao.getFolders().map { list -> list.filter { it.folderId != null } }
 
-    fun getFoldersWithNotes() = noteDao.getFoldersWithNotes().toFlowListOfUiFolderWithNotes()
+    fun getFoldersWithNotes() = noteDao.getFoldersWithNotes()
 
-    fun getFolderWithNotesById(folderId: Long) = noteDao.getFolderWithNotesById(folderId).map {
-        it.toUiFolderWithNotes()
-    }
+    suspend fun getFolderById(folderId: Long) = noteDao.getFolderById(folderId)
 
-    suspend fun insertFolder(uiFolder: UiFolder) = noteDao.insertFolder(uiFolder.toLocalFolder())
+    fun getFolderWithNotesById(folderId: Long) = noteDao.getFolderWithNotesById(folderId)
 
-    suspend fun updateFolder(uiFolder: UiFolder) = noteDao.updateFolder(uiFolder.toLocalFolder())
+    suspend fun insertFolder(folder: Folder) = noteDao.insertFolder(folder)
 
-    suspend fun deleteFolder(uiFolder: UiFolder) = noteDao.deleteFolder(uiFolder.toLocalFolder())
+    suspend fun updateFolder(folder: Folder) = noteDao.updateFolder(folder)
+
+    suspend fun deleteFolder(folder: Folder) = noteDao.deleteFolder(folder)
 
 
     // ========================== Notes ======================
 
 
-    fun getNotes() = noteDao.getNotes().toFlowListOfUiNote()
+    fun getNotes() = noteDao.getNotes().map { list -> list.filter { it.noteId != null } }
 
-    suspend fun getNoteById(noteId:Long) = noteDao.getNoteById(noteId)?.toUiNote()
 
-    suspend fun insertNote(uiNote: UiNote) = noteDao.insertNote(uiNote.toLocalNote())
+    suspend fun getNoteById(noteId: Long) = noteDao.getNoteById(noteId)
 
-    suspend fun updateNote(uiNote: UiNote) = noteDao.updateNote(uiNote.toLocalNote())
+    suspend fun insertNote(note: Note) = noteDao.insertNote(note)
 
-    suspend fun deleteNote(uiNote: UiNote) = noteDao.deleteNote(uiNote.toLocalNote())
+    suspend fun updateNote(note: Note) = noteDao.updateNote(note)
+
+    suspend fun deleteNote(note: Note) = noteDao.deleteNote(note)
 
 }

@@ -10,4 +10,9 @@
     <string name="title">Title</string>
     <string name="hint">Hint</string>
     <string name="content">Content</string>
+    <string name="create_folder">Create folder</string>
+    <string name="folder_name">Folder name</string>
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
+    <string name="select_folder">Select folder</string>
 </resources>

@@ -2,11 +2,11 @@ package az.zero.azkeepit.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import az.zero.azkeepit.data.local.entities.LocalFolder
-import az.zero.azkeepit.data.local.entities.LocalNote
+import az.zero.azkeepit.data.local.entities.Folder
+import az.zero.azkeepit.data.local.entities.Note
 
 @Database(
-    entities = [LocalNote::class, LocalFolder::class],
+    entities = [Note::class, Folder::class],
     version = 1
 )
 abstract class AppDatabase : RoomDatabase() {

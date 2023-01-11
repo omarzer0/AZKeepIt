@@ -21,11 +21,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
-import az.zero.azkeepit.domain.model.UiFolder
+import az.zero.azkeepit.data.local.entities.Folder
 import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.screens.destinations.FolderDetailsScreenDestination
 import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
+import az.zero.azkeepit.ui.screens.items.FolderItem
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @ExperimentalComposeUiApi
@@ -44,13 +45,13 @@ fun FolderScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        items(folders, key = { it.folderId }) { uiFolder ->
+        items(folders, key = {it.folderId!!}) { folder ->
             FolderItem(
-                uiFolder = uiFolder,
+                folder = folder,
                 onFolderClick = {
                     val args = FolderDetailsScreenArgs(
-                        id = uiFolder.folderId,
-                        folderName = uiFolder.folderName
+                        id = folder.folderId ?: -1,
+                        folderName = folder.name
                     )
 
                     navigator.navigate(FolderDetailsScreenDestination(navArgs = args))
@@ -60,31 +61,30 @@ fun FolderScreen(
     }
 }
 
-@Composable
-fun FolderItem(
-    modifier: Modifier = Modifier,
-    uiFolder: UiFolder,
-    onFolderClick: () -> Unit,
-) {
-    Card(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .clickableSafeClick(onClick = onFolderClick),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                modifier = Modifier.size(100.dp),
-                painter = painterResource(id = R.drawable.folder),
-                contentDescription = stringResource(R.string.folder)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = uiFolder.folderName)
-        }
-    }
-}
+// LazyColumn(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(bottom = 16.dp)
+//                                .weight(1f),
+//                        ) {
+//                            itemsIndexed(
+//                                items = listItems,
+//                                key = { _, item -> item.id },
+//                            ) { _, item ->
+//                                ListItem(
+//                                    label = item.label,
+//                                    color = item.color,
+//                                    modifier = Modifier
+//                                        .animateItemPlacement(
+//                                            animationSpec = tween(
+//                                                durationMillis = 500,
+//                                                easing = LinearOutSlowInEasing,
+//                                            )
+//                                        )
+//                                        .fillMaxWidth()
+//                                        .padding(vertical = 8.dp)
+//                                        .height(48.dp),
+//                                )
+//                            }
+//                        }
+

@@ -4,8 +4,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import az.zero.azkeepit.data.local.entities.Folder
+import az.zero.azkeepit.data.local.entities.FolderWithNotes
 import az.zero.azkeepit.data.repository.NoteRepository
-import az.zero.azkeepit.domain.model.UiFolderWithNotes
 import az.zero.azkeepit.ui.screens.navArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -21,8 +22,9 @@ class FolderDetailsViewModel @Inject constructor(
     val folderDetailsScreenArgs: FolderDetailsScreenArgs = savedStateHandle.navArgs()
     val folderWithNotes = noteRepository.getFolderWithNotesById(folderDetailsScreenArgs.id)
 
-    val emptyUiFolderWithNotes = UiFolderWithNotes(
-        -1, "", emptyList()
+    val emptyUiFolderWithNotes = FolderWithNotes(
+        folder = Folder("", -1L),
+        notes = emptyList()
     )
 
 }

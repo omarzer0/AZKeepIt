@@ -15,7 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import az.zero.azkeepit.ui.composables.NoteItem
+import az.zero.azkeepit.ui.screens.items.NoteItem
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
 import az.zero.azkeepit.util.JDateTimeUtil
@@ -31,11 +31,6 @@ fun NotesScreen(
 
     val notes by viewModel.notes.collectAsState(initial = emptyList())
 
-    LaunchedEffect(notes){
-        if (notes.isEmpty()) return@LaunchedEffect
-        Log.e("NotesScreenTest", JDateTimeUtil.toShortDateTimeFormat(notes[0].createdAt))
-        Log.e("NotesScreenTest", JDateTimeUtil.toLongDateTimeFormat(notes[0].createdAt))
-    }
     LazyVerticalStaggeredGrid(
         modifier = Modifier.fillMaxSize(),
         columns = StaggeredGridCells.Fixed(2),
@@ -45,7 +40,7 @@ fun NotesScreen(
     ) {
         items(notes) { uiNote ->
             NoteItem(
-                uiNote = uiNote,
+                note = uiNote,
                 onNoteClick = {
                     navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
                 }
