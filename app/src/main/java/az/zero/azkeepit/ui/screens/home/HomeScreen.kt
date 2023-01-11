@@ -4,16 +4,14 @@ package az.zero.azkeepit.ui.screens.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
 import az.zero.azkeepit.ui.composables.BasicHeaderWithBackBtn
+import az.zero.azkeepit.ui.composables.CustomEditText
 import az.zero.azkeepit.ui.composables.DrawCircleBorder
 import az.zero.azkeepit.ui.composables.TabPager
-import az.zero.azkeepit.ui.screens.note.add_edit.AddEditNoteScreenArgs
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.home.tab_screens.FolderScreen
 import az.zero.azkeepit.ui.screens.home.tab_screens.NotesScreen
@@ -45,6 +43,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val tabs = listOf("Notes", "Folders")
+    var currentTab by remember { mutableStateOf(0) }
+    var isCreateFolderDialogOpened by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier
@@ -58,9 +58,15 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            HomeFab(onClick = {
-                navigator.navigate(AddEditNoteScreenDestination(null))
-            })
+            HomeFab(
+                currentTab = currentTab,
+                onAddNoteClick = {
+                    navigator.navigate(AddEditNoteScreenDestination(null))
+                },
+                onAddFolderClick = {
+                    isCreateFolderDialogOpened = true
+                }
+            )
         }
     ) { paddingValues ->
 
@@ -73,13 +79,21 @@ fun HomeScreen(
                 tabSelectorHeight = 4.dp,
                 tabSelectorColor = selectedColor,
                 selectedContentColor = selectedColor,
-                tabs = tabs
+                tabs = tabs,
+                onTabChange = {
+                    currentTab = it
+                }
             ) {
                 when (it) {
                     0 -> NotesScreen(viewModel, navigator)
                     1 -> FolderScreen(viewModel, navigator)
                 }
             }
+
+            HomeCustomDialog(openDialog = isCreateFolderDialogOpened,
+                onDismiss = { isCreateFolderDialogOpened = false },
+                onCreateClick = viewModel::createFolder
+            )
         }
 
     }
@@ -87,15 +101,24 @@ fun HomeScreen(
 
 @Composable
 fun HomeFab(
-    onClick: () -> Unit,
+    currentTab: Int,
+    onAddNoteClick: () -> Unit,
+    onAddFolderClick: () -> Unit,
 ) {
     FloatingActionButton(
-        onClick = onClick,
+        onClick = if (currentTab == 0) onAddNoteClick else onAddFolderClick,
     ) {
-        Icon(
-            imageVector = Icons.Filled.Add,
-            contentDescription = stringResource(id = R.string.add)
-        )
+        if (currentTab == 0) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = stringResource(id = R.string.add)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Filled.CreateNewFolder,
+                contentDescription = stringResource(id = R.string.add)
+            )
+        }
     }
 
 }
@@ -147,7 +170,67 @@ fun HomeAppBar(
 
         }
     )
-
 }
+
+@Composable
+fun HomeCustomDialog(
+    openDialog: Boolean,
+    onDismiss: () -> Unit,
+    onCreateClick: (playlistName: String) -> Unit,
+) {
+    var text by rememberSaveable { mutableStateOf("") }
+    val textBtnColor = if (isSystemInDarkTheme()) Color.White else Color.Black
+    val isCreateEnabled by remember(text) { mutableStateOf(text.isNotBlank()) }
+    val createBtnColor = if (isCreateEnabled) textBtnColor else Color.Gray
+
+    if (openDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                text = ""
+                onDismiss()
+            },
+            text = {
+                CustomEditText(
+                    text = text,
+                    hint = stringResource(id = R.string.folder_name),
+                    modifier = Modifier.fillMaxWidth(),
+                    onTextChanged = { text = it }
+                )
+            },
+            buttons = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        enabled = isCreateEnabled,
+                        onClick = {
+                            onDismiss()
+                            onCreateClick(text.trim())
+                            text = ""
+                        }
+                    ) {
+                        Text(stringResource(id = R.string.create), color = createBtnColor)
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    TextButton(
+                        onClick = {
+                            onDismiss()
+                            text = ""
+                        }
+                    ) {
+                        Text(stringResource(id = R.string.cancel), color = textBtnColor)
+                    }
+                }
+            }
+        )
+    }
+}
+
 
 

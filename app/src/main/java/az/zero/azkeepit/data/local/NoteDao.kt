@@ -9,12 +9,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NoteDao {
 
+    @Query("SELECT * FROM Folder ORDER BY createdAt DESC")
+    fun getFolders(): Flow<List<Folder>>
+
     @Transaction
-    @Query("SELECT * FROM Folder")
+    @Query("SELECT * FROM Folder ORDER BY createdAt DESC")
     fun getFoldersWithNotes(): Flow<List<FolderWithNotes>>
 
-    @Query("SELECT * FROM Folder")
-    fun getFolders(): Flow<List<Folder>>
+    @Query("SELECT * FROM Folder WHERE folderId=:folderId")
+    suspend fun getFolderById(folderId: Long): Folder?
 
     @Transaction
     @Query("SELECT * FROM Folder WHERE folderId=:folderId")

@@ -10,10 +10,12 @@ import az.zero.azkeepit.data.local.entities.Note
 import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.ui.screens.navArgs
 import az.zero.azkeepit.util.JDateTimeUtil
+import az.zero.azkeepit.util.combine
+import az.zero.azkeepit.util.folderInitialId
+import az.zero.azkeepit.util.folderInitialName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,24 +35,26 @@ class AddEditNoteScreenViewModel @Inject constructor(
     private val content = MutableStateFlow("")
     private val isLocked = MutableStateFlow(false)
     private val dateTime = MutableStateFlow(JDateTimeUtil.toLongDateTimeFormat(createdAt))
-    private val folder = MutableStateFlow(Folder("1", 1))
+    private val allFolders = noteRepository.getFolders()
+    private val folder = MutableStateFlow<Folder?>(null)
 
     val state = combine(
         title,
         content,
         isLocked,
         dateTime,
-        folder
-    ) { title, content, isLocked, dateTime, folder ->
+        folder,
+        allFolders
+    ) { title, content, isLocked, dateTime, folder, allFolders ->
         AddEditNoteState(
             title = title,
             content = content,
             isLocked = isLocked,
             numberOfWordsForContent = content.length,
             isSaveActive = title.isNotBlank() || content.isNotBlank(),
-//            isSaveActive = (title.isNotBlank() || content.isNotBlank()) && folder.folderId != null,
             dateTime = dateTime,
-            folder = folder
+            folder = folder,
+            allFolders = allFolders
         )
     }.stateIn(
         viewModelScope,
@@ -58,16 +62,15 @@ class AddEditNoteScreenViewModel @Inject constructor(
         AddEditNoteState()
     )
 
-
     fun saveNote() = viewModelScope.launch {
         val isNewNote = args.noteId == null
         val note = Note(
-            title = state.value.title,
-            content = state.value.content,
+            title = state.value.title.trim(),
+            content = state.value.content.trim(),
             isLocked = state.value.isLocked,
             createdAt = createdAt,
-            folderName = state.value.folder.name,
-            ownerFolderId = state.value.folder.folderId,
+            folderName = state.value.folder?.name ?: folderInitialName,
+            ownerFolderId = state.value.folder?.folderId ?: folderInitialId,
             noteId = args.noteId
         )
 
@@ -83,25 +86,26 @@ class AddEditNoteScreenViewModel @Inject constructor(
         content.emit(text)
     }
 
-    fun updateFolder(newFolder: Folder) = viewModelScope.launch {
-        folder.emit(newFolder)
-    }
-
     fun updateIsLocked(newValue: Boolean) = viewModelScope.launch {
         isLocked.emit(newValue)
+    }
+
+    fun addNoteToFolder(newFolder: Folder) = viewModelScope.launch {
+        folder.emit(newFolder)
     }
 
     init {
         viewModelScope.launch {
             val noteId = args.noteId ?: return@launch
-
-            // fixme if null handle this error
             val note = noteRepository.getNoteById(noteId) ?: return@launch
             title.emit(note.title)
             content.emit(note.content)
             createdAt = note.createdAt
             dateTime.emit(JDateTimeUtil.toLongDateTimeFormat(note.createdAt))
-            folder.emit(Folder(name = note.folderName, folderId = note.ownerFolderId))
+//            folder.emit(Folder(name = note.folderName,folderId = note.ownerFolderId))
+            val ownerNoteId = note.ownerFolderId ?: return@launch
+            val noteFolder = noteRepository.getFolderById(ownerNoteId) ?: return@launch
+            folder.emit(noteFolder)
         }
     }
 }
@@ -114,7 +118,8 @@ data class AddEditNoteState(
     val numberOfWordsForContent: Int = 0,
     val isSaveActive: Boolean = false,
     val dateTime: String = "",
-    val folder: Folder = Folder("", null),
+    val folder: Folder? = null,
+    val allFolders: List<Folder> = emptyList(),
 )
 
 data class AddEditNoteScreenArgs(

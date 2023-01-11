@@ -18,7 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.ui.composables.BasicHeaderWithBackBtn
-import az.zero.azkeepit.ui.composables.NoteItem
+import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
+import az.zero.azkeepit.ui.screens.items.NoteItem
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -61,7 +62,7 @@ fun FolderDetailsScreen(
                 NoteItem(
                     note = uiNote,
                     onNoteClick = {
-
+                        navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
                     }
                 )
             }

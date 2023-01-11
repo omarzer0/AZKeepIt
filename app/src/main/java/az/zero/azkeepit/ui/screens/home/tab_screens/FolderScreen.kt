@@ -26,6 +26,7 @@ import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.screens.destinations.FolderDetailsScreenDestination
 import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
+import az.zero.azkeepit.ui.screens.items.FolderItem
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @ExperimentalComposeUiApi
@@ -60,31 +61,3 @@ fun FolderScreen(
     }
 }
 
-@Composable
-fun FolderItem(
-    modifier: Modifier = Modifier,
-    folder: Folder,
-    onFolderClick: () -> Unit,
-) {
-    Card(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .clickableSafeClick(onClick = onFolderClick),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                modifier = Modifier.size(100.dp),
-                painter = painterResource(id = R.drawable.folder),
-                contentDescription = stringResource(R.string.folder)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = folder.name)
-        }
-    }
-}

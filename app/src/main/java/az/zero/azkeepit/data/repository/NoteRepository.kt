@@ -3,7 +3,6 @@ package az.zero.azkeepit.data.repository
 import az.zero.azkeepit.data.local.NoteDao
 import az.zero.azkeepit.data.local.entities.Folder
 import az.zero.azkeepit.data.local.entities.Note
-import kotlinx.coroutines.flow.filter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,6 +14,8 @@ class NoteRepository @Inject constructor(
     fun getFolders() = noteDao.getFolders()
 
     fun getFoldersWithNotes() = noteDao.getFoldersWithNotes()
+
+    suspend fun getFolderById(folderId: Long) = noteDao.getFolderById(folderId)
 
     fun getFolderWithNotesById(folderId: Long) = noteDao.getFolderWithNotesById(folderId)
 

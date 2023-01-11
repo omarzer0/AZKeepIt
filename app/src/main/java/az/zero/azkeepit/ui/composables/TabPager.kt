@@ -10,6 +10,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +37,7 @@ fun TabPager(
     tabSelectorHeight: Dp = TabRowDefaults.IndicatorHeight,
     tabHostBackgroundColor: Color = MaterialTheme.colors.background,
     animateScrollToPage: Boolean = false,
+    onTabChange: ((tabNumber: Int) -> Unit)? = null,
     content: @Composable (index: Int) -> Unit,
 ) {
     val pagerState = rememberPagerState(initialPage = initialTabPosition)
@@ -45,6 +47,13 @@ fun TabPager(
     BackHandler(enabled = pagerState.currentPage != 0) {
         coroutineScope.launch {
             pagerState.animateScrollToPage(0)
+        }
+    }
+
+    LaunchedEffect(pagerState) {
+        // Collect from the pager state a snapshotFlow reading the currentPage
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            onTabChange?.invoke(page)
         }
     }
 
