@@ -17,6 +17,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +50,7 @@ fun AddEditNoteScreen(
     val state by viewModel.state.collectAsState()
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
 
     BackHandler(
         enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded
@@ -75,10 +77,12 @@ fun AddEditNoteScreen(
             AddEditHeader(
                 enabled = state.isSaveActive,
                 onDoneClick = {
+                    focusManager.clearFocus()
                     viewModel.saveNote()
                     navigator.popBackStack()
                 },
                 onBackPressed = {
+                    focusManager.clearFocus()
                     navigator.popBackStack()
                 }
             )
@@ -186,11 +190,12 @@ fun AddEditBottomSheet(
 
 @Composable
 fun BottomSheetFolderItem(
+    modifier: Modifier = Modifier,
     folder: Folder,
     onClick: (folder: Folder) -> Unit,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickableSafeClick(onClick = { onClick(folder) })
             .padding(horizontal = 8.dp, vertical = 12.dp)

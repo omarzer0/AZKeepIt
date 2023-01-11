@@ -1,7 +1,9 @@
 package az.zero.azkeepit.ui.screens.items
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -19,8 +21,9 @@ import az.zero.azkeepit.data.local.entities.Folder
 import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.theme.cardBgColor
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun FolderItem(
+fun LazyGridItemScope.FolderItem(
     modifier: Modifier = Modifier,
     folder: Folder,
     onFolderClick: () -> Unit,
@@ -28,7 +31,8 @@ fun FolderItem(
     Card(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .clickableSafeClick(onClick = onFolderClick),
+            .clickableSafeClick(onClick = onFolderClick)
+            .animateItemPlacement(),
         backgroundColor = cardBgColor
     ) {
         Column(
@@ -46,7 +50,7 @@ fun FolderItem(
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = folder.name,
-                maxLines = 3,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.h2.copy(
                     color = MaterialTheme.colors.onBackground,

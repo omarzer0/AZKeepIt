@@ -66,6 +66,7 @@ fun FolderDetailsScreen(
                     }
                 )
             }
+
         }
     }
 

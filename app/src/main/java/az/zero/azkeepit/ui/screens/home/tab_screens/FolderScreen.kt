@@ -45,7 +45,7 @@ fun FolderScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        items(folders) { folder ->
+        items(folders, key = {it.folderId!!}) { folder ->
             FolderItem(
                 folder = folder,
                 onFolderClick = {
@@ -60,4 +60,31 @@ fun FolderScreen(
         }
     }
 }
+
+// LazyColumn(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(bottom = 16.dp)
+//                                .weight(1f),
+//                        ) {
+//                            itemsIndexed(
+//                                items = listItems,
+//                                key = { _, item -> item.id },
+//                            ) { _, item ->
+//                                ListItem(
+//                                    label = item.label,
+//                                    color = item.color,
+//                                    modifier = Modifier
+//                                        .animateItemPlacement(
+//                                            animationSpec = tween(
+//                                                durationMillis = 500,
+//                                                easing = LinearOutSlowInEasing,
+//                                            )
+//                                        )
+//                                        .fillMaxWidth()
+//                                        .padding(vertical = 8.dp)
+//                                        .height(48.dp),
+//                                )
+//                            }
+//                        }
 
