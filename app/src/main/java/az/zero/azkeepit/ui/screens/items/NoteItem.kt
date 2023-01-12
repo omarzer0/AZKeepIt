@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.data.local.entities.Note
@@ -66,6 +67,7 @@ fun NoteItem(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
+                    modifier= Modifier.weight(2f),
                     text = shortDateTime,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -74,10 +76,14 @@ fun NoteItem(
                     )
                 )
 
+                Spacer(modifier = Modifier.weight(0.5f))
+
                 Text(
+                    modifier= Modifier.weight(2f),
                     text = note.folderName,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.End,
                     style = MaterialTheme.typography.h3.copy(
                         color = MaterialTheme.colors.onBackground,
                     )

@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
@@ -129,7 +130,9 @@ fun AddEditNoteScreen(
                     Text(
                         modifier = Modifier.padding(vertical = 8.dp),
                         text = state.folder?.name ?: stringResource(R.string.select_folder),
-                        style = MaterialTheme.typography.body2
+                        style = MaterialTheme.typography.body2,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -203,7 +206,9 @@ fun BottomSheetFolderItem(
         Text(
             modifier = Modifier,
             text = folder.name,
-            style = MaterialTheme.typography.body2
+            style = MaterialTheme.typography.body2,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
