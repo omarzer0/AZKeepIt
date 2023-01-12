@@ -123,6 +123,7 @@ fun AddEditNoteScreen(
                 )
 
                 TextButton(onClick = {
+                    focusManager.clearFocus()
                     scope.launch {
                         bottomSheetScaffoldState.bottomSheetState.expand()
                     }

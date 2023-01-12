@@ -24,6 +24,7 @@ import az.zero.azkeepit.ui.composables.CustomEditText
 import az.zero.azkeepit.ui.composables.DrawCircleBorder
 import az.zero.azkeepit.ui.composables.TabPager
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
+import az.zero.azkeepit.ui.screens.destinations.SearchScreenDestination
 import az.zero.azkeepit.ui.screens.home.tab_screens.FolderScreen
 import az.zero.azkeepit.ui.screens.home.tab_screens.NotesScreen
 import az.zero.azkeepit.ui.theme.selectedColor
@@ -53,7 +54,7 @@ fun HomeScreen(
         topBar = {
             HomeAppBar(
                 onEditClick = {},
-                onSearchClick = {},
+                onSearchClick = { navigator.navigate(SearchScreenDestination()) },
                 onMoreClick = {}
             )
         },
@@ -90,7 +91,8 @@ fun HomeScreen(
                 }
             }
 
-            HomeCustomDialog(openDialog = isCreateFolderDialogOpened,
+            HomeCustomDialog(
+                openDialog = isCreateFolderDialogOpened,
                 onDismiss = { isCreateFolderDialogOpened = false },
                 onCreateClick = viewModel::createFolder
             )
