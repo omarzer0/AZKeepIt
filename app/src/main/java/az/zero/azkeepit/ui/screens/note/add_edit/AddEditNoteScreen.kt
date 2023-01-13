@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
 import az.zero.azkeepit.data.local.entities.Folder
-import az.zero.azkeepit.ui.composables.BasicHeaderWithBackBtn
+import az.zero.azkeepit.ui.composables.HeaderWithBackBtn
 import az.zero.azkeepit.ui.composables.TransparentHintTextField
 import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.theme.bgColor
@@ -220,7 +220,7 @@ fun AddEditHeader(
     onDoneClick: () -> Unit,
     enabled: Boolean = true,
 ) {
-    BasicHeaderWithBackBtn(
+    HeaderWithBackBtn(
         text = "",
         elevation = 0.dp,
         onBackPressed = onBackPressed,

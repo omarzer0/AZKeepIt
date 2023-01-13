@@ -19,7 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
-import az.zero.azkeepit.ui.composables.BasicHeaderWithBackBtn
+import az.zero.azkeepit.ui.composables.HeaderWithBackBtn
 import az.zero.azkeepit.ui.composables.CustomEditText
 import az.zero.azkeepit.ui.composables.DrawCircleBorder
 import az.zero.azkeepit.ui.composables.TabPager
@@ -132,7 +132,7 @@ fun HomeAppBar(
     onMoreClick: () -> Unit,
 ) {
 
-    BasicHeaderWithBackBtn(
+    HeaderWithBackBtn(
         text = stringResource(id = R.string.app_name),
         elevation = 0.dp,
         actions = {
@@ -181,7 +181,7 @@ fun HomeCustomDialog(
     onCreateClick: (playlistName: String) -> Unit,
 ) {
     var text by rememberSaveable { mutableStateOf("") }
-    val textBtnColor = if (isSystemInDarkTheme()) Color.White else Color.Black
+    val textBtnColor = MaterialTheme.colors.onBackground
     val isCreateEnabled by remember(text) { mutableStateOf(text.isNotBlank()) }
     val createBtnColor = if (isCreateEnabled) textBtnColor else Color.Gray
 

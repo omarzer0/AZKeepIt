@@ -12,6 +12,7 @@ val selectedColor = Color.Yellow
 val bgColor = getColorFromHex("#1f1d2c")
 val cardBgColor = getColorFromHex("#262636")
 val fabColor = getColorFromHex("#706fc8")
+val secondaryTextColor = Color.Gray
 
 
 /*

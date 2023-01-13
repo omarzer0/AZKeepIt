@@ -11,22 +11,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.R
 import az.zero.azkeepit.util.singleLineValue
 
 @Composable
-fun BasicHeaderWithBackBtn(
+fun HeaderWithBackBtn(
     modifier: Modifier = Modifier,
     text: String,
-    elevation: Dp = AppBarDefaults.TopAppBarElevation,
+    elevation: Dp = 0.dp,
     onBackPressed: (() -> Unit)? = null,
     backgroundColor: Color = MaterialTheme.colors.background,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
-    TopAppBar(
-        modifier = modifier.fillMaxWidth(),
-        elevation = elevation,
-        title = {
+
+    BasicHeaderWithBackBtn(
+        modifier = modifier,
+        textContent = {
             if (text.isEmpty()) Unit
             else {
                 Text(
@@ -37,6 +38,26 @@ fun BasicHeaderWithBackBtn(
                 )
             }
         },
+        elevation = elevation,
+        onBackPressed = onBackPressed,
+        backgroundColor = backgroundColor,
+        actions = actions
+    )
+}
+
+@Composable
+fun BasicHeaderWithBackBtn(
+    modifier: Modifier = Modifier,
+    textContent: @Composable () -> Unit,
+    elevation: Dp = 0.dp,
+    onBackPressed: (() -> Unit)? = null,
+    backgroundColor: Color = MaterialTheme.colors.background,
+    actions: @Composable RowScope.() -> Unit = {},
+) {
+    TopAppBar(
+        modifier = modifier.fillMaxWidth(),
+        elevation = elevation,
+        title = textContent,
         actions = actions,
         backgroundColor = backgroundColor,
         navigationIcon = if (onBackPressed == null) null
@@ -53,6 +74,5 @@ fun BasicHeaderWithBackBtn(
                 }
             }
         }
-
     )
 }

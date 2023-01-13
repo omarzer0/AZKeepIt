@@ -17,7 +17,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import az.zero.azkeepit.ui.composables.BasicHeaderWithBackBtn
+import az.zero.azkeepit.ui.composables.HeaderWithBackBtn
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.items.NoteItem
 import com.ramcosta.composedestinations.annotation.Destination
@@ -43,7 +43,7 @@ fun FolderDetailsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
     ) {
-        BasicHeaderWithBackBtn(
+        HeaderWithBackBtn(
             text = appBarTitle,
             elevation = 0.dp,
             onBackPressed = { navigator.popBackStack() }
