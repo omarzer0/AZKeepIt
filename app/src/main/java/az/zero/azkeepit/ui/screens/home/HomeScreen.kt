@@ -4,7 +4,6 @@ package az.zero.azkeepit.ui.screens.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -14,14 +13,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
-import az.zero.azkeepit.ui.composables.HeaderWithBackBtn
 import az.zero.azkeepit.ui.composables.CustomEditText
 import az.zero.azkeepit.ui.composables.DrawCircleBorder
+import az.zero.azkeepit.ui.composables.HeaderWithBackBtn
 import az.zero.azkeepit.ui.composables.TabPager
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.destinations.SearchScreenDestination
@@ -32,6 +37,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlin.math.roundToInt
 
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
@@ -47,12 +53,40 @@ fun HomeScreen(
     var currentTab by remember { mutableStateOf(0) }
     var isCreateFolderDialogOpened by rememberSaveable { mutableStateOf(false) }
 
+
+    val density = LocalDensity.current
+    val statusBarTop = WindowInsets.statusBars.getTop(density)
+
+
+    val toolbarHeight = 80.dp
+    val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
+
+    // our offset to collapse toolbar
+    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                val newOffset = toolbarOffsetHeightPx.value + delta
+                toolbarOffsetHeightPx.value =
+                    newOffset.coerceIn(-(2 * statusBarTop + toolbarHeightPx), 0f)
+                return Offset.Zero
+            }
+        }
+    }
+
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Red),
+            .nestedScroll(nestedScrollConnection),
         topBar = {
             HomeAppBar(
+                modifier = Modifier
+                    .height(toolbarHeight)
+                    .offset {
+                        IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt())
+                    }.background(Color.Yellow),
                 onEditClick = {},
                 onSearchClick = { navigator.navigate(SearchScreenDestination()) },
                 onMoreClick = {}
@@ -60,6 +94,12 @@ fun HomeScreen(
         },
         floatingActionButton = {
             HomeFab(
+                modifier = Modifier.offset {
+                    IntOffset(
+                        x = 0,
+                        y = -toolbarOffsetHeightPx.value.roundToInt()
+                    )
+                },
                 currentTab = currentTab,
                 onAddNoteClick = {
                     navigator.navigate(AddEditNoteScreenDestination(null))
@@ -76,6 +116,10 @@ fun HomeScreen(
                 .padding(paddingValues)
         ) {
             TabPager(
+                tabHostModifier = Modifier
+                    .offset {
+                        IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt())
+                    },
                 animateScrollToPage = true,
                 tabSelectorHeight = 4.dp,
                 tabSelectorColor = selectedColor,
@@ -103,11 +147,13 @@ fun HomeScreen(
 
 @Composable
 fun HomeFab(
+    modifier: Modifier = Modifier,
     currentTab: Int,
     onAddNoteClick: () -> Unit,
     onAddFolderClick: () -> Unit,
 ) {
     FloatingActionButton(
+        modifier = modifier,
         onClick = if (currentTab == 0) onAddNoteClick else onAddFolderClick,
     ) {
         if (currentTab == 0) {
@@ -127,12 +173,14 @@ fun HomeFab(
 
 @Composable
 fun HomeAppBar(
+    modifier: Modifier,
     onEditClick: () -> Unit,
     onSearchClick: () -> Unit,
     onMoreClick: () -> Unit,
 ) {
 
     HeaderWithBackBtn(
+        modifier = modifier,
         text = stringResource(id = R.string.app_name),
         elevation = 0.dp,
         actions = {
@@ -146,7 +194,6 @@ fun HomeAppBar(
                 )
             }
 
-
             IconButton(
                 onClick = onSearchClick
             ) {
@@ -156,7 +203,6 @@ fun HomeAppBar(
                     tint = MaterialTheme.colors.onBackground
                 )
             }
-
 
             IconButton(
                 onClick = onMoreClick

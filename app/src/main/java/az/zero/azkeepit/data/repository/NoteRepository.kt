@@ -1,5 +1,6 @@
 package az.zero.azkeepit.data.repository
 
+import androidx.room.Query
 import az.zero.azkeepit.data.local.NoteDao
 import az.zero.azkeepit.data.local.entities.Folder
 import az.zero.azkeepit.data.local.entities.Note
@@ -40,5 +41,7 @@ class NoteRepository @Inject constructor(
     suspend fun updateNote(note: Note) = noteDao.updateNote(note)
 
     suspend fun deleteNote(note: Note) = noteDao.deleteNote(note)
+
+    fun searchNotes(query: String) = noteDao.searchNotes(query.trim())
 
 }

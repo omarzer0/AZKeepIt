@@ -208,7 +208,7 @@ fun BottomSheetFolderItem(
             modifier = Modifier,
             text = folder.name,
             style = MaterialTheme.typography.body2,
-            maxLines = 2,
+            maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
     }
