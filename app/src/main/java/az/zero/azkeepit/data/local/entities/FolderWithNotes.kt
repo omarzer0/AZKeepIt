@@ -1,7 +1,6 @@
 package az.zero.azkeepit.data.local.entities
 
 import androidx.room.*
-import androidx.room.ForeignKey.CASCADE
 
 
 data class FolderWithNotes(
@@ -18,7 +17,8 @@ data class FolderWithNotes(
 )
 
 
-data class NoteWithFolderName(
+
+data class UiNote(
     @Embedded val note: Note,
     @Relation(
         parentColumn = "ownerFolderId",

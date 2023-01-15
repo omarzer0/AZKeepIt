@@ -12,7 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import az.zero.azkeepit.data.local.entities.Note
+import az.zero.azkeepit.data.local.entities.UiNote
 import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.util.JDateTimeUtil
@@ -20,10 +20,12 @@ import az.zero.azkeepit.util.JDateTimeUtil
 @Composable
 fun NoteItem(
     modifier: Modifier = Modifier,
-    note: Note,
+    uiNote: UiNote,
     onNoteClick: () -> Unit,
 ) {
 
+    val note = uiNote.note
+    val folderName = uiNote.folder?.name ?: ""
     val shortDateTime = remember(note.createdAt) {
         JDateTimeUtil.toShortDateTimeFormat(note.createdAt)
     }
@@ -67,7 +69,7 @@ fun NoteItem(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    modifier= Modifier.weight(2f),
+                    modifier = Modifier.weight(2f),
                     text = shortDateTime,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -79,8 +81,8 @@ fun NoteItem(
                 Spacer(modifier = Modifier.weight(0.5f))
 
                 Text(
-                    modifier= Modifier.weight(2f),
-                    text = "note.folderName",
+                    modifier = Modifier.weight(2f),
+                    text = folderName,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.End,

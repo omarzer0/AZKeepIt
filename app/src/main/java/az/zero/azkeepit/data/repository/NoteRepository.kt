@@ -1,8 +1,8 @@
 package az.zero.azkeepit.data.repository
 
 import az.zero.azkeepit.data.local.NoteDao
-import az.zero.azkeepit.data.local.entities.Folder
-import az.zero.azkeepit.data.local.entities.Note
+import az.zero.azkeepit.data.local.entities.*
+import az.zero.azkeepit.data.mappers.toUiNoteWithUiFolder
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -12,13 +12,15 @@ class NoteRepository @Inject constructor(
     private val noteDao: NoteDao,
 ) {
 
-    fun getFolders() = noteDao.getFolders().map { list -> list.filter { it.folderId != null } }
+    fun getFolders() = noteDao.getFolders()
 
     fun getFoldersWithNotes() = noteDao.getFoldersWithNotes()
 
     suspend fun getFolderById(folderId: Long) = noteDao.getFolderById(folderId)
 
-    fun getFolderWithNotesById(folderId: Long) = noteDao.getFolderWithNotesById(folderId)
+    fun getFolderWithNotesById(folderId: Long) = noteDao.getFolderWithNotesById(folderId).map {
+        it.toUiNoteWithUiFolder()
+    }
 
     suspend fun insertFolder(folder: Folder) = noteDao.insertFolder(folder)
 
@@ -33,8 +35,7 @@ class NoteRepository @Inject constructor(
     // ========================== Notes ======================
 
 
-    fun getNotes() = noteDao.getNotes()
-
+    fun getNotesWithFolderName() = noteDao.getNotesWithFolderName()
 
     suspend fun getNoteById(noteId: Long) = noteDao.getNoteById(noteId)
 

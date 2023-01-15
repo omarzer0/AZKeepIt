@@ -4,7 +4,7 @@ import androidx.room.*
 import az.zero.azkeepit.data.local.entities.Folder
 import az.zero.azkeepit.data.local.entities.FolderWithNotes
 import az.zero.azkeepit.data.local.entities.Note
-import az.zero.azkeepit.data.local.entities.NoteWithFolderName
+import az.zero.azkeepit.data.local.entities.UiNote
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -30,11 +30,8 @@ interface NoteDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateFolder(folder: Folder)
 
-    @Transaction
-    suspend fun deleteFolder(folderId: Long) {
-        deleteFolderById(folderId)
-        renameAllNotesOfFolder(folderId)
-    }
+    @Query("DELETE FROM Folder WHERE folderId =:folderId")
+    suspend fun deleteFolder(folderId: Long)
 
     @Query("DELETE FROM Folder WHERE folderId =:folderId")
     suspend fun deleteFolderById(folderId: Long)
@@ -49,10 +46,10 @@ interface NoteDao {
 
     @Transaction
     @Query("SELECT * FROM Note ORDER BY createdAt DESC")
-    fun getNotes(): Flow<List<NoteWithFolderName>>
+    fun getNotesWithFolderName(): Flow<List<UiNote>>
 
     @Query("SELECT * FROM Note WHERE noteId=:noteId")
-    suspend fun getNoteById(noteId: Long): Note?
+    suspend fun getNoteById(noteId: Long): UiNote?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertNote(note: Note)
@@ -64,7 +61,7 @@ interface NoteDao {
     suspend fun deleteNote(noteId: Long): Int
 
     @Query("SELECT * FROM Note WHERE title LIKE '%' || :searchQuery || '%' OR content LIKE '%' || :searchQuery || '%' ORDER BY createdAt DESC ")
-    fun searchNotes(searchQuery: String): Flow<List<Note>>
+    fun searchNotes(searchQuery: String): Flow<List<UiNote>>
 
     @Query("DELETE FROM Note WHERE ownerFolderId=:folderId")
     suspend fun deleteAllNotesFromFolder(folderId: Long)

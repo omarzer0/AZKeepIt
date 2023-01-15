@@ -12,7 +12,6 @@ import az.zero.azkeepit.ui.screens.navArgs
 import az.zero.azkeepit.util.JDateTimeUtil
 import az.zero.azkeepit.util.combine
 import az.zero.azkeepit.util.folderInitialId
-import az.zero.azkeepit.util.folderInitialName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -76,7 +75,6 @@ class AddEditNoteScreenViewModel @Inject constructor(
             content = state.value.content.trim(),
             isLocked = state.value.isLocked,
             createdAt = createdAt,
-//            folderName = state.value.folder?.name ?: folderInitialName,
             ownerFolderId = state.value.folder?.folderId ?: folderInitialId,
             noteId = args.noteId
         )
@@ -119,15 +117,17 @@ class AddEditNoteScreenViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val noteId = args.noteId ?: return@launch
-            val note = noteRepository.getNoteById(noteId) ?: return@launch
+            val noteWithFolder = noteRepository.getNoteById(noteId) ?: return@launch
+            val note = noteWithFolder.note
             title.emit(note.title)
             content.emit(note.content)
             createdAt = note.createdAt
+            folder.emit(noteWithFolder.folder)
             dateTime.emit(JDateTimeUtil.toLongDateTimeFormat(note.createdAt))
 //            folder.emit(Folder(name = note.folderName,folderId = note.ownerFolderId))
-            val ownerNoteId = note.ownerFolderId ?: return@launch
-            val noteFolder = noteRepository.getFolderById(ownerNoteId) ?: return@launch
-            folder.emit(noteFolder)
+//            val ownerNoteId = note.ownerFolderId ?: return@launch
+//            val noteFolder = noteRepository.getFolderById(ownerNoteId) ?: return@launch
+//            folder.emit(noteFolder)
         }
     }
 }

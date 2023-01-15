@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import az.zero.azkeepit.data.local.entities.Folder
 import az.zero.azkeepit.data.local.entities.FolderWithNotes
+import az.zero.azkeepit.data.local.entities.UiFolderWithUiNotes
 import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.ui.screens.navArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,8 +42,8 @@ class FolderDetailsViewModel @Inject constructor(
         shouldPopUp
     ) { folderWithNotes, deleteFolderDialogOpened, deleteAllNotesDialogOpened, renameDialogOpened, shouldPopUp ->
         FolderDetailsState(
-            title = folderWithNotes?.folder?.name ?: folderDetailsScreenArgs.folderName,
-            folderWithNotes = folderWithNotes ?: emptyUiFolderWithNotes,
+            title = folderWithNotes?.uiFolder?.name ?: folderDetailsScreenArgs.folderName,
+            folderWithNotes = folderWithNotes ?: emptyUiFolderWithUiNotes,
             deleteFolderDialogOpened = deleteFolderDialogOpened,
             deleteAllNotesDialogOpened = deleteAllNotesDialogOpened,
             renameDialogOpened = renameDialogOpened,
@@ -87,12 +88,19 @@ class FolderDetailsViewModel @Inject constructor(
 
 data class FolderDetailsState(
     val title: String = "",
-    val folderWithNotes: FolderWithNotes = emptyUiFolderWithNotes,
+    val folderWithNotes: UiFolderWithUiNotes = emptyUiFolderWithUiNotes,
     val deleteFolderDialogOpened: Boolean = false,
     val deleteAllNotesDialogOpened: Boolean = false,
     val renameDialogOpened: Boolean = false,
     val shouldPopUp: Boolean = false,
 )
+
+
+val emptyUiFolderWithUiNotes = UiFolderWithUiNotes(
+    uiFolder = null,
+    uiNotes = emptyList()
+)
+
 
 val emptyUiFolderWithNotes = FolderWithNotes(
     folder = Folder("", -1L),

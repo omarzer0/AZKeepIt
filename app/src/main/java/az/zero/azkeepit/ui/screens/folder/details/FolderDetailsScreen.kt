@@ -114,11 +114,11 @@ fun FolderDetailsScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
 
-            items(state.folderWithNotes.notes) { uiNote ->
+            items(state.folderWithNotes.uiNotes) { noteWithFolder ->
                 NoteItem(
-                    note = uiNote,
+                    uiNote = noteWithFolder,
                     onNoteClick = {
-                        navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
+                        navigator.navigate(AddEditNoteScreenDestination(noteId = noteWithFolder.note.noteId))
                     }
                 )
             }

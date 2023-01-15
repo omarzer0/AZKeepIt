@@ -15,10 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import az.zero.azkeepit.ui.screens.items.NoteItem
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
-import az.zero.azkeepit.util.JDateTimeUtil
+import az.zero.azkeepit.ui.screens.items.NoteItem
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @ExperimentalComposeUiApi
@@ -29,26 +28,26 @@ fun NotesScreen(
     navigator: DestinationsNavigator,
 ) {
 
-    val notes by viewModel.notes.collectAsState(initial = emptyList())
+    val notes by viewModel.notesWithFolderName.collectAsState(initial = emptyList())
 
-    LaunchedEffect(notes){
-        Log.e("NotesScreen: ","$notes" )
+    LaunchedEffect(notes) {
+        Log.e("NotesScreen: ", "$notes")
     }
-//
-//    LazyVerticalStaggeredGrid(
-//        modifier = Modifier.fillMaxSize(),
-//        columns = StaggeredGridCells.Fixed(2),
-//        contentPadding = PaddingValues(16.dp),
-//        verticalArrangement = Arrangement.spacedBy(16.dp),
-//        horizontalArrangement = Arrangement.spacedBy(16.dp),
-//    ) {
-//        items(notes) { uiNote ->
-//            NoteItem(
-//                note = uiNote,
-//                onNoteClick = {
-//                    navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
-//                }
-//            )
-//        }
-//    }
+
+    LazyVerticalStaggeredGrid(
+        modifier = Modifier.fillMaxSize(),
+        columns = StaggeredGridCells.Fixed(2),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        items(notes) { noteWithFolder ->
+            NoteItem(
+                uiNote = noteWithFolder,
+                onNoteClick = {
+                    navigator.navigate(AddEditNoteScreenDestination(noteId = noteWithFolder.note.noteId))
+                }
+            )
+        }
+    }
 }
