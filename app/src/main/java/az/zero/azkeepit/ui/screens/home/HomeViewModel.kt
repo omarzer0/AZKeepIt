@@ -14,7 +14,7 @@ class HomeViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
 ) : ViewModel() {
 
-    val notes = noteRepository.getNotes()
+    val notesWithFolderName = noteRepository.getNotesWithFolderName()
     val folders = noteRepository.getFolders()
 
     fun createFolder(folderName: String) = viewModelScope.launch {

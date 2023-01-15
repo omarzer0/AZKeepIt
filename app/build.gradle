@@ -85,9 +85,6 @@ dependencies {
     // Datastore
     implementation "androidx.datastore:datastore-preferences:$datastore"
 
-//    // Kotlin Date-Time
-//    implementation "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
-
     // Java Date-Time desugar
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:1.1.5"
 
@@ -103,6 +100,9 @@ dependencies {
 
     // Compose Utils library
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist"
+
+    // Flow layouts
+    implementation "com.google.accompanist:accompanist-flowlayout:$accompanist"
 
     // Compose Pager
     implementation "com.google.accompanist:accompanist-pager:$accompanist"

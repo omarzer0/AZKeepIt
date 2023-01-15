@@ -3,15 +3,12 @@
 package az.zero.azkeepit.ui.screens.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,11 +16,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
-import az.zero.azkeepit.ui.composables.BasicHeaderWithBackBtn
-import az.zero.azkeepit.ui.composables.CustomEditText
-import az.zero.azkeepit.ui.composables.DrawCircleBorder
-import az.zero.azkeepit.ui.composables.TabPager
+import az.zero.azkeepit.ui.composables.*
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
+import az.zero.azkeepit.ui.screens.destinations.SearchScreenDestination
 import az.zero.azkeepit.ui.screens.home.tab_screens.FolderScreen
 import az.zero.azkeepit.ui.screens.home.tab_screens.NotesScreen
 import az.zero.azkeepit.ui.theme.selectedColor
@@ -47,13 +42,11 @@ fun HomeScreen(
     var isCreateFolderDialogOpened by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Red),
+        modifier = modifier.fillMaxSize(),
         topBar = {
             HomeAppBar(
                 onEditClick = {},
-                onSearchClick = {},
+                onSearchClick = { navigator.navigate(SearchScreenDestination()) },
                 onMoreClick = {}
             )
         },
@@ -90,7 +83,8 @@ fun HomeScreen(
                 }
             }
 
-            HomeCustomDialog(openDialog = isCreateFolderDialogOpened,
+            HomeCustomDialog(
+                openDialog = isCreateFolderDialogOpened,
                 onDismiss = { isCreateFolderDialogOpened = false },
                 onCreateClick = viewModel::createFolder
             )
@@ -101,11 +95,13 @@ fun HomeScreen(
 
 @Composable
 fun HomeFab(
+    modifier: Modifier = Modifier,
     currentTab: Int,
     onAddNoteClick: () -> Unit,
     onAddFolderClick: () -> Unit,
 ) {
     FloatingActionButton(
+        modifier = modifier,
         onClick = if (currentTab == 0) onAddNoteClick else onAddFolderClick,
     ) {
         if (currentTab == 0) {
@@ -125,12 +121,14 @@ fun HomeFab(
 
 @Composable
 fun HomeAppBar(
+    modifier: Modifier = Modifier,
     onEditClick: () -> Unit,
     onSearchClick: () -> Unit,
     onMoreClick: () -> Unit,
 ) {
 
-    BasicHeaderWithBackBtn(
+    HeaderWithBackBtn(
+        modifier = modifier,
         text = stringResource(id = R.string.app_name),
         elevation = 0.dp,
         actions = {
@@ -144,7 +142,6 @@ fun HomeAppBar(
                 )
             }
 
-
             IconButton(
                 onClick = onSearchClick
             ) {
@@ -154,7 +151,6 @@ fun HomeAppBar(
                     tint = MaterialTheme.colors.onBackground
                 )
             }
-
 
             IconButton(
                 onClick = onMoreClick
@@ -176,61 +172,58 @@ fun HomeAppBar(
 fun HomeCustomDialog(
     openDialog: Boolean,
     onDismiss: () -> Unit,
-    onCreateClick: (playlistName: String) -> Unit,
+    onCreateClick: (name: String) -> Unit,
 ) {
     var text by rememberSaveable { mutableStateOf("") }
-    val textBtnColor = if (isSystemInDarkTheme()) Color.White else Color.Black
-    val isCreateEnabled by remember(text) { mutableStateOf(text.isNotBlank()) }
-    val createBtnColor = if (isCreateEnabled) textBtnColor else Color.Gray
+    val isStartBtnEnabled by remember { derivedStateOf { text.isNotBlank() } }
+    val startBtnColor = if (isStartBtnEnabled) MaterialTheme.colors.onBackground else Color.Gray
 
-    if (openDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                text = ""
-                onDismiss()
-            },
-            text = {
-                CustomEditText(
-                    text = text,
-                    hint = stringResource(id = R.string.folder_name),
-                    modifier = Modifier.fillMaxWidth(),
-                    onTextChanged = { text = it }
-                )
-            },
-            buttons = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(all = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(
-                        enabled = isCreateEnabled,
-                        onClick = {
-                            onDismiss()
-                            onCreateClick(text.trim())
-                            text = ""
-                        }
-                    ) {
-                        Text(stringResource(id = R.string.create), color = createBtnColor)
-                    }
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    TextButton(
-                        onClick = {
-                            onDismiss()
-                            text = ""
-                        }
-                    ) {
-                        Text(stringResource(id = R.string.cancel), color = textBtnColor)
-                    }
-                }
-            }
-        )
-    }
+    EtDialogWithTwoButtons(
+        text = text,
+        headerText = stringResource(id = R.string.create_folder),
+        onTextChange = { text = it },
+        openDialog = openDialog,
+        startBtnText = stringResource(id = R.string.create),
+        onStartBtnClick = { onCreateClick(text) },
+        startBtnEnabled = isStartBtnEnabled,
+        startBtnStyle = MaterialTheme.typography.h3.copy(color = startBtnColor),
+        endBtnText = stringResource(id = R.string.cancel),
+        onDismiss = {
+            text = ""
+            onDismiss()
+        }
+    )
 }
+
+
+//    val density = LocalDensity.current
+//    val statusBarTop = WindowInsets.statusBars.getTop(density)
+//    val toolbarHeight = 80.dp
+//    val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
+//
+//    // our offset to collapse toolbar
+//    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
+//
+//    val nestedScrollConnection = remember {
+//        object : NestedScrollConnection {
+//            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+//                val delta = available.y
+//                val newOffset = toolbarOffsetHeightPx.value + delta
+//                toolbarOffsetHeightPx.value =
+//                    newOffset.coerceIn(-(2 * statusBarTop + toolbarHeightPx), 0f)
+//                return Offset.Zero
+//            }
+//        }
+//    }
+//
+
+//            .nestedScroll(nestedScrollConnection)
+
+//                modifier = Modifier
+//                    .height(toolbarHeight)
+//                    .offset {
+//                        IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt())
+//                    },
 
 
 

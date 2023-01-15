@@ -15,4 +15,14 @@
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
     <string name="select_folder">Select folder</string>
+    <string name="clear">Clear</string>
+    <string name="delete">Delete</string>
+    <string name="are_you_sure_you_want_to_delete_this_note">Are you sure you want to delete this note?</string>
+    <string name="are_you_sure_you_want_to_delete_this_folder">Are you sure you want to delete this folder?</string>
+    <string name="are_you_sure_you_want_to_delete_all_notes_in_this_folder">Are you sure you want to delete all notes in this folder?</string>
+    <string name="rename">Rename</string>
+    <string name="rename_folder">Rename Folder</string>
+    <string name="delete_folder">Delete Folder</string>
+    <string name="delete_all_notes_in_this_folder">Delete all notes in this folder</string>
+    <string name="select_action">Select action</string>
 </resources>

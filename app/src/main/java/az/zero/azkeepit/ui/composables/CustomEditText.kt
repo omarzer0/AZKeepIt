@@ -21,10 +21,11 @@ import az.zero.azkeepit.ui.theme.selectedColor
 fun CustomEditText(
     modifier: Modifier = Modifier,
     text: String,
+    headerText:String,
     hint: String = "",
     maxLines: Int = 1,
     cursorColor: Color = selectedColor,
-    textColor: Color = MaterialTheme.colors.onBackground,
+    textStyle: TextStyle = MaterialTheme.typography.h2.copy(color = MaterialTheme.colors.onBackground),
     borderColor: Color = MaterialTheme.colors.onBackground,
     singleLine: Boolean = true,
     onTextChanged: (String) -> Unit = {},
@@ -32,8 +33,10 @@ fun CustomEditText(
     Column(modifier = modifier) {
 
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = stringResource(id = R.string.create_folder),
-            style = MaterialTheme.typography.h2)
+        Text(
+            text = headerText,
+            style = MaterialTheme.typography.h2
+        )
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
@@ -51,7 +54,7 @@ fun CustomEditText(
             label = { Text(text = hint) },
             maxLines = maxLines,
             singleLine = singleLine,
-            textStyle = TextStyle(color = textColor),
+            textStyle = textStyle,
             modifier = Modifier.fillMaxWidth()
         )
     }
