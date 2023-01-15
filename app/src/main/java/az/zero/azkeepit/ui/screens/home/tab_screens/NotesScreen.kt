@@ -31,20 +31,24 @@ fun NotesScreen(
 
     val notes by viewModel.notes.collectAsState(initial = emptyList())
 
-    LazyVerticalStaggeredGrid(
-        modifier = Modifier.fillMaxSize(),
-        columns = StaggeredGridCells.Fixed(2),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        items(notes) { uiNote ->
-            NoteItem(
-                note = uiNote,
-                onNoteClick = {
-                    navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
-                }
-            )
-        }
+    LaunchedEffect(notes){
+        Log.e("NotesScreen: ","$notes" )
     }
+//
+//    LazyVerticalStaggeredGrid(
+//        modifier = Modifier.fillMaxSize(),
+//        columns = StaggeredGridCells.Fixed(2),
+//        contentPadding = PaddingValues(16.dp),
+//        verticalArrangement = Arrangement.spacedBy(16.dp),
+//        horizontalArrangement = Arrangement.spacedBy(16.dp),
+//    ) {
+//        items(notes) { uiNote ->
+//            NoteItem(
+//                note = uiNote,
+//                onNoteClick = {
+//                    navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
+//                }
+//            )
+//        }
+//    }
 }

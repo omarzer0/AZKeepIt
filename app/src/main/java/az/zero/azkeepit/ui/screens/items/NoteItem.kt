@@ -80,7 +80,7 @@ fun NoteItem(
 
                 Text(
                     modifier= Modifier.weight(2f),
-                    text = note.folderName,
+                    text = "note.folderName",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.End,

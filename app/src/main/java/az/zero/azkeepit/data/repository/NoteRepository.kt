@@ -1,6 +1,5 @@
 package az.zero.azkeepit.data.repository
 
-import androidx.room.Query
 import az.zero.azkeepit.data.local.NoteDao
 import az.zero.azkeepit.data.local.entities.Folder
 import az.zero.azkeepit.data.local.entities.Note
@@ -25,13 +24,16 @@ class NoteRepository @Inject constructor(
 
     suspend fun updateFolder(folder: Folder) = noteDao.updateFolder(folder)
 
-    suspend fun deleteFolder(folder: Folder) = noteDao.deleteFolder(folder)
+    suspend fun deleteFolder(folderId: Long) = noteDao.deleteFolder(folderId)
 
+
+    suspend fun renameFolder(folderId: Long, newName: String) =
+        noteDao.renameFolder(folderId, newName)
 
     // ========================== Notes ======================
 
 
-    fun getNotes() = noteDao.getNotes().map { list -> list.filter { it.noteId != null } }
+    fun getNotes() = noteDao.getNotes()
 
 
     suspend fun getNoteById(noteId: Long) = noteDao.getNoteById(noteId)
@@ -40,8 +42,10 @@ class NoteRepository @Inject constructor(
 
     suspend fun updateNote(note: Note) = noteDao.updateNote(note)
 
-    suspend fun deleteNote(note: Note) = noteDao.deleteNote(note)
+    suspend fun deleteNote(noteId: Long) = noteDao.deleteNote(noteId)
 
     fun searchNotes(query: String) = noteDao.searchNotes(query.trim())
 
+    suspend fun deleteAllNotesFromFolder(folderId: Long) =
+        noteDao.deleteAllNotesFromFolder(folderId)
 }

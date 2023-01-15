@@ -4,33 +4,26 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
 import az.zero.azkeepit.data.local.entities.Folder
-import az.zero.azkeepit.ui.composables.HeaderWithBackBtn
-import az.zero.azkeepit.ui.composables.TransparentHintTextField
-import az.zero.azkeepit.ui.composables.clickableSafeClick
-import az.zero.azkeepit.ui.theme.bgColor
-import az.zero.azkeepit.ui.theme.cardBgColor
+import az.zero.azkeepit.ui.composables.*
 import az.zero.azkeepit.ui.theme.selectedColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -61,30 +54,32 @@ fun AddEditNoteScreen(
         }
     }
 
+    LaunchedEffect(state.shouldPopUp) {
+        if (state.shouldPopUp) {
+            focusManager.clearFocus()
+            navigator.popBackStack()
+        }
+    }
+
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
             AddEditBottomSheet(
-                folders = state.allFolders
-            ) {
-                scope.launch {
-                    bottomSheetScaffoldState.bottomSheetState.collapse()
-                }
-                viewModel.addNoteToFolder(it)
-            }
+                folders = state.allFolders,
+                onDismiss = { scope.launch { bottomSheetScaffoldState.bottomSheetState.collapse() } },
+                onClick = { viewModel.addNoteToFolder(it) }
+            )
         },
         sheetPeekHeight = 0.dp,
         topBar = {
             AddEditHeader(
-                enabled = state.isSaveActive,
-                onDoneClick = {
+                saveEnabled = state.isSaveActive,
+                deleteEnabled = !state.isNoteNew,
+                onDoneClick = viewModel::saveNote,
+                onBackPressed = viewModel::onBackPressed,
+                onDeleteClick = {
                     focusManager.clearFocus()
-                    viewModel.saveNote()
-                    navigator.popBackStack()
-                },
-                onBackPressed = {
-                    focusManager.clearFocus()
-                    navigator.popBackStack()
+                    viewModel.changeDialogOpenState(isOpened = true)
                 }
             )
         },
@@ -96,6 +91,12 @@ fun AddEditNoteScreen(
                 .padding(16.dp)
                 .background(MaterialTheme.colors.background),
         ) {
+
+            DeleteNoteDialog(
+                openDialog = state.isDeleteDialogOpened,
+                onDismiss = { viewModel.changeDialogOpenState(isOpened = false) },
+                onDeleteClick = viewModel::deleteNote
+            )
 
             TransparentHintTextField(
                 textModifier = Modifier
@@ -122,12 +123,12 @@ fun AddEditNoteScreen(
                     style = MaterialTheme.typography.body2
                 )
 
-                TextButton(onClick = {
-                    focusManager.clearFocus()
-                    scope.launch {
-                        bottomSheetScaffoldState.bottomSheetState.expand()
+                TextButton(
+                    onClick = {
+                        focusManager.clearFocus()
+                        scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() }
                     }
-                }) {
+                ) {
                     Text(
                         modifier = Modifier.padding(vertical = 8.dp),
                         text = state.folder?.name ?: stringResource(R.string.select_folder),
@@ -157,84 +158,89 @@ fun AddEditNoteScreen(
 
 @Composable
 fun AddEditBottomSheet(
+    modifier: Modifier = Modifier,
     folders: List<Folder>,
     onClick: (folder: Folder) -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .background(bgColor)
-            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-            .background(cardBgColor)
-    ) {
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            text = stringResource(R.string.select_folder),
-            style = MaterialTheme.typography.h3.copy(
-                color = selectedColor
-            ),
-            textAlign = TextAlign.Center,
-        )
+    val configuration = LocalConfiguration.current
+    val bottomSheetHeight = configuration.screenHeightDp.dp / 2
+    val items = folders.map { BottomSheetDateItem(title = it.name, onClick = { onClick(it) }) }
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(folders) {
-                BottomSheetFolderItem(
-                    folder = it,
-                    onClick = onClick
-                )
-            }
-            item { Spacer(modifier = Modifier.height(20.dp)) }
+    BottomSheetWithItems(
+        modifier = modifier.height(bottomSheetHeight),
+        items = items,
+        onDismiss = onDismiss,
+        header = {
+            Text(
+                modifier = Modifier.padding(vertical = 16.dp),
+                text = stringResource(id = R.string.select_action),
+                style = MaterialTheme.typography.h2.copy(color = selectedColor),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
-    }
+    )
 
-}
-
-@Composable
-fun BottomSheetFolderItem(
-    modifier: Modifier = Modifier,
-    folder: Folder,
-    onClick: (folder: Folder) -> Unit,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickableSafeClick(onClick = { onClick(folder) })
-            .padding(horizontal = 8.dp, vertical = 12.dp)
-    ) {
-        Text(
-            modifier = Modifier,
-            text = folder.name,
-            style = MaterialTheme.typography.body2,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
 }
 
 @Composable
 fun AddEditHeader(
     onBackPressed: () -> Unit,
+    saveEnabled: Boolean = true,
+    deleteEnabled: Boolean = false,
     onDoneClick: () -> Unit,
-    enabled: Boolean = true,
+    onDeleteClick: () -> Unit,
 ) {
     HeaderWithBackBtn(
         text = "",
         elevation = 0.dp,
         onBackPressed = onBackPressed,
         actions = {
+
+            if (deleteEnabled) {
+                IconButton(
+                    modifier = Modifier.mirror(),
+                    onClick = onDeleteClick
+                ) {
+                    Icon(
+                        Icons.Filled.Delete,
+                        stringResource(id = R.string.delete),
+                        tint = MaterialTheme.colors.onBackground
+                    )
+                }
+            }
+
             IconButton(
-                enabled = enabled,
+                modifier = Modifier.mirror(),
+                enabled = saveEnabled,
                 onClick = onDoneClick
             ) {
                 Icon(
                     Icons.Filled.Done,
                     stringResource(id = R.string.done),
-                    tint = if (enabled) MaterialTheme.colors.onBackground else Color.Gray,
+                    tint = if (saveEnabled) MaterialTheme.colors.onBackground else Color.Gray,
                 )
             }
+
+
         }
+    )
+}
+
+@Composable
+fun DeleteNoteDialog(
+    openDialog: Boolean,
+    onDismiss: () -> Unit,
+    onDeleteClick: () -> Unit,
+) {
+    TextDialogWithTwoButtons(
+        titleText = stringResource(id = R.string.are_you_sure_you_want_to_delete_this_note),
+        openDialog = openDialog,
+        startBtnText = stringResource(id = R.string.delete),
+        onStartBtnClick = onDeleteClick,
+        startBtnStyle = MaterialTheme.typography.h3.copy(color = Color.Red),
+        endBtnText = stringResource(id = R.string.cancel),
+        onDismiss = onDismiss
     )
 }

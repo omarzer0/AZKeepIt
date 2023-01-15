@@ -9,7 +9,7 @@ data class Note(
     val content: String,
     val isLocked: Boolean,
     val createdAt: Long,
-    val folderName: String,
+//    val folderName: String,
     val ownerFolderId: Long?,
     @PrimaryKey(autoGenerate = true)
     val noteId: Long? = null,

@@ -29,6 +29,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val args: AddEditNoteScreenArgs = savedStateHandle.navArgs()
+    private val isNewNote = args.noteId == null
     private var createdAt = JDateTimeUtil.now()
 
     private val title = MutableStateFlow("")
@@ -37,6 +38,8 @@ class AddEditNoteScreenViewModel @Inject constructor(
     private val dateTime = MutableStateFlow(JDateTimeUtil.toLongDateTimeFormat(createdAt))
     private val allFolders = noteRepository.getFolders()
     private val folder = MutableStateFlow<Folder?>(null)
+    private val shouldPopUp = MutableStateFlow(false)
+    private val deleteDialogOpened = MutableStateFlow(false)
 
     val state = combine(
         title,
@@ -44,8 +47,10 @@ class AddEditNoteScreenViewModel @Inject constructor(
         isLocked,
         dateTime,
         folder,
-        allFolders
-    ) { title, content, isLocked, dateTime, folder, allFolders ->
+        allFolders,
+        shouldPopUp,
+        deleteDialogOpened
+    ) { title, content, isLocked, dateTime, folder, allFolders, shouldPopUp, isDeleteDialogOpened ->
         AddEditNoteState(
             title = title,
             content = content,
@@ -54,7 +59,10 @@ class AddEditNoteScreenViewModel @Inject constructor(
             isSaveActive = title.isNotBlank() || content.isNotBlank(),
             dateTime = dateTime,
             folder = folder,
-            allFolders = allFolders
+            allFolders = allFolders,
+            isNoteNew = isNewNote,
+            shouldPopUp = shouldPopUp,
+            isDeleteDialogOpened = isDeleteDialogOpened
         )
     }.stateIn(
         viewModelScope,
@@ -63,19 +71,23 @@ class AddEditNoteScreenViewModel @Inject constructor(
     )
 
     fun saveNote() = viewModelScope.launch {
-        val isNewNote = args.noteId == null
         val note = Note(
             title = state.value.title.trim(),
             content = state.value.content.trim(),
             isLocked = state.value.isLocked,
             createdAt = createdAt,
-            folderName = state.value.folder?.name ?: folderInitialName,
+//            folderName = state.value.folder?.name ?: folderInitialName,
             ownerFolderId = state.value.folder?.folderId ?: folderInitialId,
             noteId = args.noteId
         )
 
         if (isNewNote) noteRepository.insertNote(note)
         else noteRepository.updateNote(note)
+        shouldPopUp.emit(true)
+    }
+
+    fun changeDialogOpenState(isOpened: Boolean) = viewModelScope.launch {
+        deleteDialogOpened.emit(isOpened)
     }
 
     fun updateTitle(text: String) = viewModelScope.launch {
@@ -92,6 +104,16 @@ class AddEditNoteScreenViewModel @Inject constructor(
 
     fun addNoteToFolder(newFolder: Folder) = viewModelScope.launch {
         folder.emit(newFolder)
+    }
+
+    fun deleteNote() = viewModelScope.launch {
+        val noteId = args.noteId ?: return@launch
+        val deletedNoteId = noteRepository.deleteNote(noteId = noteId)
+        if (deletedNoteId != -1) shouldPopUp.emit(true)
+    }
+
+    fun onBackPressed() = viewModelScope.launch {
+        shouldPopUp.emit(true)
     }
 
     init {
@@ -120,6 +142,9 @@ data class AddEditNoteState(
     val dateTime: String = "",
     val folder: Folder? = null,
     val allFolders: List<Folder> = emptyList(),
+    val isNoteNew: Boolean = false,
+    val shouldPopUp: Boolean = false,
+    val isDeleteDialogOpened: Boolean = false,
 )
 
 data class AddEditNoteScreenArgs(

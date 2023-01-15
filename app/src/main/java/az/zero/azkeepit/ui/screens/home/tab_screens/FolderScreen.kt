@@ -12,7 +12,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.ui.screens.destinations.FolderDetailsScreenDestination
@@ -53,31 +52,3 @@ fun FolderScreen(
         }
     }
 }
-
-// LazyColumn(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(bottom = 16.dp)
-//                                .weight(1f),
-//                        ) {
-//                            itemsIndexed(
-//                                items = listItems,
-//                                key = { _, item -> item.id },
-//                            ) { _, item ->
-//                                ListItem(
-//                                    label = item.label,
-//                                    color = item.color,
-//                                    modifier = Modifier
-//                                        .animateItemPlacement(
-//                                            animationSpec = tween(
-//                                                durationMillis = 500,
-//                                                easing = LinearOutSlowInEasing,
-//                                            )
-//                                        )
-//                                        .fillMaxWidth()
-//                                        .padding(vertical = 8.dp)
-//                                        .height(48.dp),
-//                                )
-//                            }
-//                        }
-
