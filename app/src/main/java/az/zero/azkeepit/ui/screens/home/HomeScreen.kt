@@ -2,13 +2,16 @@
 
 package az.zero.azkeepit.ui.screens.home
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,6 +24,7 @@ import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.destinations.SearchScreenDestination
 import az.zero.azkeepit.ui.screens.home.tab_screens.FolderScreen
 import az.zero.azkeepit.ui.screens.home.tab_screens.NotesScreen
+import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.ui.theme.selectedColor
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.ramcosta.composedestinations.annotation.Destination
@@ -40,19 +44,25 @@ fun HomeScreen(
     val tabs = listOf("Notes", "Folders")
     var currentTab by remember { mutableStateOf(0) }
     var isCreateFolderDialogOpened by rememberSaveable { mutableStateOf(false) }
+    var isEditModeOn by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             HomeAppBar(
-                onEditClick = {},
-                onSearchClick = { navigator.navigate(SearchScreenDestination()) },
-                onMoreClick = {}
+                selectedNumber = 0,
+                isEditModeOn = isEditModeOn,
+                onSearchClick = {
+                    navigator.navigate(SearchScreenDestination())
+                },
+                onClearSelectionClick = { isEditModeOn = false }
             )
         },
         floatingActionButton = {
             HomeFab(
+                modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
                 currentTab = currentTab,
+                isEditModeOn = isEditModeOn,
                 onAddNoteClick = {
                     navigator.navigate(AddEditNoteScreenDestination(null))
                 },
@@ -60,9 +70,12 @@ fun HomeScreen(
                     isCreateFolderDialogOpened = true
                 }
             )
+        },
+        bottomBar = {
+            HomeBottomBar(isEditModeOn = isEditModeOn)
         }
-    ) { paddingValues ->
 
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -78,7 +91,13 @@ fun HomeScreen(
                 }
             ) {
                 when (it) {
-                    0 -> NotesScreen(viewModel, navigator)
+                    0 -> NotesScreen(
+                        viewModel = viewModel,
+                        navigator = navigator,
+                        onEditModeChange = {
+                            isEditModeOn = !isEditModeOn
+                        }
+                    )
                     1 -> FolderScreen(viewModel, navigator)
                 }
             }
@@ -88,8 +107,45 @@ fun HomeScreen(
                 onDismiss = { isCreateFolderDialogOpened = false },
                 onCreateClick = viewModel::createFolder
             )
+
         }
 
+    }
+}
+
+@Composable
+fun HomeBottomBar(
+    isEditModeOn: Boolean,
+) {
+    AnimatedVisibility(visible = isEditModeOn) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(cardBgColor),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            IconButton(
+                onClick = {}
+            ) {
+                Icon(
+                    Icons.Filled.OpenInFull,
+                    stringResource(id = R.string.close),
+                    tint = MaterialTheme.colors.onBackground,
+                )
+            }
+
+            IconButton(
+                onClick = {}
+            ) {
+                Icon(
+                    Icons.Filled.Opacity,
+                    stringResource(id = R.string.close),
+                    tint = MaterialTheme.colors.onBackground,
+                )
+            }
+
+        }
     }
 }
 
@@ -97,34 +153,39 @@ fun HomeScreen(
 fun HomeFab(
     modifier: Modifier = Modifier,
     currentTab: Int,
+    isEditModeOn: Boolean,
     onAddNoteClick: () -> Unit,
     onAddFolderClick: () -> Unit,
 ) {
-    FloatingActionButton(
-        modifier = modifier,
-        onClick = if (currentTab == 0) onAddNoteClick else onAddFolderClick,
-    ) {
-        if (currentTab == 0) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = stringResource(id = R.string.add)
-            )
-        } else {
-            Icon(
-                imageVector = Icons.Filled.CreateNewFolder,
-                contentDescription = stringResource(id = R.string.add)
-            )
+    AnimatedVisibility(visible = !isEditModeOn) {
+        FloatingActionButton(
+            modifier = modifier,
+            onClick = if (currentTab == 0) onAddNoteClick else onAddFolderClick,
+        ) {
+            if (currentTab == 0) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = stringResource(id = R.string.add)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Filled.CreateNewFolder,
+                    contentDescription = stringResource(id = R.string.add)
+                )
+            }
         }
     }
 
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeAppBar(
     modifier: Modifier = Modifier,
-    onEditClick: () -> Unit,
+    isEditModeOn: Boolean = false,
     onSearchClick: () -> Unit,
-    onMoreClick: () -> Unit,
+    selectedNumber: Int,
+    onClearSelectionClick: () -> Unit,
 ) {
 
     HeaderWithBackBtn(
@@ -132,38 +193,44 @@ fun HomeAppBar(
         text = stringResource(id = R.string.app_name),
         elevation = 0.dp,
         actions = {
-            IconButton(
-                onClick = onEditClick
+            AnimatedContent(
+                transitionSpec = {
+                    fadeIn() + expandHorizontally() with fadeOut() + shrinkHorizontally()
+                },
+                targetState = isEditModeOn
             ) {
-                Icon(
-                    Icons.Filled.Edit,
-                    stringResource(id = R.string.edit),
-                    tint = MaterialTheme.colors.onBackground,
-                )
-            }
+                if (it) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "$selectedNumber ${stringResource(id = R.string.selected)}",
+                            style = MaterialTheme.typography.h2.copy(color = selectedColor)
+                        )
 
-            IconButton(
-                onClick = onSearchClick
-            ) {
-                Icon(
-                    Icons.Filled.Search,
-                    stringResource(id = R.string.search),
-                    tint = MaterialTheme.colors.onBackground
-                )
-            }
-
-            IconButton(
-                onClick = onMoreClick
-            ) {
-                DrawCircleBorder {
-                    Icon(
-                        Icons.Filled.MoreHoriz,
-                        stringResource(id = R.string.more),
-                        tint = MaterialTheme.colors.onBackground,
-                    )
+                        IconButton(
+                            onClick = onClearSelectionClick
+                        ) {
+                            Icon(
+                                Icons.Filled.Close,
+                                stringResource(id = R.string.close),
+                                tint = MaterialTheme.colors.onBackground,
+                            )
+                        }
+                    }
+                } else {
+                    IconButton(
+                        onClick = onSearchClick
+                    ) {
+                        Icon(
+                            Icons.Filled.Search,
+                            stringResource(id = R.string.search),
+                            tint = MaterialTheme.colors.onBackground
+                        )
+                    }
                 }
-            }
 
+            }
         }
     )
 }

@@ -1,6 +1,5 @@
 package az.zero.azkeepit.ui.screens.home.tab_screens
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,7 +8,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -26,13 +24,10 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 fun NotesScreen(
     viewModel: HomeViewModel,
     navigator: DestinationsNavigator,
+    onEditModeChange: () -> Unit,
 ) {
 
     val notes by viewModel.notesWithFolderName.collectAsState(initial = emptyList())
-
-    LaunchedEffect(notes) {
-        Log.e("NotesScreen: ", "$notes")
-    }
 
     LazyVerticalStaggeredGrid(
         modifier = Modifier.fillMaxSize(),
@@ -43,7 +38,8 @@ fun NotesScreen(
     ) {
         items(notes) { noteWithFolder ->
             NoteItem(
-                uiNote = noteWithFolder,
+                noteWithFolder = noteWithFolder,
+                onLongClick = onEditModeChange,
                 onNoteClick = {
                     navigator.navigate(AddEditNoteScreenDestination(noteId = noteWithFolder.note.noteId))
                 }
