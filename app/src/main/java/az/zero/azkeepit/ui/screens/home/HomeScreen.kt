@@ -41,7 +41,7 @@ fun HomeScreen(
     navigator: DestinationsNavigator,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val tabs = listOf("Notes", "Folders")
+    val tabs = listOf("Note", "Folder")
     var currentTab by remember { mutableStateOf(0) }
     var isCreateFolderDialogOpened by rememberSaveable { mutableStateOf(false) }
     var isEditModeOn by rememberSaveable { mutableStateOf(false) }
