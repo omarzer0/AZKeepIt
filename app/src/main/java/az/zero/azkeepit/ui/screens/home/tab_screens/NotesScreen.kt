@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import az.zero.azkeepit.data.local.entities.NoteWithFolder
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
 import az.zero.azkeepit.ui.screens.items.NoteItem
@@ -22,12 +23,11 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @ExperimentalFoundationApi
 @Composable
 fun NotesScreen(
-    viewModel: HomeViewModel,
     navigator: DestinationsNavigator,
+    notesWithFolder: List<NoteWithFolder>,
+    isEditModeOn :Boolean,
     onEditModeChange: () -> Unit,
 ) {
-
-    val notes by viewModel.notesWithFolderName.collectAsState(initial = emptyList())
 
     LazyVerticalStaggeredGrid(
         modifier = Modifier.fillMaxSize(),
@@ -36,7 +36,7 @@ fun NotesScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        items(notes) { noteWithFolder ->
+        items(notesWithFolder) { noteWithFolder ->
             NoteItem(
                 noteWithFolder = noteWithFolder,
                 onLongClick = onEditModeChange,

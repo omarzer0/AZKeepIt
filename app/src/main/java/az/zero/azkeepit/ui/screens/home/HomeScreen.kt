@@ -41,38 +41,38 @@ fun HomeScreen(
     navigator: DestinationsNavigator,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val tabs = listOf("Note", "Folder")
-    var currentTab by remember { mutableStateOf(0) }
-    var isCreateFolderDialogOpened by rememberSaveable { mutableStateOf(false) }
-    var isEditModeOn by rememberSaveable { mutableStateOf(false) }
+    val tabs = listOf("Notes", "Folders")
+//    var currentTab by remember { mutableStateOf(0) }
+//    var isCreateFolderDialogOpened by rememberSaveable { mutableStateOf(false) }
+//    var isEditModeOn by rememberSaveable { mutableStateOf(false) }
+
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             HomeAppBar(
                 selectedNumber = 0,
-                isEditModeOn = isEditModeOn,
-                onSearchClick = {
-                    navigator.navigate(SearchScreenDestination())
-                },
-                onClearSelectionClick = { isEditModeOn = false }
+                isEditModeOn = state.isEditModeOn,
+                onSearchClick = { navigator.navigate(SearchScreenDestination()) },
+                onClearSelectionClick = { viewModel.changeEditModeState(isActive = false) }
             )
         },
         floatingActionButton = {
             HomeFab(
                 modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
-                currentTab = currentTab,
-                isEditModeOn = isEditModeOn,
+                currentTab = state.currentTab,
+                isEditModeOn = state.isEditModeOn,
                 onAddNoteClick = {
                     navigator.navigate(AddEditNoteScreenDestination(null))
                 },
                 onAddFolderClick = {
-                    isCreateFolderDialogOpened = true
+                    viewModel.changeCreateFolderDialogState(isOpened = true)
                 }
             )
         },
         bottomBar = {
-            HomeBottomBar(isEditModeOn = isEditModeOn)
+            HomeBottomBar(isEditModeOn = state.isEditModeOn)
         }
 
     ) { paddingValues ->
@@ -86,25 +86,28 @@ fun HomeScreen(
                 tabSelectorColor = selectedColor,
                 selectedContentColor = selectedColor,
                 tabs = tabs,
-                onTabChange = {
-                    currentTab = it
-                }
+                onTabChange = viewModel::changeCurrentTap
             ) {
                 when (it) {
                     0 -> NotesScreen(
-                        viewModel = viewModel,
                         navigator = navigator,
+                        notesWithFolder = state.notesWithFolderName,
+                        isEditModeOn = state.isEditModeOn,
                         onEditModeChange = {
-                            isEditModeOn = !isEditModeOn
+                            viewModel.changeEditModeState(isActive = !state.isEditModeOn)
                         }
                     )
-                    1 -> FolderScreen(viewModel, navigator)
+                    1 -> FolderScreen(
+                        navigator = navigator,
+                        folders = state.folders,
+                        isEditModeOn = state.isEditModeOn
+                    )
                 }
             }
 
             HomeCustomDialog(
-                openDialog = isCreateFolderDialogOpened,
-                onDismiss = { isCreateFolderDialogOpened = false },
+                openDialog = state.isCreateFolderDialogOpened,
+                onDismiss = { viewModel.changeCreateFolderDialogState(isOpened = false) },
                 onCreateClick = viewModel::createFolder
             )
 
@@ -129,7 +132,7 @@ fun HomeBottomBar(
                 onClick = {}
             ) {
                 Icon(
-                    Icons.Filled.OpenInFull,
+                    Icons.Filled.Delete,
                     stringResource(id = R.string.close),
                     tint = MaterialTheme.colors.onBackground,
                 )
@@ -139,7 +142,7 @@ fun HomeBottomBar(
                 onClick = {}
             ) {
                 Icon(
-                    Icons.Filled.Opacity,
+                    Icons.Filled.DriveFileMove,
                     stringResource(id = R.string.close),
                     tint = MaterialTheme.colors.onBackground,
                 )
