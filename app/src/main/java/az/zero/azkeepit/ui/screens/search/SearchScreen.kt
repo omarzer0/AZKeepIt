@@ -63,7 +63,7 @@ fun SearchScreen(
         ) {
 
             items(searchedNotes) {
-                NoteItem(uiNote = it) {
+                NoteItem(noteWithFolder = it) {
                     navigator.navigate(
                         AddEditNoteScreenDestination(noteId = it.note.noteId)
                     )

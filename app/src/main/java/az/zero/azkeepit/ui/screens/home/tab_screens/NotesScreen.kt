@@ -1,6 +1,5 @@
 package az.zero.azkeepit.ui.screens.home.tab_screens
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,12 +8,12 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import az.zero.azkeepit.data.local.entities.NoteWithFolder
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
 import az.zero.azkeepit.ui.screens.items.NoteItem
@@ -24,15 +23,11 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @ExperimentalFoundationApi
 @Composable
 fun NotesScreen(
-    viewModel: HomeViewModel,
     navigator: DestinationsNavigator,
+    notesWithFolder: List<NoteWithFolder>,
+    isEditModeOn :Boolean,
+    onEditModeChange: () -> Unit,
 ) {
-
-    val notes by viewModel.notesWithFolderName.collectAsState(initial = emptyList())
-
-    LaunchedEffect(notes) {
-        Log.e("NotesScreen: ", "$notes")
-    }
 
     LazyVerticalStaggeredGrid(
         modifier = Modifier.fillMaxSize(),
@@ -41,9 +36,10 @@ fun NotesScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        items(notes) { noteWithFolder ->
+        items(notesWithFolder) { noteWithFolder ->
             NoteItem(
-                uiNote = noteWithFolder,
+                noteWithFolder = noteWithFolder,
+                onLongClick = onEditModeChange,
                 onNoteClick = {
                     navigator.navigate(AddEditNoteScreenDestination(noteId = noteWithFolder.note.noteId))
                 }

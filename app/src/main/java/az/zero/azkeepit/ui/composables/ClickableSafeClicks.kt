@@ -1,7 +1,8 @@
 package az.zero.azkeepit.ui.composables
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -32,11 +33,15 @@ private class MultipleEventsCutterImpl : MultipleEventsCutter {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.clickableSafeClick(
     enabled: Boolean = true,
     onClickLabel: String? = null,
+    onLongClickLabel: String? = null,
     role: Role? = null,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
+    onDoubleClick: (() -> Unit)? = null,
 ) = composed(
     inspectorInfo = debugInspectorInfo {
         name = "clickable"
@@ -44,16 +49,27 @@ fun Modifier.clickableSafeClick(
         properties["onClickLabel"] = onClickLabel
         properties["role"] = role
         properties["onClick"] = onClick
+        properties["onLongClick"] = onLongClick
+        properties["onDoubleClick"] = onDoubleClick
     }
 ) {
-    val multipleEventsCutter = remember { MultipleEventsCutter.get() }
-    Modifier.clickable(
+    val onClickEventsCutter = remember { MultipleEventsCutter.get() }
+//    val onLongEventsCutter = remember { MultipleEventsCutter.get() }
+//    val onDoubleEventsCutter = remember { MultipleEventsCutter.get() }
+
+    Modifier.combinedClickable(
         enabled = enabled,
+        onClick = { onClickEventsCutter.processEvent { onClick() } },
+//        onLongClick = { onLongEventsCutter.processEvent { onLongClick?.invoke() } },
+//        onDoubleClick = { onDoubleEventsCutter.processEvent { onDoubleClick?.invoke() } },
+        onLongClick = onLongClick,
+        onDoubleClick = onDoubleClick,
+        onLongClickLabel = onLongClickLabel,
         onClickLabel = onClickLabel,
-        onClick = { multipleEventsCutter.processEvent { onClick() } },
         role = role,
         indication = LocalIndication.current,
         interactionSource = remember { MutableInteractionSource() }
+
     )
 }
 

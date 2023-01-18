@@ -42,7 +42,7 @@ class FolderDetailsViewModel @Inject constructor(
         shouldPopUp
     ) { folderWithNotes, deleteFolderDialogOpened, deleteAllNotesDialogOpened, renameDialogOpened, shouldPopUp ->
         FolderDetailsState(
-            title = folderWithNotes?.uiFolder?.name ?: folderDetailsScreenArgs.folderName,
+            title = folderWithNotes?.folder?.name ?: folderDetailsScreenArgs.folderName,
             folderWithNotes = folderWithNotes ?: emptyUiFolderWithUiNotes,
             deleteFolderDialogOpened = deleteFolderDialogOpened,
             deleteAllNotesDialogOpened = deleteAllNotesDialogOpened,
@@ -97,8 +97,8 @@ data class FolderDetailsState(
 
 
 val emptyUiFolderWithUiNotes = UiFolderWithUiNotes(
-    uiFolder = null,
-    uiNotes = emptyList()
+    folder = null,
+    noteWithFolders = emptyList()
 )
 
 

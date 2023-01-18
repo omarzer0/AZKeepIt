@@ -18,7 +18,7 @@ data class FolderWithNotes(
 
 
 
-data class UiNote(
+data class NoteWithFolder(
     @Embedded val note: Note,
     @Relation(
         parentColumn = "ownerFolderId",

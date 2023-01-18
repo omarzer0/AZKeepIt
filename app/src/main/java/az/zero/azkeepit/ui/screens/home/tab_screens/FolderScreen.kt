@@ -14,6 +14,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import az.zero.azkeepit.data.local.entities.Folder
 import az.zero.azkeepit.ui.screens.destinations.FolderDetailsScreenDestination
 import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
@@ -24,10 +25,10 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @ExperimentalFoundationApi
 @Composable
 fun FolderScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
     navigator: DestinationsNavigator,
+    folders : List<Folder>,
+    isEditModeOn :Boolean
 ) {
-    val folders by viewModel.folders.collectAsState(emptyList())
 
     LazyVerticalGrid(
         modifier = Modifier
