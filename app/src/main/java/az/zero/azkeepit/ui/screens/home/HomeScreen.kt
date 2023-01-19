@@ -1,10 +1,8 @@
-@file:OptIn(ExperimentalPagerApi::class)
-
 package az.zero.azkeepit.ui.screens.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -15,7 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
@@ -24,13 +24,13 @@ import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.destinations.SearchScreenDestination
 import az.zero.azkeepit.ui.screens.home.tab_screens.FolderScreen
 import az.zero.azkeepit.ui.screens.home.tab_screens.NotesScreen
-import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.ui.theme.selectedColor
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+@OptIn(ExperimentalPagerApi::class)
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @RootNavGraph(start = true)
@@ -41,18 +41,24 @@ fun HomeScreen(
     navigator: DestinationsNavigator,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val tabs = listOf("Notes", "Folders")
-//    var currentTab by remember { mutableStateOf(0) }
-//    var isCreateFolderDialogOpened by rememberSaveable { mutableStateOf(false) }
-//    var isEditModeOn by rememberSaveable { mutableStateOf(false) }
-
+    val tabs = remember(Unit) { listOf("Notes", "Folders") }
     val state by viewModel.state.collectAsState()
+    val selectedNumber by remember(state) {
+        mutableStateOf(
+            if (state.currentTab == 0) state.selectedNotesNumber
+            else state.selectedFolderNumber
+        )
+    }
+
+    BackHandler(enabled = state.isEditModeOn) {
+        viewModel.changeEditModeState(isActive = false)
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             HomeAppBar(
-                selectedNumber = 0,
+                selectedNumber = selectedNumber,
                 isEditModeOn = state.isEditModeOn,
                 onSearchClick = { navigator.navigate(SearchScreenDestination()) },
                 onClearSelectionClick = { viewModel.changeEditModeState(isActive = false) }
@@ -63,18 +69,10 @@ fun HomeScreen(
                 modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
                 currentTab = state.currentTab,
                 isEditModeOn = state.isEditModeOn,
-                onAddNoteClick = {
-                    navigator.navigate(AddEditNoteScreenDestination(null))
-                },
-                onAddFolderClick = {
-                    viewModel.changeCreateFolderDialogState(isOpened = true)
-                }
+                onAddNoteClick = { navigator.navigate(AddEditNoteScreenDestination(null)) },
+                onAddFolderClick = { viewModel.changeCreateFolderDialogState(isOpened = true) }
             )
-        },
-        bottomBar = {
-            HomeBottomBar(isEditModeOn = state.isEditModeOn)
         }
-
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -85,71 +83,51 @@ fun HomeScreen(
                 tabSelectorHeight = 4.dp,
                 tabSelectorColor = selectedColor,
                 selectedContentColor = selectedColor,
+                isEditModeOn = state.isEditModeOn,
                 tabs = tabs,
                 onTabChange = viewModel::changeCurrentTap
             ) {
                 when (it) {
-                    0 -> NotesScreen(
-                        navigator = navigator,
-                        notesWithFolder = state.notesWithFolderName,
-                        isEditModeOn = state.isEditModeOn,
-                        onEditModeChange = {
-                            viewModel.changeEditModeState(isActive = !state.isEditModeOn)
-                        }
-                    )
-                    1 -> FolderScreen(
-                        navigator = navigator,
-                        folders = state.folders,
-                        isEditModeOn = state.isEditModeOn
-                    )
+                    0 -> NotesScreen(navigator = navigator)
+                    1 -> FolderScreen(navigator = navigator)
                 }
             }
-
-            HomeCustomDialog(
-                openDialog = state.isCreateFolderDialogOpened,
-                onDismiss = { viewModel.changeCreateFolderDialogState(isOpened = false) },
-                onCreateClick = viewModel::createFolder
-            )
-
         }
 
     }
 }
 
 @Composable
-fun HomeBottomBar(
-    isEditModeOn: Boolean,
+fun BottomBarItem(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    contentDescription: String? = null,
+    text: String,
+    enabled: Boolean = false,
+    tint: Color = if (enabled) MaterialTheme.colors.onBackground else Color.Gray,
+    textStyle: TextStyle = MaterialTheme.typography.h3.copy(
+        color = if (enabled) MaterialTheme.colors.onBackground else Color.Gray
+    ),
+    onClick: () -> Unit,
 ) {
-    AnimatedVisibility(visible = isEditModeOn) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(cardBgColor),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            IconButton(
-                onClick = {}
-            ) {
-                Icon(
-                    Icons.Filled.Delete,
-                    stringResource(id = R.string.close),
-                    tint = MaterialTheme.colors.onBackground,
-                )
-            }
+    Column(
+        modifier = modifier
+            .clickableSafeClick(
+                enabled = enabled,
+                onClick = onClick
+            )
+            .padding(8.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = tint)
 
-            IconButton(
-                onClick = {}
-            ) {
-                Icon(
-                    Icons.Filled.DriveFileMove,
-                    stringResource(id = R.string.close),
-                    tint = MaterialTheme.colors.onBackground,
-                )
-            }
-
-        }
+        Text(text = text, style = textStyle)
     }
+
 }
 
 @Composable
@@ -190,7 +168,6 @@ fun HomeAppBar(
     selectedNumber: Int,
     onClearSelectionClick: () -> Unit,
 ) {
-
     HeaderWithBackBtn(
         modifier = modifier,
         text = stringResource(id = R.string.app_name),
@@ -237,34 +214,6 @@ fun HomeAppBar(
         }
     )
 }
-
-@Composable
-fun HomeCustomDialog(
-    openDialog: Boolean,
-    onDismiss: () -> Unit,
-    onCreateClick: (name: String) -> Unit,
-) {
-    var text by rememberSaveable { mutableStateOf("") }
-    val isStartBtnEnabled by remember { derivedStateOf { text.isNotBlank() } }
-    val startBtnColor = if (isStartBtnEnabled) MaterialTheme.colors.onBackground else Color.Gray
-
-    EtDialogWithTwoButtons(
-        text = text,
-        headerText = stringResource(id = R.string.create_folder),
-        onTextChange = { text = it },
-        openDialog = openDialog,
-        startBtnText = stringResource(id = R.string.create),
-        onStartBtnClick = { onCreateClick(text) },
-        startBtnEnabled = isStartBtnEnabled,
-        startBtnStyle = MaterialTheme.typography.h3.copy(color = startBtnColor),
-        endBtnText = stringResource(id = R.string.cancel),
-        onDismiss = {
-            text = ""
-            onDismiss()
-        }
-    )
-}
-
 
 //    val density = LocalDensity.current
 //    val statusBarTop = WindowInsets.statusBars.getTop(density)

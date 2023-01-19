@@ -66,5 +66,8 @@ interface NoteDao {
     @Query("DELETE FROM Note WHERE ownerFolderId=:folderId")
     suspend fun deleteAllNotesFromFolder(folderId: Long)
 
+    @Query("DELETE FROM Note WHERE noteId in (:noteIds)")
+    suspend fun deleteAllSelectedNotes(noteIds: MutableList<Long>)
+
 
 }

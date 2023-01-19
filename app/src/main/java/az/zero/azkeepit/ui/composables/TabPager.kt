@@ -1,7 +1,7 @@
 package az.zero.azkeepit.ui.composables
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +38,7 @@ fun TabPager(
     tabSelectorHeight: Dp = TabRowDefaults.IndicatorHeight,
     tabHostBackgroundColor: Color = MaterialTheme.colors.background,
     animateScrollToPage: Boolean = false,
+    isEditModeOn: Boolean = false,
     onTabChange: ((tabNumber: Int) -> Unit)? = null,
     content: @Composable (index: Int) -> Unit,
 ) {
@@ -45,7 +46,7 @@ fun TabPager(
 
     val coroutineScope = rememberCoroutineScope()
 
-    BackHandler(enabled = pagerState.currentPage != 0) {
+    BackHandler(enabled = pagerState.currentPage != 0 && !isEditModeOn) {
         coroutineScope.launch {
             pagerState.animateScrollToPage(0)
         }
@@ -61,45 +62,49 @@ fun TabPager(
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
-        TabRow(
-            selectedTabIndex = pagerState.currentPage,
-            modifier = tabHostModifier,
-            divider = {},
-            backgroundColor = tabHostBackgroundColor,
-            indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                    Modifier
-                        .pagerTabIndicatorOffset(
-                            pagerState = pagerState,
-                            tabPositions = tabPositions
-                        )
-                        .padding(horizontal = 40.dp)
-                        .clip(CircleShape),
-                    color = tabSelectorColor,
-                    height = tabSelectorHeight,
-                )
-            }
-        ) {
-            tabs.forEachIndexed { index, text ->
-                Tab(
-                    selected = pagerState.currentPage == index,
-                    selectedContentColor = selectedContentColor,
-                    unselectedContentColor = unSelectedContentColor,
-                    modifier = tabModifier,
-                    onClick = {
-                        coroutineScope.launch {
-                            if (animateScrollToPage) pagerState.animateScrollToPage(index)
-                            else pagerState.scrollToPage(index)
-                        }
-                    },
-                    text = {
-                        Text(text = text, style = MaterialTheme.typography.h2)
-                    },
-                )
+        AnimatedVisibility(visible = !isEditModeOn) {
+            TabRow(
+                selectedTabIndex = pagerState.currentPage,
+                modifier = tabHostModifier,
+                divider = {},
+                backgroundColor = tabHostBackgroundColor,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        Modifier
+                            .pagerTabIndicatorOffset(
+                                pagerState = pagerState,
+                                tabPositions = tabPositions
+                            )
+                            .padding(horizontal = 40.dp)
+                            .clip(CircleShape),
+                        color = tabSelectorColor,
+                        height = tabSelectorHeight,
+                    )
+                }
+            ) {
+                tabs.forEachIndexed { index, text ->
+                    Tab(
+                        selected = pagerState.currentPage == index,
+                        selectedContentColor = selectedContentColor,
+                        unselectedContentColor = unSelectedContentColor,
+                        modifier = tabModifier,
+                        onClick = {
+                            coroutineScope.launch {
+                                if (animateScrollToPage) pagerState.animateScrollToPage(index)
+                                else pagerState.scrollToPage(index)
+                            }
+                        },
+                        text = {
+                            Text(text = text, style = MaterialTheme.typography.h2)
+                        },
+                    )
+                }
             }
         }
+
         HorizontalPager(
             state = pagerState,
+            userScrollEnabled = !isEditModeOn,
             modifier = Modifier.weight(1f),
             count = tabs.size
         ) { index ->

@@ -44,9 +44,6 @@ fun FolderDetailsScreen(
     val state by viewModel.folderDetailsState.collectAsState()
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
-    val focusManager = LocalFocusManager.current
-//    val moreActions = getMoreActions()
-
     BackHandler(
         enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded
     ) {
@@ -93,6 +90,7 @@ fun FolderDetailsScreen(
 
         DeleteAllNotesDialog(
             openDialog = state.deleteAllNotesDialogOpened,
+            text = stringResource(id = R.string.are_you_sure_you_want_to_delete_all_notes_in_this_folder),
             onDismiss = { viewModel.changeDeleteAllNotesDialogState(isOpened = false) },
             onDeleteClick = viewModel::deleteAllNotes
         )
@@ -114,11 +112,12 @@ fun FolderDetailsScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
 
-            items(state.folderWithNotes.noteWithFolders) { noteWithFolder ->
+            items(state.uiFolder.folderNotes) { uiNote ->
                 NoteItem(
-                    noteWithFolder = noteWithFolder,
+                    uiNote = uiNote,
+                    isEditModeOn = false,
                     onNoteClick = {
-                        navigator.navigate(AddEditNoteScreenDestination(noteId = noteWithFolder.note.noteId))
+                        navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
                     }
                 )
             }
@@ -224,23 +223,6 @@ fun DeleteFolderDialog(
 ) {
     TextDialogWithTwoButtons(
         titleText = stringResource(id = R.string.are_you_sure_you_want_to_delete_this_folder),
-        openDialog = openDialog,
-        startBtnText = stringResource(id = R.string.delete),
-        onStartBtnClick = onDeleteClick,
-        startBtnStyle = MaterialTheme.typography.h3.copy(color = Color.Red),
-        endBtnText = stringResource(id = R.string.cancel),
-        onDismiss = onDismiss
-    )
-}
-
-@Composable
-fun DeleteAllNotesDialog(
-    openDialog: Boolean,
-    onDismiss: () -> Unit,
-    onDeleteClick: () -> Unit,
-) {
-    TextDialogWithTwoButtons(
-        titleText = stringResource(id = R.string.are_you_sure_you_want_to_delete_all_notes_in_this_folder),
         openDialog = openDialog,
         startBtnText = stringResource(id = R.string.delete),
         onStartBtnClick = onDeleteClick,

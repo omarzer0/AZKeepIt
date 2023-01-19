@@ -2,7 +2,6 @@ package az.zero.azkeepit.data.repository
 
 import az.zero.azkeepit.data.local.NoteDao
 import az.zero.azkeepit.data.local.entities.*
-import az.zero.azkeepit.data.mappers.toUiNoteWithUiFolder
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,12 +13,14 @@ class NoteRepository @Inject constructor(
 
     fun getFolders() = noteDao.getFolders()
 
+    fun getSelectedFolders() = noteDao.getFolders().map { it.toUiFolders() }
+
     fun getFoldersWithNotes() = noteDao.getFoldersWithNotes()
 
     suspend fun getFolderById(folderId: Long) = noteDao.getFolderById(folderId)
 
-    fun getFolderWithNotesById(folderId: Long) = noteDao.getFolderWithNotesById(folderId).map {
-        it.toUiNoteWithUiFolder()
+    fun getUiFolder(folderId: Long) = noteDao.getFolderWithNotesById(folderId).map {
+        it?.toUiFolder()
     }
 
     suspend fun insertFolder(folder: Folder) = noteDao.insertFolder(folder)
@@ -35,7 +36,7 @@ class NoteRepository @Inject constructor(
     // ========================== Notes ======================
 
 
-    fun getNotesWithFolderName() = noteDao.getNotesWithFolderName()
+    fun getNotesWithFolderName() = noteDao.getNotesWithFolderName().map { it.toUiNotes() }
 
     suspend fun getNoteById(noteId: Long) = noteDao.getNoteById(noteId)
 
@@ -45,8 +46,12 @@ class NoteRepository @Inject constructor(
 
     suspend fun deleteNote(noteId: Long) = noteDao.deleteNote(noteId)
 
-    fun searchNotes(query: String) = noteDao.searchNotes(query.trim())
+    fun searchNotes(query: String) = noteDao.searchNotes(query.trim()).map {
+        it.toUiNotes()
+    }
 
     suspend fun deleteAllNotesFromFolder(folderId: Long) =
         noteDao.deleteAllNotesFromFolder(folderId)
+
+    suspend fun deleteAllSelectedNotes(noteIds: MutableList<Long>) = noteDao.deleteAllSelectedNotes(noteIds)
 }

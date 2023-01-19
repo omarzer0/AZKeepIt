@@ -35,7 +35,7 @@ fun SearchScreen(
     navigator: DestinationsNavigator,
 ) {
     val focusManager = LocalFocusManager.current
-    val searchedNotes by viewModel.searchedNotes.collectAsState()
+    val searchedUiNotes by viewModel.searchedUiNotes.collectAsState()
     val searchQuery by viewModel.query.collectAsState()
 
     Column(
@@ -62,16 +62,20 @@ fun SearchScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
 
-            items(searchedNotes) {
-                NoteItem(noteWithFolder = it) {
-                    navigator.navigate(
-                        AddEditNoteScreenDestination(noteId = it.note.noteId)
-                    )
-                }
+            items(searchedUiNotes) {
+                NoteItem(
+                    uiNote = it,
+                    isEditModeOn = false,
+                    onNoteClick = {
+                        navigator.navigate(
+                            AddEditNoteScreenDestination(noteId = it.noteId)
+                        )
+                    }
+                )
             }
         }
-
     }
+
 }
 
 

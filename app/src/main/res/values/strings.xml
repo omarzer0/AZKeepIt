@@ -27,4 +27,5 @@
     <string name="select_action">Select action</string>
     <string name="close">Close</string>
     <string name="selected">Selected</string>
+    <string name="move_to_folder">Move to folder</string>
 </resources>

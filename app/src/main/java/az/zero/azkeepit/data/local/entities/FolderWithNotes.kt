@@ -1,6 +1,7 @@
 package az.zero.azkeepit.data.local.entities
 
-import androidx.room.*
+import androidx.room.Embedded
+import androidx.room.Relation
 
 
 data class FolderWithNotes(
@@ -16,13 +17,10 @@ data class FolderWithNotes(
     val notes: List<Note>,
 )
 
-
-
-data class NoteWithFolder(
-    @Embedded val note: Note,
-    @Relation(
-        parentColumn = "ownerFolderId",
-        entityColumn = "folderId"
-    )
-    val folder: Folder?
+fun FolderWithNotes.toUiFolder(isSelected: Boolean = false) = UiFolder(
+    name = this.folder.name,
+    createdAt = this.folder.createdAt,
+    folderId = this.folder.folderId!!,
+    folderNotes = this.notes.map { it.toUiNote() },
+    isSelected = isSelected
 )
