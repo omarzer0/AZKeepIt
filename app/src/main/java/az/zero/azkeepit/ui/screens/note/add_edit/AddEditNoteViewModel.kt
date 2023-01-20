@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import az.zero.azkeepit.data.local.entities.Folder
 import az.zero.azkeepit.data.local.entities.Note
+import az.zero.azkeepit.data.local.entities.UiFolder
 import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.ui.screens.navArgs
 import az.zero.azkeepit.util.JDateTimeUtil
@@ -35,8 +36,8 @@ class AddEditNoteScreenViewModel @Inject constructor(
     private val content = MutableStateFlow("")
     private val isLocked = MutableStateFlow(false)
     private val dateTime = MutableStateFlow(JDateTimeUtil.toLongDateTimeFormat(createdAt))
-    private val allFolders = noteRepository.getFolders()
-    private val folder = MutableStateFlow<Folder?>(null)
+    private val allFolders = noteRepository.getUiFolders()
+    private val folder = MutableStateFlow<UiFolder?>(null)
     private val shouldPopUp = MutableStateFlow(false)
     private val deleteDialogOpened = MutableStateFlow(false)
 
@@ -100,8 +101,8 @@ class AddEditNoteScreenViewModel @Inject constructor(
         isLocked.emit(newValue)
     }
 
-    fun addNoteToFolder(newFolder: Folder) = viewModelScope.launch {
-        folder.emit(newFolder)
+    fun addNoteToFolder(newUiFolder: UiFolder) = viewModelScope.launch {
+        folder.emit(newUiFolder)
     }
 
     fun deleteNote() = viewModelScope.launch {
@@ -117,17 +118,12 @@ class AddEditNoteScreenViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val noteId = args.noteId ?: return@launch
-            val noteWithFolder = noteRepository.getNoteById(noteId) ?: return@launch
-            val note = noteWithFolder.note
-            title.emit(note.title)
-            content.emit(note.content)
-            createdAt = note.createdAt
-            folder.emit(noteWithFolder.folder)
-            dateTime.emit(JDateTimeUtil.toLongDateTimeFormat(note.createdAt))
-//            folder.emit(Folder(name = note.folderName,folderId = note.ownerFolderId))
-//            val ownerNoteId = note.ownerFolderId ?: return@launch
-//            val noteFolder = noteRepository.getFolderById(ownerNoteId) ?: return@launch
-//            folder.emit(noteFolder)
+            val uiNote = noteRepository.getNoteById(noteId) ?: return@launch
+            title.emit(uiNote.title)
+            content.emit(uiNote.content)
+            createdAt = uiNote.createdAt
+            folder.emit(uiNote.ownerUiFolder)
+            dateTime.emit(JDateTimeUtil.toLongDateTimeFormat(uiNote.createdAt))
         }
     }
 }
@@ -140,8 +136,8 @@ data class AddEditNoteState(
     val numberOfWordsForContent: Int = 0,
     val isSaveActive: Boolean = false,
     val dateTime: String = "",
-    val folder: Folder? = null,
-    val allFolders: List<Folder> = emptyList(),
+    val folder: UiFolder? = null,
+    val allFolders: List<UiFolder> = emptyList(),
     val isNoteNew: Boolean = false,
     val shouldPopUp: Boolean = false,
     val isDeleteDialogOpened: Boolean = false,

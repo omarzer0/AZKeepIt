@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
+import az.zero.azkeepit.ui.composables.DeleteDialog
 import az.zero.azkeepit.ui.composables.EtDialogWithTwoButtons
 import az.zero.azkeepit.ui.screens.destinations.FolderDetailsScreenDestination
 import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
@@ -44,6 +45,13 @@ fun FolderScreen(
         onCreateClick = viewModel::createFolder
     )
 
+    DeleteDialog(
+        openDialog = state.isDeleteFoldersDialogOpen,
+        text = stringResource(id = R.string.are_you_sure_you_want_to_delete_all_notes_in_this_folder),
+        onDismiss = { viewModel.changeDeleteFoldersState(isOpened = false) },
+        onDeleteClick = viewModel::deleteSelectedFolders
+    )
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -60,8 +68,10 @@ fun FolderScreen(
                     uiFolder = uiFolder,
                     isEditModeOn = state.isEditModeOn,
                     onLongClick = {
-                        if (!state.isEditModeOn) viewModel.changeEditModeState(isActive = true)
-                        viewModel.addOrRemoveFolderFromSelected(folderId = uiFolder.folderId)
+                        if (!state.isEditModeOn) {
+                            viewModel.changeEditModeState(isActive = true)
+                            viewModel.addOrRemoveFolderFromSelected(folderId = uiFolder.folderId)
+                        }
                     },
                     onFolderClick = {
                         if (state.isEditModeOn) {
@@ -77,35 +87,38 @@ fun FolderScreen(
             }
         }
 
-        AnimatedVisibility(visible = state.isEditModeOn) {
-            FolderBottomActions(
-                enabled = state.isFolderActionsEnabled,
-                onDeleteFoldersClick = { }
-            )
-        }
+        FolderBottomActions(
+            isEditModeOn = state.isEditModeOn,
+            enabled = state.isFolderActionsEnabled,
+            onDeleteFoldersClick = { viewModel.changeDeleteFoldersState(isOpened = true)}
+        )
+
     }
 }
 
 @Composable
 fun FolderBottomActions(
     modifier: Modifier = Modifier,
+    isEditModeOn: Boolean,
     enabled: Boolean = false,
     onDeleteFoldersClick: () -> Unit,
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(cardBgColor),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        BottomBarItem(
-            modifier = Modifier.weight(1f),
-            enabled = enabled,
-            icon = Icons.Filled.Delete,
-            text = stringResource(id = R.string.delete),
-            onClick = onDeleteFoldersClick
-        )
+    AnimatedVisibility(visible = isEditModeOn) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(cardBgColor),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            BottomBarItem(
+                modifier = Modifier.weight(1f),
+                enabled = enabled,
+                icon = Icons.Filled.Delete,
+                text = stringResource(id = R.string.delete),
+                onClick = onDeleteFoldersClick
+            )
+        }
     }
 }
 

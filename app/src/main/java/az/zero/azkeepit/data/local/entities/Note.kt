@@ -31,21 +31,22 @@ data class UiNote(
     val content: String,
     val isLocked: Boolean,
     val createdAt: Long,
-    val ownerFolderId: Long?,
-    val ownerFolderName: String,
     val noteId: Long,
     val isSelected: Boolean,
+    val ownerUiFolder: UiFolder?,
 )
 
-fun Note.toUiNote(isSelected: Boolean = false) = UiNote(
+fun Note.toUiNote(
+    isSelected: Boolean = false,
+    ownerUiFolder: UiFolder? = null
+) = UiNote(
     noteId = this.noteId!!,
     title = this.title,
     content = this.content,
     isLocked = this.isLocked,
     createdAt = this.createdAt,
-    ownerFolderId = this.ownerFolderId,
-    ownerFolderName = "",
-    isSelected = isSelected
+    isSelected = isSelected,
+    ownerUiFolder = ownerUiFolder
 )
 
 fun NoteWithFolder.toUiNote(isSelected: Boolean = false) = UiNote(
@@ -54,9 +55,8 @@ fun NoteWithFolder.toUiNote(isSelected: Boolean = false) = UiNote(
     content = this.note.content,
     isLocked = this.note.isLocked,
     createdAt = this.note.createdAt,
-    ownerFolderId = this.note.ownerFolderId,
-    ownerFolderName = this.folder?.name ?: "",
-    isSelected = isSelected
+    isSelected = isSelected,
+    ownerUiFolder = this.folder?.toUiFolder()
 )
 
 fun List<NoteWithFolder>.toUiNotes() = this.map {

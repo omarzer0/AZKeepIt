@@ -1,4 +1,4 @@
-package az.zero.azkeepit.core
+package az.zero.azkeepit
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

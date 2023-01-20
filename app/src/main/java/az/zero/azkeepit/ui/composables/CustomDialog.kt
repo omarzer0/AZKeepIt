@@ -9,8 +9,29 @@ import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import az.zero.azkeepit.R
+
+@Composable
+fun DeleteDialog(
+    openDialog: Boolean,
+    text: String,
+    onDismiss: () -> Unit,
+    onDeleteClick: () -> Unit,
+) {
+    TextDialogWithTwoButtons(
+        titleText = text,
+        openDialog = openDialog,
+        startBtnText = stringResource(id = R.string.delete),
+        onStartBtnClick = onDeleteClick,
+        startBtnStyle = MaterialTheme.typography.h3.copy(color = Color.Red),
+        endBtnText = stringResource(id = R.string.cancel),
+        onDismiss = onDismiss
+    )
+}
 
 @Composable
 fun EtDialogWithTwoButtons(

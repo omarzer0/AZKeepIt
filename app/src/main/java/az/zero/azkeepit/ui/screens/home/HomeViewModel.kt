@@ -21,10 +21,11 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val uiNotes = noteRepository.getNotesWithFolderName()
-    private val uiFolders = noteRepository.getSelectedFolders()
+    private val uiFolders = noteRepository.getUiFolders()
     private val isEditModeOn = MutableStateFlow(false)
     private val isDeleteNotesDialogOpened = MutableStateFlow(false)
     private val isCreateFolderDialogOpened = MutableStateFlow(false)
+    private val isDeleteFoldersDialogOpen = MutableStateFlow(false)
     private val currentTab = MutableStateFlow(0)
     private val selectedNotes = MutableStateFlow(mutableListOf<Long>())
     private val selectedFolders = MutableStateFlow(mutableListOf<Long>())
@@ -38,7 +39,7 @@ class HomeViewModel @Inject constructor(
         clearSelection: Boolean = !isActive,
     ) = viewModelScope.launch {
         isEditModeOn.emit(isActive)
-        if (clearSelection) selectedNotes.emit(mutableListOf())
+        if (clearSelection) postAction()
     }
 
     fun changeCreateFolderDialogState(isOpened: Boolean) = viewModelScope.launch {
@@ -60,12 +61,26 @@ class HomeViewModel @Inject constructor(
 
     fun deleteSelectedNotes() = viewModelScope.launch {
         noteRepository.deleteAllSelectedNotes(selectedNotes.value)
-        selectedNotes.emit(mutableListOf())
-        isEditModeOn.emit(false)
+        postAction()
     }
 
-    fun moveSelectedNotesToFolder(folderId: Long) {
+    fun moveSelectedNotesToFolder(folderId: Long) = viewModelScope.launch {
+        noteRepository.moveNotesToFolder(
+            folderId = folderId,
+            selectedNotesIds = selectedNotes.value
+        )
+        postAction()
+    }
 
+    fun deleteSelectedFolders() = viewModelScope.launch {
+        noteRepository.deleteSelectedFolders(selectedFolders.value)
+        postAction()
+    }
+
+    private suspend fun postAction() {
+        selectedNotes.emit(mutableListOf())
+        selectedFolders.emit(mutableListOf())
+        isEditModeOn.emit(false)
     }
 
     fun addOrRemoveFolderFromSelected(folderId: Long?) = viewModelScope.launch {
@@ -81,6 +96,10 @@ class HomeViewModel @Inject constructor(
         isDeleteNotesDialogOpened.emit(isOpened)
     }
 
+    fun changeDeleteFoldersState(isOpened: Boolean) = viewModelScope.launch {
+        isDeleteFoldersDialogOpen.emit(isOpened)
+    }
+
     val state = combine(
         uiNotes,
         uiFolders,
@@ -89,8 +108,10 @@ class HomeViewModel @Inject constructor(
         isCreateFolderDialogOpened,
         selectedNotes,
         selectedFolders,
-        isDeleteNotesDialogOpened
-    ) { uiNotes, uiFolders, isEditModeOn, currentTab, isCreateFolderDialogOpened, selectedNotes, selectedFolders, isDeleteNotesDialogOpened ->
+        isDeleteNotesDialogOpened,
+        isDeleteFoldersDialogOpen,
+    ) { uiNotes, uiFolders, isEditModeOn, currentTab, isCreateFolderDialogOpened,
+        selectedNotes, selectedFolders, isDeleteNotesDialogOpened, isDeleteFoldersDialogOpen ->
         HomeUiState(
             uiNotes = uiNotes.map { it.copy(isSelected = selectedNotes.contains(it.noteId)) },
             uiFolders = uiFolders.map { it.copy(isSelected = selectedFolders.contains(it.folderId)) },
@@ -101,7 +122,8 @@ class HomeViewModel @Inject constructor(
             isCreateFolderDialogOpened = isCreateFolderDialogOpened,
             selectedNotesNumber = selectedNotes.size,
             selectedFolderNumber = selectedFolders.size,
-            isDeleteNotesDialogOpen = isDeleteNotesDialogOpened
+            isDeleteNotesDialogOpen = isDeleteNotesDialogOpened,
+            isDeleteFoldersDialogOpen = isDeleteFoldersDialogOpen
         )
     }.stateIn(
         viewModelScope,
@@ -122,4 +144,5 @@ data class HomeUiState(
     val isCreateFolderDialogOpened: Boolean = false,
     val currentTab: Int = 0,
     val isDeleteNotesDialogOpen: Boolean = false,
+    val isDeleteFoldersDialogOpen: Boolean = false,
 )

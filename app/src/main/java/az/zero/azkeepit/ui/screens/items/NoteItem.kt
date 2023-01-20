@@ -21,7 +21,7 @@ import az.zero.azkeepit.util.JDateTimeUtil
 fun NoteItem(
     modifier: Modifier = Modifier,
     uiNote: UiNote,
-    isEditModeOn :Boolean,
+    isEditModeOn: Boolean,
     onLongClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
     onNoteClick: () -> Unit,
@@ -100,7 +100,7 @@ fun NoteItem(
 
                 Text(
                     modifier = Modifier.weight(2f),
-                    text = uiNote.ownerFolderName,
+                    text = uiNote.ownerUiFolder?.name ?: "",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.End,

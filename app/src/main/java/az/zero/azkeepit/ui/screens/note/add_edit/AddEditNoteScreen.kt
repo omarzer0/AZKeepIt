@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
-import az.zero.azkeepit.data.local.entities.Folder
+import az.zero.azkeepit.data.local.entities.UiFolder
 import az.zero.azkeepit.ui.composables.*
 import az.zero.azkeepit.ui.theme.selectedColor
 import com.ramcosta.composedestinations.annotation.Destination
@@ -63,14 +63,14 @@ fun AddEditNoteScreen(
 
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
+        sheetPeekHeight = 0.dp,
         sheetContent = {
             AddEditBottomSheet(
-                folders = state.allFolders,
+                uiFolders = state.allFolders,
                 onDismiss = { scope.launch { bottomSheetScaffoldState.bottomSheetState.collapse() } },
                 onClick = { viewModel.addNoteToFolder(it) }
             )
         },
-        sheetPeekHeight = 0.dp,
         topBar = {
             AddEditHeader(
                 saveEnabled = state.isSaveActive,
@@ -153,34 +153,6 @@ fun AddEditNoteScreen(
         }
 
     }
-
-}
-
-@Composable
-fun AddEditBottomSheet(
-    modifier: Modifier = Modifier,
-    folders: List<Folder>,
-    onClick: (folder: Folder) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val configuration = LocalConfiguration.current
-    val bottomSheetHeight = configuration.screenHeightDp.dp / 2
-    val items = folders.map { BottomSheetDateItem(title = it.name, onClick = { onClick(it) }) }
-
-    BottomSheetWithItems(
-        modifier = modifier.height(bottomSheetHeight),
-        items = items,
-        onDismiss = onDismiss,
-        header = {
-            Text(
-                modifier = Modifier.padding(vertical = 16.dp),
-                text = stringResource(id = R.string.select_action),
-                style = MaterialTheme.typography.h2.copy(color = selectedColor),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    )
 
 }
 

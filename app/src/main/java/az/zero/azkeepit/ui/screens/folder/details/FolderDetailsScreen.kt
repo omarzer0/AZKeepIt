@@ -15,7 +15,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -82,13 +81,14 @@ fun FolderDetailsScreen(
         }
     ) {
 
-        DeleteFolderDialog(
+        DeleteDialog(
             openDialog = state.deleteFolderDialogOpened,
+            text = stringResource(id = R.string.are_you_sure_you_want_to_delete_this_folder),
             onDismiss = { viewModel.changeDeleteFolderDialogState(isOpened = false) },
             onDeleteClick = viewModel::deleteFolder
         )
 
-        DeleteAllNotesDialog(
+        DeleteDialog(
             openDialog = state.deleteAllNotesDialogOpened,
             text = stringResource(id = R.string.are_you_sure_you_want_to_delete_all_notes_in_this_folder),
             onDismiss = { viewModel.changeDeleteAllNotesDialogState(isOpened = false) },
@@ -214,21 +214,3 @@ fun FolderRenameDialog(
         }
     )
 }
-
-@Composable
-fun DeleteFolderDialog(
-    openDialog: Boolean,
-    onDismiss: () -> Unit,
-    onDeleteClick: () -> Unit,
-) {
-    TextDialogWithTwoButtons(
-        titleText = stringResource(id = R.string.are_you_sure_you_want_to_delete_this_folder),
-        openDialog = openDialog,
-        startBtnText = stringResource(id = R.string.delete),
-        onStartBtnClick = onDeleteClick,
-        startBtnStyle = MaterialTheme.typography.h3.copy(color = Color.Red),
-        endBtnText = stringResource(id = R.string.cancel),
-        onDismiss = onDismiss
-    )
-}
-

@@ -21,6 +21,6 @@ fun FolderWithNotes.toUiFolder(isSelected: Boolean = false) = UiFolder(
     name = this.folder.name,
     createdAt = this.folder.createdAt,
     folderId = this.folder.folderId!!,
-    folderNotes = this.notes.map { it.toUiNote() },
+    folderNotes = this.notes.map { it.toUiNote(ownerUiFolder = this.folder.toUiFolder()) },
     isSelected = isSelected
 )

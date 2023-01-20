@@ -42,6 +42,9 @@ interface NoteDao {
     @Query("UPDATE Folder SET name =:newName WHERE folderId =:folderId")
     suspend fun renameFolder(folderId: Long, newName: String)
 
+    @Query("DELETE FROM Folder WHERE folderId IN (:selectedFoldersId)")
+    suspend fun deleteSelectedFolders(selectedFoldersId: MutableList<Long>)
+
     // ========================== Notes ======================
 
     @Transaction
@@ -68,6 +71,9 @@ interface NoteDao {
 
     @Query("DELETE FROM Note WHERE noteId in (:noteIds)")
     suspend fun deleteAllSelectedNotes(noteIds: MutableList<Long>)
+
+    @Query("UPDATE Note SET ownerFolderId=:folderId WHERE noteId in (:selectedNotesIds)")
+    suspend fun moveNotesToFolder(folderId: Long, selectedNotesIds: MutableList<Long>)
 
 
 }
