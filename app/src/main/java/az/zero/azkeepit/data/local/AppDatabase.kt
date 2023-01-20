@@ -12,6 +12,7 @@ import az.zero.azkeepit.data.local.entities.Note
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun getNoteDao(): NoteDao
+    abstract fun getFolderDao(): FolderDao
 
     companion object {
         const val DATABASE_NAME = "az_keep_it_app"

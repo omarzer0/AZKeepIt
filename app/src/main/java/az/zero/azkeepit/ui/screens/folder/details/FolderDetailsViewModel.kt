@@ -5,8 +5,9 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import az.zero.azkeepit.data.local.entities.UiFolder
+import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
+import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.ui.screens.navArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,12 +21,13 @@ import javax.inject.Inject
 @HiltViewModel
 class FolderDetailsViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
+    private val folderRepository: FolderRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val folderDetailsScreenArgs: FolderDetailsScreenArgs = savedStateHandle.navArgs()
     private val folderId = folderDetailsScreenArgs.id
-    private val uiFolder = noteRepository.getUiFolder(folderId)
+    private val uiFolder = folderRepository.getUiFolderById(folderId)
     private val deleteFolderDialogOpened = MutableStateFlow(false)
     private val deleteAllNotesDialogOpened = MutableStateFlow(false)
     private val renameDialogOpened = MutableStateFlow(false)
@@ -71,7 +73,7 @@ class FolderDetailsViewModel @Inject constructor(
 
 
     fun deleteFolder() = viewModelScope.launch {
-        noteRepository.deleteFolder(folderId)
+        folderRepository.deleteFolder(folderId)
         shouldPopUp.emit(true)
     }
 
@@ -80,7 +82,7 @@ class FolderDetailsViewModel @Inject constructor(
     }
 
     fun renameFolder(name: String) = viewModelScope.launch {
-        noteRepository.renameFolder(folderId = folderId, newName = name)
+        folderRepository.renameFolder(folderId = folderId, newName = name)
     }
 }
 

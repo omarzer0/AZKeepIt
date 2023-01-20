@@ -1,7 +1,9 @@
 package az.zero.azkeepit.data.local.entities
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.Relation
 
 @Entity
 data class Folder(
@@ -11,21 +13,15 @@ data class Folder(
     val folderId: Long? = null,
 )
 
-data class UiFolder(
-    val name: String,
-    val createdAt: Long,
-    val folderId: Long,
-    val folderNotes: List<UiNote> = emptyList(),
-    val isSelected: Boolean = false,
+data class FolderWithNotes(
+    @Embedded
+    val folder: Folder,
+    @Relation(
+        // Id of the parent (it is in one-to-many relation the table that has one relation)
+        // like folder that has many notes but the notes has only one folder
+        parentColumn = "folderId",
+        // correspond to the field in LocalNote (the child)
+        entityColumn = "ownerFolderId",
+    )
+    val notes: List<Note>,
 )
-
-fun Folder.toUiFolder(isSelected: Boolean = false) = UiFolder(
-    name = this.name,
-    createdAt = this.createdAt,
-    folderId = this.folderId!!,
-    isSelected = isSelected
-)
-
-fun List<Folder>.toUiFolders() = this.map {
-    it.toUiFolder()
-}

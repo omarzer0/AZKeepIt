@@ -1,7 +1,9 @@
 package az.zero.azkeepit.data.repository
 
 import az.zero.azkeepit.data.local.NoteDao
-import az.zero.azkeepit.data.local.entities.*
+import az.zero.azkeepit.data.local.entities.Note
+import az.zero.azkeepit.domain.mappers.toUiNote
+import az.zero.azkeepit.domain.mappers.toUiNotes
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -10,25 +12,6 @@ import javax.inject.Singleton
 class NoteRepository @Inject constructor(
     private val noteDao: NoteDao,
 ) {
-
-    fun getUiFolders() = noteDao.getFolders().map { it.toUiFolders() }
-
-    fun getUiFolder(folderId: Long) = noteDao.getFolderWithNotesById(folderId).map {
-        it?.toUiFolder()
-    }
-
-    suspend fun insertFolder(folder: Folder) = noteDao.insertFolder(folder)
-
-    suspend fun deleteFolder(folderId: Long) = noteDao.deleteFolder(folderId)
-
-    suspend fun renameFolder(folderId: Long, newName: String) =
-        noteDao.renameFolder(folderId, newName)
-
-    suspend fun deleteSelectedFolders(selectedFoldersId: MutableList<Long>) =
-        noteDao.deleteSelectedFolders(selectedFoldersId)
-
-    // ========================== Notes ======================
-
 
     fun getNotesWithFolderName() = noteDao.getNotesWithFolderName().map { it.toUiNotes() }
 

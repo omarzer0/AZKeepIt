@@ -11,7 +11,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import az.zero.azkeepit.data.local.entities.UiNote
+import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.ui.theme.selectedColor

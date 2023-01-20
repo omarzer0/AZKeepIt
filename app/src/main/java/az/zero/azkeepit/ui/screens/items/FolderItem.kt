@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.R
-import az.zero.azkeepit.data.local.entities.UiFolder
+import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.ui.theme.selectedColor

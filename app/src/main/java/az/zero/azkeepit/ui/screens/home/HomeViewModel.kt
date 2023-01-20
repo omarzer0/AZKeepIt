@@ -3,9 +3,10 @@ package az.zero.azkeepit.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import az.zero.azkeepit.data.local.entities.Folder
-import az.zero.azkeepit.data.local.entities.UiFolder
-import az.zero.azkeepit.data.local.entities.UiNote
+import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
+import az.zero.azkeepit.domain.mappers.UiFolder
+import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.util.JDateTimeUtil
 import az.zero.azkeepit.util.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,10 +19,11 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
+    private val folderRepository: FolderRepository,
 ) : ViewModel() {
 
     private val uiNotes = noteRepository.getNotesWithFolderName()
-    private val uiFolders = noteRepository.getUiFolders()
+    private val uiFolders = folderRepository.getUiFolders()
     private val isEditModeOn = MutableStateFlow(false)
     private val isDeleteNotesDialogOpened = MutableStateFlow(false)
     private val isCreateFolderDialogOpened = MutableStateFlow(false)
@@ -31,7 +33,7 @@ class HomeViewModel @Inject constructor(
     private val selectedFolders = MutableStateFlow(mutableListOf<Long>())
 
     fun createFolder(folderName: String) = viewModelScope.launch {
-        noteRepository.insertFolder(Folder(folderName, JDateTimeUtil.now(), null))
+        folderRepository.insertFolder(Folder(folderName, JDateTimeUtil.now(), null))
     }
 
     fun changeEditModeState(
@@ -73,7 +75,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun deleteSelectedFolders() = viewModelScope.launch {
-        noteRepository.deleteSelectedFolders(selectedFolders.value)
+        folderRepository.deleteSelectedFolders(selectedFolders.value)
         postAction()
     }
 
@@ -110,8 +112,10 @@ class HomeViewModel @Inject constructor(
         selectedFolders,
         isDeleteNotesDialogOpened,
         isDeleteFoldersDialogOpen,
-    ) { uiNotes, uiFolders, isEditModeOn, currentTab, isCreateFolderDialogOpened,
-        selectedNotes, selectedFolders, isDeleteNotesDialogOpened, isDeleteFoldersDialogOpen ->
+    ) {
+            uiNotes, uiFolders, isEditModeOn, currentTab, isCreateFolderDialogOpened,
+            selectedNotes, selectedFolders, isDeleteNotesDialogOpened, isDeleteFoldersDialogOpen,
+        ->
         HomeUiState(
             uiNotes = uiNotes.map { it.copy(isSelected = selectedNotes.contains(it.noteId)) },
             uiFolders = uiFolders.map { it.copy(isSelected = selectedFolders.contains(it.folderId)) },

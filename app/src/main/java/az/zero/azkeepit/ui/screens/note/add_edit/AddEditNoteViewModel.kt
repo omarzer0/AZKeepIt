@@ -5,10 +5,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import az.zero.azkeepit.data.local.entities.Folder
 import az.zero.azkeepit.data.local.entities.Note
-import az.zero.azkeepit.data.local.entities.UiFolder
+import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
+import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.ui.screens.navArgs
 import az.zero.azkeepit.util.JDateTimeUtil
 import az.zero.azkeepit.util.combine
@@ -25,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditNoteScreenViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
+    private val folderRepository: FolderRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -36,7 +37,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
     private val content = MutableStateFlow("")
     private val isLocked = MutableStateFlow(false)
     private val dateTime = MutableStateFlow(JDateTimeUtil.toLongDateTimeFormat(createdAt))
-    private val allFolders = noteRepository.getUiFolders()
+    private val allFolders = folderRepository.getUiFolders()
     private val folder = MutableStateFlow<UiFolder?>(null)
     private val shouldPopUp = MutableStateFlow(false)
     private val deleteDialogOpened = MutableStateFlow(false)

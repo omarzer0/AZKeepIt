@@ -5,6 +5,7 @@ import androidx.room.Room
 import az.zero.azkeepit.BuildConfig
 import az.zero.azkeepit.data.local.AppDatabase
 import az.zero.azkeepit.data.local.DatabaseCallback
+import az.zero.azkeepit.data.local.FolderDao
 import az.zero.azkeepit.data.local.NoteDao
 import dagger.Module
 import dagger.Provides
@@ -21,7 +22,7 @@ object DatabaseModules {
     @Provides
     fun provideDatabase(
         @ApplicationContext context: Context,
-        databaseCallback: DatabaseCallback
+        databaseCallback: DatabaseCallback,
     ): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.DATABASE_NAME)
             .apply {
@@ -35,4 +36,8 @@ object DatabaseModules {
     @Singleton
     @Provides
     fun providesNoteDao(appDatabase: AppDatabase): NoteDao = appDatabase.getNoteDao()
+
+    @Singleton
+    @Provides
+    fun providesFolderDao(appDatabase: AppDatabase): FolderDao = appDatabase.getFolderDao()
 }
