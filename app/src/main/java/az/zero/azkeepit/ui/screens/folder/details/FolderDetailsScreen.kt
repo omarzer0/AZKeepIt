@@ -40,46 +40,67 @@ fun FolderDetailsScreen(
     navigator: DestinationsNavigator,
 ) {
 
+
     val state by viewModel.folderDetailsState.collectAsState()
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
-    BackHandler(
-        enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded
-    ) {
-        scope.launch {
-            bottomSheetScaffoldState.bottomSheetState.collapse()
-        }
+    val bottomState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+
+    BackHandler(enabled = bottomState.isVisible) {
+        scope.launch { bottomState.hide() }
     }
 
     LaunchedEffect(state.shouldPopUp) {
         if (state.shouldPopUp) navigator.popBackStack()
     }
 
-    BottomSheetScaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colors.background),
-        scaffoldState = bottomSheetScaffoldState,
-        sheetPeekHeight = 0.dp,
+    ModalBottomSheetLayout(
+        sheetElevation = 0.dp,
+        sheetState = bottomState,
+        sheetShape = RoundTopOnly(),
+        scrimColor = Color.Transparent,
+        sheetBackgroundColor = MaterialTheme.colors.background,
         sheetContent = {
             FolderSheetContent(
                 viewModel = viewModel,
-                onDismiss = { scope.launch { bottomSheetScaffoldState.bottomSheetState.collapse() } }
-            )
-        },
-        topBar = {
-            HeaderWithBackBtn(
-                text = state.title,
-                elevation = 0.dp,
-                onBackPressed = viewModel::onBackPressed,
-                actions = {
-                    FolderBarActions(onMoreClick = {
-                        scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() }
-                    })
-                }
+                onDismiss = { scope.launch { bottomState.hide() } }
             )
         }
     ) {
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.background),
+            topBar = {
+                HeaderWithBackBtn(
+                    text = state.title,
+                    elevation = 0.dp,
+                    onBackPressed = viewModel::onBackPressed,
+                    actions = { FolderBarActions(onMoreClick = { scope.launch { bottomState.show() } }) }
+                )
+            }
+        ) {
+            LazyVerticalStaggeredGrid(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                columns = StaggeredGridCells.Fixed(2),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+
+                items(state.uiFolder.folderNotes) { uiNote ->
+                    NoteItem(
+                        uiNote = uiNote,
+                        isEditModeOn = false,
+                        onNoteClick = {
+                            navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
+                        }
+                    )
+                }
+
+            }
+        }
 
         DeleteDialog(
             openDialog = state.deleteFolderDialogOpened,
@@ -101,29 +122,6 @@ fun FolderDetailsScreen(
             onDismiss = { viewModel.changeRenameDialogState(isOpened = false) },
             onRenameClick = viewModel::renameFolder
         )
-
-        LazyVerticalStaggeredGrid(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it),
-            columns = StaggeredGridCells.Fixed(2),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-
-            items(state.uiFolder.folderNotes) { uiNote ->
-                NoteItem(
-                    uiNote = uiNote,
-                    isEditModeOn = false,
-                    onNoteClick = {
-                        navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
-                    }
-                )
-            }
-
-        }
-
 
     }
 }
@@ -158,7 +156,10 @@ fun FolderSheetContent(
     BottomSheetWithItems(
         modifier = Modifier.height(bottomSheetHeight),
         items = items,
-        onDismiss = onDismiss,
+        onDismiss = {
+            onDismiss()
+
+        },
         header = {
             Text(
                 modifier = Modifier.padding(vertical = 16.dp),

@@ -1,6 +1,5 @@
 package az.zero.azkeepit.ui.screens.home
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -72,10 +71,15 @@ fun HomeScreen(
         }
     }
 
+    LaunchedEffect(key1 = state.isEditModeOn) {
+        if (!state.isEditModeOn) scrollUp = true
+    }
+
     Scaffold(
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection),
+
         topBar = {
             HomeAppBar(
                 selectedNumber = selectedNumber,
@@ -162,6 +166,7 @@ fun HomeFab(
     onAddFolderClick: () -> Unit,
 ) {
     AnimatedVisibility(visible = !isEditModeOn && isScrollingUp) {
+//    AnimatedVisibility(visible = !isEditModeOn) {
         FloatingActionButton(
             modifier = modifier,
             onClick = if (currentTab == 0) onAddNoteClick else onAddFolderClick,
@@ -192,7 +197,8 @@ fun HomeAppBar(
     selectedNumber: Int,
     onClearSelectionClick: () -> Unit,
 ) {
-    AnimatedVisibility(visible = isEditModeOn || isScrollingUp) {
+    // fixme: when hide the appbar the bottom sheet appears for a sec as the layout height changes
+//    AnimatedVisibility(visible = isEditModeOn || isScrollingUp) {
         HeaderWithBackBtn(
             modifier = modifier,
             text = stringResource(id = R.string.app_name),
@@ -239,7 +245,7 @@ fun HomeAppBar(
             }
         )
 
-    }
+//    }
 }
 
 //    val density = LocalDensity.current

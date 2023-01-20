@@ -12,10 +12,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DriveFileMove
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -49,6 +46,10 @@ fun NotesScreen(
 
     BackHandler(enabled = bottomState.isVisible) {
         scope.launch { bottomState.hide() }
+    }
+
+    LaunchedEffect(key1 = state.isEditModeOn) {
+        if (!state.isEditModeOn) scope.launch { bottomState.hide() }
     }
 
     DeleteDialog(

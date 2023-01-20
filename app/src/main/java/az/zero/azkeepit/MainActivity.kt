@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.ExperimentalComposeUiApi
-import az.zero.azkeepit.ui.composables.ChangeStatusBarColor
+import az.zero.azkeepit.ui.composables.ChangeSystemBarColor
 import az.zero.azkeepit.ui.screens.NavGraphs
 import az.zero.azkeepit.ui.theme.AZKeepItTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AZKeepItTheme {
-                ChangeStatusBarColor(
+                ChangeSystemBarColor(
                     statusColor = MaterialTheme.colors.background,
                     navigationBarColor = MaterialTheme.colors.background,
                 )
