@@ -19,12 +19,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
-import az.zero.azkeepit.ui.composables.AddEditBottomSheet
 import az.zero.azkeepit.ui.composables.DeleteDialog
+import az.zero.azkeepit.ui.composables.RoundTopOnly
+import az.zero.azkeepit.ui.composables.SelectFolderBottomSheet
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.home.BottomBarItem
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
@@ -42,15 +44,11 @@ fun NotesScreen(
     navigator: DestinationsNavigator,
 ) {
     val state by viewModel.state.collectAsState()
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
+    val bottomState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
-    BackHandler(
-        enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded
-    ) {
-        scope.launch {
-            bottomSheetScaffoldState.bottomSheetState.collapse()
-        }
+    BackHandler(enabled = bottomState.isVisible) {
+        scope.launch { bottomState.hide() }
     }
 
     DeleteDialog(
@@ -60,22 +58,22 @@ fun NotesScreen(
         onDeleteClick = viewModel::deleteSelectedNotes
     )
 
-    BottomSheetScaffold(
-        modifier = Modifier.fillMaxSize(),
-        scaffoldState = bottomSheetScaffoldState,
-        sheetPeekHeight = 0.dp,
+    ModalBottomSheetLayout(
+        sheetElevation = 0.dp,
+        sheetState = bottomState,
+        sheetShape = RoundTopOnly(),
+        scrimColor = Color.Transparent,
+        sheetBackgroundColor = MaterialTheme.colors.background,
         sheetContent = {
-            AddEditBottomSheet(
+            SelectFolderBottomSheet(
                 uiFolders = state.uiFolders,
-                onDismiss = { scope.launch { bottomSheetScaffoldState.bottomSheetState.collapse() } },
+                titleText = stringResource(id = R.string.select_folder),
+                onDismiss = { scope.launch { bottomState.hide() } },
                 onClick = { viewModel.moveSelectedNotesToFolder(it.folderId) }
             )
-        },
+        }
     ) {
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(it)
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             LazyVerticalStaggeredGrid(
                 modifier = Modifier.weight(1f),
                 columns = StaggeredGridCells.Fixed(2),
@@ -108,11 +106,12 @@ fun NotesScreen(
                 isEditModeOn = state.isEditModeOn,
                 enabled = state.isNoteActionsEnabled,
                 onDeleteNotesClick = { viewModel.changeDeleteNotesDialogState(isOpened = true) },
-                onMoveNotesClick = { scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() } }
+                onMoveNotesClick = { scope.launch { bottomState.show() } }
             )
         }
-
     }
+
+
 }
 
 @Composable

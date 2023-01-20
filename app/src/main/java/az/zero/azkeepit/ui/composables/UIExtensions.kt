@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.text.layoutDirection
 import java.util.*
 
 @Stable
@@ -59,3 +58,13 @@ fun getColorFromHex(colorString: String): Color {
     else colorString
     return Color(android.graphics.Color.parseColor(colorToConvert))
 }
+
+fun RoundTopOnly(topStart: Dp = 12.dp, topEnd: Dp = 12.dp) = RoundedCornerShape(
+    topStart = topStart,
+    topEnd = topEnd,
+)
+
+fun RoundTopOnly(symmetric: Dp = 12.dp) = RoundedCornerShape(
+    topStart = symmetric,
+    topEnd = symmetric,
+)

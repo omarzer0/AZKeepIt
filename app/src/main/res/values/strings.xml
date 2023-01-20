@@ -14,7 +14,7 @@
     <string name="folder_name">Folder name</string>
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
-    <string name="select_folder">Select folder</string>
+    <string name="select_folder">Select a folder</string>
     <string name="clear">Clear</string>
     <string name="delete">Delete</string>
     <string name="are_you_sure_you_want_to_delete_this_note">Are you sure you want to delete this note?</string>

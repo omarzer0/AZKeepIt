@@ -15,8 +15,9 @@ import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.ui.theme.selectedColor
 
 @Composable
-fun AddEditBottomSheet(
+fun SelectFolderBottomSheet(
     modifier: Modifier = Modifier,
+    titleText:String,
     uiFolders: List<UiFolder>,
     onClick: (uiFolder: UiFolder) -> Unit,
     onDismiss: () -> Unit,
@@ -32,7 +33,7 @@ fun AddEditBottomSheet(
         header = {
             Text(
                 modifier = Modifier.padding(vertical = 16.dp),
-                text = stringResource(id = R.string.select_action),
+                text = titleText,
                 style = MaterialTheme.typography.h2.copy(color = selectedColor),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

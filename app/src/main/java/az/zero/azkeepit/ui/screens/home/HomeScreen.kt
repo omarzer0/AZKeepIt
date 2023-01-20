@@ -1,5 +1,6 @@
 package az.zero.azkeepit.ui.screens.home
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -8,12 +9,15 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -43,6 +47,7 @@ fun HomeScreen(
 ) {
     val tabs = remember(Unit) { listOf("Notes", "Folders") }
     val state by viewModel.state.collectAsState()
+
     val selectedNumber by remember(state) {
         mutableStateOf(
             if (state.currentTab == 0) state.selectedNotesNumber
@@ -54,12 +59,28 @@ fun HomeScreen(
         viewModel.changeEditModeState(isActive = false)
     }
 
+    var scrollUp by remember { mutableStateOf(true) }
+    val isScrollingUp by remember { derivedStateOf { scrollUp } }
+
+    // top and right are negative values
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                scrollUp = available.y >= 0
+                return Offset.Zero
+            }
+        }
+    }
+
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(nestedScrollConnection),
         topBar = {
             HomeAppBar(
                 selectedNumber = selectedNumber,
                 isEditModeOn = state.isEditModeOn,
+                isScrollingUp = isScrollingUp,
                 onSearchClick = { navigator.navigate(SearchScreenDestination()) },
                 onClearSelectionClick = { viewModel.changeEditModeState(isActive = false) }
             )
@@ -69,6 +90,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
                 currentTab = state.currentTab,
                 isEditModeOn = state.isEditModeOn,
+                isScrollingUp = isScrollingUp,
                 onAddNoteClick = { navigator.navigate(AddEditNoteScreenDestination(null)) },
                 onAddFolderClick = { viewModel.changeCreateFolderDialogState(isOpened = true) }
             )
@@ -135,10 +157,11 @@ fun HomeFab(
     modifier: Modifier = Modifier,
     currentTab: Int,
     isEditModeOn: Boolean,
+    isScrollingUp: Boolean,
     onAddNoteClick: () -> Unit,
     onAddFolderClick: () -> Unit,
 ) {
-    AnimatedVisibility(visible = !isEditModeOn) {
+    AnimatedVisibility(visible = !isEditModeOn && isScrollingUp) {
         FloatingActionButton(
             modifier = modifier,
             onClick = if (currentTab == 0) onAddNoteClick else onAddFolderClick,
@@ -163,56 +186,60 @@ fun HomeFab(
 @Composable
 fun HomeAppBar(
     modifier: Modifier = Modifier,
-    isEditModeOn: Boolean = false,
+    isEditModeOn: Boolean,
+    isScrollingUp: Boolean,
     onSearchClick: () -> Unit,
     selectedNumber: Int,
     onClearSelectionClick: () -> Unit,
 ) {
-    HeaderWithBackBtn(
-        modifier = modifier,
-        text = stringResource(id = R.string.app_name),
-        elevation = 0.dp,
-        actions = {
-            AnimatedContent(
-                transitionSpec = {
-                    fadeIn() + expandHorizontally() with fadeOut() + shrinkHorizontally()
-                },
-                targetState = isEditModeOn
-            ) {
-                if (it) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "$selectedNumber ${stringResource(id = R.string.selected)}",
-                            style = MaterialTheme.typography.h2.copy(color = selectedColor)
-                        )
+    AnimatedVisibility(visible = isEditModeOn || isScrollingUp) {
+        HeaderWithBackBtn(
+            modifier = modifier,
+            text = stringResource(id = R.string.app_name),
+            elevation = 0.dp,
+            actions = {
+                AnimatedContent(
+                    transitionSpec = {
+                        fadeIn() + expandHorizontally() with fadeOut() + shrinkHorizontally()
+                    },
+                    targetState = isEditModeOn
+                ) {
+                    if (it) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "$selectedNumber ${stringResource(id = R.string.selected)}",
+                                style = MaterialTheme.typography.h2.copy(color = selectedColor)
+                            )
 
+                            IconButton(
+                                onClick = onClearSelectionClick
+                            ) {
+                                Icon(
+                                    Icons.Filled.Close,
+                                    stringResource(id = R.string.close),
+                                    tint = MaterialTheme.colors.onBackground,
+                                )
+                            }
+                        }
+                    } else {
                         IconButton(
-                            onClick = onClearSelectionClick
+                            onClick = onSearchClick
                         ) {
                             Icon(
-                                Icons.Filled.Close,
-                                stringResource(id = R.string.close),
-                                tint = MaterialTheme.colors.onBackground,
+                                Icons.Filled.Search,
+                                stringResource(id = R.string.search),
+                                tint = MaterialTheme.colors.onBackground
                             )
                         }
                     }
-                } else {
-                    IconButton(
-                        onClick = onSearchClick
-                    ) {
-                        Icon(
-                            Icons.Filled.Search,
-                            stringResource(id = R.string.search),
-                            tint = MaterialTheme.colors.onBackground
-                        )
-                    }
-                }
 
+                }
             }
-        }
-    )
+        )
+
+    }
 }
 
 //    val density = LocalDensity.current
