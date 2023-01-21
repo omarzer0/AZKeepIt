@@ -18,7 +18,7 @@ class SearchViewModel @Inject constructor(
     var query = MutableStateFlow("")
         private set
 
-    val searchedNotes = query.flatMapLatest {
+    val searchedUiNotes = query.flatMapLatest {
         noteRepository.searchNotes(it)
     }.stateIn(
         viewModelScope,

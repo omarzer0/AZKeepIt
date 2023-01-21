@@ -33,8 +33,8 @@ fun BottomSheetWithItems(
 
     Column(
         modifier = modifier
-            .background(bgColor)
-            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+//            .background(bgColor)
+//            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
             .background(cardBgColor),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally

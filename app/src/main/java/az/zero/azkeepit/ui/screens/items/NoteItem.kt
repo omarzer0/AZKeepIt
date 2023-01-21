@@ -2,34 +2,33 @@ package az.zero.azkeepit.ui.screens.items
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import az.zero.azkeepit.data.local.entities.NoteWithFolder
+import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.theme.cardBgColor
+import az.zero.azkeepit.ui.theme.selectedColor
 import az.zero.azkeepit.util.JDateTimeUtil
 
 @Composable
 fun NoteItem(
     modifier: Modifier = Modifier,
-    noteWithFolder: NoteWithFolder,
+    uiNote: UiNote,
+    isEditModeOn: Boolean,
     onLongClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
     onNoteClick: () -> Unit,
 ) {
 
-    val note = noteWithFolder.note
-    val folderName = noteWithFolder.folder?.name ?: ""
-    val shortDateTime = remember(note.createdAt) {
-        JDateTimeUtil.toShortDateTimeFormat(note.createdAt)
+    val shortDateTime = remember(uiNote.createdAt) {
+        JDateTimeUtil.toShortDateTimeFormat(uiNote.createdAt)
     }
 
     Card(
@@ -48,8 +47,21 @@ fun NoteItem(
                 .fillMaxSize()
                 .padding(12.dp)
         ) {
+
+            if (isEditModeOn) {
+                RadioButton(
+                    modifier = Modifier.align(Alignment.Start),
+                    selected = uiNote.isSelected,
+                    enabled = uiNote.isSelected,
+                    colors = RadioButtonDefaults.colors(selectedColor = selectedColor),
+                    onClick = null
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
             Text(
-                text = note.title,
+                text = uiNote.title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.h2.copy(
@@ -60,7 +72,7 @@ fun NoteItem(
             Spacer(modifier = Modifier.size(30.dp))
 
             Text(
-                text = note.content,
+                text = uiNote.content,
                 maxLines = 5,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.body1.copy(
@@ -88,7 +100,7 @@ fun NoteItem(
 
                 Text(
                     modifier = Modifier.weight(2f),
-                    text = folderName,
+                    text = uiNote.ownerUiFolder?.name ?: "",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.End,

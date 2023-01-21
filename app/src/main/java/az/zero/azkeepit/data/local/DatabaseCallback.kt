@@ -11,32 +11,6 @@ class DatabaseCallback @Inject constructor(
 
     override fun onOpen(db: SupportSQLiteDatabase) {
         super.onOpen(db)
-//        val dao = database.get().getNoteDao()
-//        val scope = CoroutineScope(SupervisorJob())
-//        scope.launch {
-//            notes.forEach { launch { dao.insertNote(it) } }
-//            folders.forEach { launch { dao.insertFolder(it) } }
-//        }
     }
 
 }
-
-//val notes = List(20) {
-//    val folderName = if (it < 10) "folder 1" else "folder 2"
-//    val ownerFolderId = if (it < 10) 0 else 1
-//    val timeDate = JDateTimeUtil.now()
-//    LocalNote(title = "title $it",
-//        content = "content $it",
-//        isLocked = false,
-//        isUpdated = false,
-//        createdAt = timeDate,
-//        updatedAt = timeDate,
-//        folderName = folderName,
-//        ownerFolderId = ownerFolderId.toLong(),
-//        noteId = it.toLong()
-//    )
-//}
-//
-//val folders = List(2) {
-//    LocalFolder("folder $it", it.toLong())
-//}

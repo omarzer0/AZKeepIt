@@ -1,21 +1,24 @@
-@file:OptIn(ExperimentalPagerApi::class)
-
 package az.zero.azkeepit.ui.screens.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
@@ -24,13 +27,13 @@ import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.destinations.SearchScreenDestination
 import az.zero.azkeepit.ui.screens.home.tab_screens.FolderScreen
 import az.zero.azkeepit.ui.screens.home.tab_screens.NotesScreen
-import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.ui.theme.selectedColor
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+@OptIn(ExperimentalPagerApi::class)
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @RootNavGraph(start = true)
@@ -41,19 +44,47 @@ fun HomeScreen(
     navigator: DestinationsNavigator,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val tabs = listOf("Notes", "Folders")
-//    var currentTab by remember { mutableStateOf(0) }
-//    var isCreateFolderDialogOpened by rememberSaveable { mutableStateOf(false) }
-//    var isEditModeOn by rememberSaveable { mutableStateOf(false) }
-
+    val tabs = remember(Unit) { listOf("Notes", "Folders") }
     val state by viewModel.state.collectAsState()
 
+    val selectedNumber by remember(state) {
+        mutableStateOf(
+            if (state.currentTab == 0) state.selectedNotesNumber
+            else state.selectedFolderNumber
+        )
+    }
+
+    BackHandler(enabled = state.isEditModeOn) {
+        viewModel.changeEditModeState(isActive = false)
+    }
+
+    var scrollUp by remember { mutableStateOf(true) }
+    val isScrollingUp by remember { derivedStateOf { scrollUp } }
+
+    // top and right are negative values
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                scrollUp = available.y >= 0
+                return Offset.Zero
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = state.isEditModeOn) {
+        if (!state.isEditModeOn) scrollUp = true
+    }
+
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(nestedScrollConnection),
+
         topBar = {
             HomeAppBar(
-                selectedNumber = 0,
+                selectedNumber = selectedNumber,
                 isEditModeOn = state.isEditModeOn,
+                isScrollingUp = isScrollingUp,
                 onSearchClick = { navigator.navigate(SearchScreenDestination()) },
                 onClearSelectionClick = { viewModel.changeEditModeState(isActive = false) }
             )
@@ -63,18 +94,11 @@ fun HomeScreen(
                 modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
                 currentTab = state.currentTab,
                 isEditModeOn = state.isEditModeOn,
-                onAddNoteClick = {
-                    navigator.navigate(AddEditNoteScreenDestination(null))
-                },
-                onAddFolderClick = {
-                    viewModel.changeCreateFolderDialogState(isOpened = true)
-                }
+                isScrollingUp = isScrollingUp,
+                onAddNoteClick = { navigator.navigate(AddEditNoteScreenDestination(null)) },
+                onAddFolderClick = { viewModel.changeCreateFolderDialogState(isOpened = true) }
             )
-        },
-        bottomBar = {
-            HomeBottomBar(isEditModeOn = state.isEditModeOn)
         }
-
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -85,71 +109,51 @@ fun HomeScreen(
                 tabSelectorHeight = 4.dp,
                 tabSelectorColor = selectedColor,
                 selectedContentColor = selectedColor,
+                isEditModeOn = state.isEditModeOn,
                 tabs = tabs,
                 onTabChange = viewModel::changeCurrentTap
             ) {
                 when (it) {
-                    0 -> NotesScreen(
-                        navigator = navigator,
-                        notesWithFolder = state.notesWithFolderName,
-                        isEditModeOn = state.isEditModeOn,
-                        onEditModeChange = {
-                            viewModel.changeEditModeState(isActive = !state.isEditModeOn)
-                        }
-                    )
-                    1 -> FolderScreen(
-                        navigator = navigator,
-                        folders = state.folders,
-                        isEditModeOn = state.isEditModeOn
-                    )
+                    0 -> NotesScreen(navigator = navigator)
+                    1 -> FolderScreen(navigator = navigator)
                 }
             }
-
-            HomeCustomDialog(
-                openDialog = state.isCreateFolderDialogOpened,
-                onDismiss = { viewModel.changeCreateFolderDialogState(isOpened = false) },
-                onCreateClick = viewModel::createFolder
-            )
-
         }
 
     }
 }
 
 @Composable
-fun HomeBottomBar(
-    isEditModeOn: Boolean,
+fun BottomBarItem(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    contentDescription: String? = null,
+    text: String,
+    enabled: Boolean = false,
+    tint: Color = if (enabled) MaterialTheme.colors.onBackground else Color.Gray,
+    textStyle: TextStyle = MaterialTheme.typography.h3.copy(
+        color = if (enabled) MaterialTheme.colors.onBackground else Color.Gray
+    ),
+    onClick: () -> Unit,
 ) {
-    AnimatedVisibility(visible = isEditModeOn) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(cardBgColor),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            IconButton(
-                onClick = {}
-            ) {
-                Icon(
-                    Icons.Filled.Delete,
-                    stringResource(id = R.string.close),
-                    tint = MaterialTheme.colors.onBackground,
-                )
-            }
+    Column(
+        modifier = modifier
+            .clickableSafeClick(
+                enabled = enabled,
+                onClick = onClick
+            )
+            .padding(8.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = tint)
 
-            IconButton(
-                onClick = {}
-            ) {
-                Icon(
-                    Icons.Filled.DriveFileMove,
-                    stringResource(id = R.string.close),
-                    tint = MaterialTheme.colors.onBackground,
-                )
-            }
-
-        }
+        Text(text = text, style = textStyle)
     }
+
 }
 
 @Composable
@@ -157,10 +161,12 @@ fun HomeFab(
     modifier: Modifier = Modifier,
     currentTab: Int,
     isEditModeOn: Boolean,
+    isScrollingUp: Boolean,
     onAddNoteClick: () -> Unit,
     onAddFolderClick: () -> Unit,
 ) {
-    AnimatedVisibility(visible = !isEditModeOn) {
+    AnimatedVisibility(visible = !isEditModeOn && isScrollingUp) {
+//    AnimatedVisibility(visible = !isEditModeOn) {
         FloatingActionButton(
             modifier = modifier,
             onClick = if (currentTab == 0) onAddNoteClick else onAddFolderClick,
@@ -185,86 +191,62 @@ fun HomeFab(
 @Composable
 fun HomeAppBar(
     modifier: Modifier = Modifier,
-    isEditModeOn: Boolean = false,
+    isEditModeOn: Boolean,
+    isScrollingUp: Boolean,
     onSearchClick: () -> Unit,
     selectedNumber: Int,
     onClearSelectionClick: () -> Unit,
 ) {
+    // fixme: when hide the appbar the bottom sheet appears for a sec as the layout height changes
+//    AnimatedVisibility(visible = isEditModeOn || isScrollingUp) {
+        HeaderWithBackBtn(
+            modifier = modifier,
+            text = stringResource(id = R.string.app_name),
+            elevation = 0.dp,
+            actions = {
+                AnimatedContent(
+                    transitionSpec = {
+                        fadeIn() + expandHorizontally() with fadeOut() + shrinkHorizontally()
+                    },
+                    targetState = isEditModeOn
+                ) {
+                    if (it) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "$selectedNumber ${stringResource(id = R.string.selected)}",
+                                style = MaterialTheme.typography.h2.copy(color = selectedColor)
+                            )
 
-    HeaderWithBackBtn(
-        modifier = modifier,
-        text = stringResource(id = R.string.app_name),
-        elevation = 0.dp,
-        actions = {
-            AnimatedContent(
-                transitionSpec = {
-                    fadeIn() + expandHorizontally() with fadeOut() + shrinkHorizontally()
-                },
-                targetState = isEditModeOn
-            ) {
-                if (it) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "$selectedNumber ${stringResource(id = R.string.selected)}",
-                            style = MaterialTheme.typography.h2.copy(color = selectedColor)
-                        )
-
+                            IconButton(
+                                onClick = onClearSelectionClick
+                            ) {
+                                Icon(
+                                    Icons.Filled.Close,
+                                    stringResource(id = R.string.close),
+                                    tint = MaterialTheme.colors.onBackground,
+                                )
+                            }
+                        }
+                    } else {
                         IconButton(
-                            onClick = onClearSelectionClick
+                            onClick = onSearchClick
                         ) {
                             Icon(
-                                Icons.Filled.Close,
-                                stringResource(id = R.string.close),
-                                tint = MaterialTheme.colors.onBackground,
+                                Icons.Filled.Search,
+                                stringResource(id = R.string.search),
+                                tint = MaterialTheme.colors.onBackground
                             )
                         }
                     }
-                } else {
-                    IconButton(
-                        onClick = onSearchClick
-                    ) {
-                        Icon(
-                            Icons.Filled.Search,
-                            stringResource(id = R.string.search),
-                            tint = MaterialTheme.colors.onBackground
-                        )
-                    }
+
                 }
-
             }
-        }
-    )
+        )
+
+//    }
 }
-
-@Composable
-fun HomeCustomDialog(
-    openDialog: Boolean,
-    onDismiss: () -> Unit,
-    onCreateClick: (name: String) -> Unit,
-) {
-    var text by rememberSaveable { mutableStateOf("") }
-    val isStartBtnEnabled by remember { derivedStateOf { text.isNotBlank() } }
-    val startBtnColor = if (isStartBtnEnabled) MaterialTheme.colors.onBackground else Color.Gray
-
-    EtDialogWithTwoButtons(
-        text = text,
-        headerText = stringResource(id = R.string.create_folder),
-        onTextChange = { text = it },
-        openDialog = openDialog,
-        startBtnText = stringResource(id = R.string.create),
-        onStartBtnClick = { onCreateClick(text) },
-        startBtnEnabled = isStartBtnEnabled,
-        startBtnStyle = MaterialTheme.typography.h3.copy(color = startBtnColor),
-        endBtnText = stringResource(id = R.string.cancel),
-        onDismiss = {
-            text = ""
-            onDismiss()
-        }
-    )
-}
-
 
 //    val density = LocalDensity.current
 //    val statusBarTop = WindowInsets.statusBars.getTop(density)

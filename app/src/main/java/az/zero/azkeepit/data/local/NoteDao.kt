@@ -10,40 +10,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NoteDao {
 
-    @Query("SELECT * FROM Folder ORDER BY createdAt DESC")
-    fun getFolders(): Flow<List<Folder>>
-
-    @Transaction
-    @Query("SELECT * FROM Folder ORDER BY createdAt DESC")
-    fun getFoldersWithNotes(): Flow<List<FolderWithNotes>>
-
-    @Query("SELECT * FROM Folder WHERE folderId=:folderId")
-    suspend fun getFolderById(folderId: Long): Folder?
-
-    @Transaction
-    @Query("SELECT * FROM Folder WHERE folderId=:folderId")
-    fun getFolderWithNotesById(folderId: Long): Flow<FolderWithNotes?>
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertFolder(folder: Folder)
-
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateFolder(folder: Folder)
-
-    @Query("DELETE FROM Folder WHERE folderId =:folderId")
-    suspend fun deleteFolder(folderId: Long)
-
-    @Query("DELETE FROM Folder WHERE folderId =:folderId")
-    suspend fun deleteFolderById(folderId: Long)
-
-    @Query("UPDATE Note SET ownerFolderId= -1 WHERE ownerFolderId=:folderId")
-    suspend fun renameAllNotesOfFolder(folderId: Long)
-
-    @Query("UPDATE Folder SET name =:newName WHERE folderId =:folderId")
-    suspend fun renameFolder(folderId: Long, newName: String)
-
-    // ========================== Notes ======================
-
     @Transaction
     @Query("SELECT * FROM Note ORDER BY createdAt DESC")
     fun getNotesWithFolderName(): Flow<List<NoteWithFolder>>
@@ -65,6 +31,12 @@ interface NoteDao {
 
     @Query("DELETE FROM Note WHERE ownerFolderId=:folderId")
     suspend fun deleteAllNotesFromFolder(folderId: Long)
+
+    @Query("DELETE FROM Note WHERE noteId in (:noteIds)")
+    suspend fun deleteAllSelectedNotes(noteIds: MutableList<Long>)
+
+    @Query("UPDATE Note SET ownerFolderId=:folderId WHERE noteId in (:selectedNotesIds)")
+    suspend fun moveNotesToFolder(folderId: Long, selectedNotesIds: MutableList<Long>)
 
 
 }
