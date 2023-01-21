@@ -2,6 +2,16 @@
 <resources>
 
     <style name="Theme.AZKeepIt" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/purple_700</item>
+        <item name="android:statusBarColor">@color/bg_color</item>
+        <item name="android:navigationBarColor">@color/bg_color</item>
+        <item name="android:windowBackground">@color/bg_color</item>
     </style>
+
+    <style name="SplashScreenTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_bg</item>
+        <item name="android:colorPrimaryDark">@color/bg_color</item>
+        <item name="android:navigationBarColor">@color/bg_color</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
 </resources>
