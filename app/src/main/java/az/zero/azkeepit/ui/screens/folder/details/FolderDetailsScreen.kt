@@ -1,7 +1,9 @@
 package az.zero.azkeepit.ui.screens.folder.details
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -11,15 +13,20 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
+import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.*
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.items.NoteItem
@@ -28,6 +35,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterialApi::class)
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
@@ -40,7 +48,6 @@ fun FolderDetailsScreen(
     navigator: DestinationsNavigator,
 ) {
 
-
     val state by viewModel.folderDetailsState.collectAsState()
     val scope = rememberCoroutineScope()
     val bottomState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
@@ -52,6 +59,27 @@ fun FolderDetailsScreen(
     LaunchedEffect(state.shouldPopUp) {
         if (state.shouldPopUp) navigator.popBackStack()
     }
+
+    DeleteDialog(
+        openDialog = state.deleteFolderDialogOpened,
+        text = stringResource(id = R.string.are_you_sure_you_want_to_delete_this_folder),
+        onDismiss = { viewModel.changeDeleteFolderDialogState(isOpened = false) },
+        onDeleteClick = viewModel::deleteFolder
+    )
+
+    DeleteDialog(
+        openDialog = state.deleteAllNotesDialogOpened,
+        text = stringResource(id = R.string.are_you_sure_you_want_to_delete_all_notes_in_this_folder),
+        onDismiss = { viewModel.changeDeleteAllNotesDialogState(isOpened = false) },
+        onDeleteClick = viewModel::deleteAllNotes
+    )
+
+    FolderRenameDialog(
+        initialText = state.title,
+        openDialog = state.renameDialogOpened,
+        onDismiss = { viewModel.changeRenameDialogState(isOpened = false) },
+        onRenameClick = viewModel::renameFolder
+    )
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -78,51 +106,75 @@ fun FolderDetailsScreen(
                     actions = { FolderBarActions(onMoreClick = { scope.launch { bottomState.show() } }) }
                 )
             }
-        ) {
-            LazyVerticalStaggeredGrid(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it),
-                columns = StaggeredGridCells.Fixed(2),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-
-                items(state.uiFolder.folderNotes) { uiNote ->
-                    NoteItem(
-                        uiNote = uiNote,
-                        isEditModeOn = false,
-                        onNoteClick = {
-                            navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
-                        }
-                    )
-                }
-
+        ) { paddingValues ->
+            when {
+                state.isUiFolderLoading -> {}
+                state.uiFolder.folderNotes.isEmpty() -> EmptyFolderDetailsScreen()
+                else -> SuccessFolderDetailsScreen(
+                    paddingValues = paddingValues,
+                    folderNotes = state.uiFolder.folderNotes,
+                    onNoteClick = { uiNote ->
+                        navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
+                    }
+                )
             }
         }
+    }
+}
 
-        DeleteDialog(
-            openDialog = state.deleteFolderDialogOpened,
-            text = stringResource(id = R.string.are_you_sure_you_want_to_delete_this_folder),
-            onDismiss = { viewModel.changeDeleteFolderDialogState(isOpened = false) },
-            onDeleteClick = viewModel::deleteFolder
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun SuccessFolderDetailsScreen(
+    paddingValues : PaddingValues = PaddingValues(0.dp),
+    folderNotes: List<UiNote>,
+    onNoteClick: (uiNote: UiNote) -> Unit,
+) {
+
+    LazyVerticalStaggeredGrid(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues),
+        columns = StaggeredGridCells.Fixed(2),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+
+        items(folderNotes) { uiNote ->
+            NoteItem(
+                uiNote = uiNote,
+                isEditModeOn = false,
+                onNoteClick = {
+                    onNoteClick(uiNote)
+                }
+            )
+        }
+
+    }
+}
+
+@Composable
+private fun EmptyFolderDetailsScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            modifier = Modifier
+                .size(150.dp),
+            contentScale = ContentScale.FillBounds,
+            painter = painterResource(id = R.drawable.no_note),
+            contentDescription = stringResource(id = R.string.no_note)
         )
 
-        DeleteDialog(
-            openDialog = state.deleteAllNotesDialogOpened,
-            text = stringResource(id = R.string.are_you_sure_you_want_to_delete_all_notes_in_this_folder),
-            onDismiss = { viewModel.changeDeleteAllNotesDialogState(isOpened = false) },
-            onDeleteClick = viewModel::deleteAllNotes
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = stringResource(id = R.string.no_note),
+            style = MaterialTheme.typography.h2.copy(color = MaterialTheme.colors.onBackground)
         )
-
-        FolderRenameDialog(
-            initialText = state.title,
-            openDialog = state.renameDialogOpened,
-            onDismiss = { viewModel.changeRenameDialogState(isOpened = false) },
-            onRenameClick = viewModel::renameFolder
-        )
-
     }
 }
 

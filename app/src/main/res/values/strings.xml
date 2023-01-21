@@ -29,4 +29,7 @@
     <string name="close">Close</string>
     <string name="selected">Selected</string>
     <string name="move_to_folder">Move to folder</string>
+    <string name="no_folders">No Folder Found</string>
+    <string name="no_note">No note found</string>
+    <string name="no_result_found">No result found</string>
 </resources>

@@ -118,7 +118,9 @@ class HomeViewModel @Inject constructor(
         ->
         HomeUiState(
             uiNotes = uiNotes.map { it.copy(isSelected = selectedNotes.contains(it.noteId)) },
+            isNotesLoading = false,
             uiFolders = uiFolders.map { it.copy(isSelected = selectedFolders.contains(it.folderId)) },
+            isFoldersLoading = false,
             isEditModeOn = isEditModeOn,
             isNoteActionsEnabled = selectedNotes.isNotEmpty(),
             isFolderActionsEnabled = selectedFolders.isNotEmpty(),
@@ -139,7 +141,9 @@ class HomeViewModel @Inject constructor(
 
 data class HomeUiState(
     val uiNotes: List<UiNote> = emptyList(),
+    val isNotesLoading: Boolean = true,
     val uiFolders: List<UiFolder> = emptyList(),
+    val isFoldersLoading: Boolean = true,
     val isEditModeOn: Boolean = false,
     val isNoteActionsEnabled: Boolean = false,
     val selectedNotesNumber: Int = 0,

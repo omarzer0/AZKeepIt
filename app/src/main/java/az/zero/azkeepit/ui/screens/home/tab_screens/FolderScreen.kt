@@ -2,29 +2,34 @@ package az.zero.azkeepit.ui.screens.home.tab_screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
+import az.zero.azkeepit.ui.composables.CustomCreateDialog
 import az.zero.azkeepit.ui.composables.DeleteDialog
-import az.zero.azkeepit.ui.composables.EtDialogWithTwoButtons
 import az.zero.azkeepit.ui.screens.destinations.FolderDetailsScreenDestination
 import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
 import az.zero.azkeepit.ui.screens.home.BottomBarItem
+import az.zero.azkeepit.ui.screens.home.HomeUiState
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
 import az.zero.azkeepit.ui.screens.items.FolderItem
 import az.zero.azkeepit.ui.theme.cardBgColor
@@ -39,11 +44,35 @@ fun FolderScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    CreateFolderDialog(
+    CustomCreateDialog(
         openDialog = state.isCreateFolderDialogOpened,
+        headerText = stringResource(id = R.string.create_folder),
         onDismiss = { viewModel.changeCreateFolderDialogState(isOpened = false) },
         onCreateClick = viewModel::createFolder
     )
+
+    when {
+        state.isFoldersLoading -> {}
+        state.uiFolders.isEmpty() -> {
+            EmptyFolderScreen()
+        }
+        else -> {
+            SuccessFolderScreen(state = state, viewModel = viewModel, navigator = navigator)
+        }
+    }
+
+}
+
+
+
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@Composable
+private fun SuccessFolderScreen(
+    state: HomeUiState,
+    viewModel: HomeViewModel,
+    navigator: DestinationsNavigator,
+) {
+
 
     DeleteDialog(
         openDialog = state.isDeleteFoldersDialogOpen,
@@ -90,9 +119,33 @@ fun FolderScreen(
         FolderBottomActions(
             isEditModeOn = state.isEditModeOn,
             enabled = state.isFolderActionsEnabled,
-            onDeleteFoldersClick = { viewModel.changeDeleteFoldersState(isOpened = true)}
+            onDeleteFoldersClick = { viewModel.changeDeleteFoldersState(isOpened = true) }
         )
 
+    }
+}
+
+@Composable
+private fun EmptyFolderScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            modifier = Modifier
+                .size(150.dp),
+            contentScale = ContentScale.FillBounds,
+            painter = painterResource(id = R.drawable.no_folder),
+            contentDescription = stringResource(id = R.string.no_folders)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = stringResource(id = R.string.no_folders),
+            style = MaterialTheme.typography.h2.copy(color = MaterialTheme.colors.onBackground)
+        )
     }
 }
 
@@ -122,29 +175,3 @@ fun FolderBottomActions(
     }
 }
 
-@Composable
-fun CreateFolderDialog(
-    openDialog: Boolean,
-    onDismiss: () -> Unit,
-    onCreateClick: (name: String) -> Unit,
-) {
-    var text by rememberSaveable { mutableStateOf("") }
-    val isStartBtnEnabled by remember { derivedStateOf { text.isNotBlank() } }
-    val startBtnColor = if (isStartBtnEnabled) MaterialTheme.colors.onBackground else Color.Gray
-
-    EtDialogWithTwoButtons(
-        text = text,
-        headerText = stringResource(id = R.string.create_folder),
-        onTextChange = { text = it },
-        openDialog = openDialog,
-        startBtnText = stringResource(id = R.string.create),
-        onStartBtnClick = { onCreateClick(text) },
-        startBtnEnabled = isStartBtnEnabled,
-        startBtnStyle = MaterialTheme.typography.h3.copy(color = startBtnColor),
-        endBtnText = stringResource(id = R.string.cancel),
-        onDismiss = {
-            text = ""
-            onDismiss()
-        }
-    )
-}

@@ -47,7 +47,8 @@ class FolderDetailsViewModel @Inject constructor(
             deleteFolderDialogOpened = deleteFolderDialogOpened,
             deleteAllNotesDialogOpened = deleteAllNotesDialogOpened,
             renameDialogOpened = renameDialogOpened,
-            shouldPopUp = shouldPopUp
+            shouldPopUp = shouldPopUp,
+            isUiFolderLoading = false
         )
     }.stateIn(
         viewModelScope,
@@ -89,6 +90,7 @@ class FolderDetailsViewModel @Inject constructor(
 data class FolderDetailsState(
     val title: String = "",
     val uiFolder: UiFolder = emptyUiFolder,
+    val isUiFolderLoading: Boolean = true,
     val deleteFolderDialogOpened: Boolean = false,
     val deleteAllNotesDialogOpened: Boolean = false,
     val renameDialogOpened: Boolean = false,

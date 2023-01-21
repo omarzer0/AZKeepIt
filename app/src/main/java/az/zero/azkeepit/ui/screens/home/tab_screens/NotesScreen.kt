@@ -3,6 +3,7 @@ package az.zero.azkeepit.ui.screens.home.tab_screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -17,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,13 +29,13 @@ import az.zero.azkeepit.ui.composables.RoundTopOnly
 import az.zero.azkeepit.ui.composables.SelectFolderBottomSheet
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.home.BottomBarItem
+import az.zero.azkeepit.ui.screens.home.HomeUiState
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
 import az.zero.azkeepit.ui.screens.items.NoteItem
 import az.zero.azkeepit.ui.theme.cardBgColor
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @Composable
@@ -41,6 +44,30 @@ fun NotesScreen(
     navigator: DestinationsNavigator,
 ) {
     val state by viewModel.state.collectAsState()
+
+    when {
+        state.isNotesLoading -> {}
+        state.uiNotes.isEmpty() -> {
+            EmptyNotesScreen()
+        }
+        else -> {
+            SuccessNotesScreen(state = state, viewModel = viewModel, navigator = navigator)
+        }
+    }
+
+}
+
+@OptIn(
+    ExperimentalFoundationApi::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalComposeUiApi::class
+)
+@Composable
+private fun SuccessNotesScreen(
+    state: HomeUiState,
+    viewModel: HomeViewModel,
+    navigator: DestinationsNavigator,
+) {
     val scope = rememberCoroutineScope()
     val bottomState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
@@ -111,8 +138,31 @@ fun NotesScreen(
             )
         }
     }
+}
 
+@Composable
+private fun EmptyNotesScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            modifier = Modifier
+                .size(150.dp),
+            contentScale = ContentScale.FillBounds,
+            painter = painterResource(id = R.drawable.no_note),
+            contentDescription = stringResource(id = R.string.no_note)
+        )
 
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = stringResource(id = R.string.no_note),
+            style = MaterialTheme.typography.h2.copy(color = MaterialTheme.colors.onBackground)
+        )
+    }
 }
 
 @Composable
