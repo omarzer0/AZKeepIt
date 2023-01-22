@@ -27,10 +27,6 @@ fun NoteItem(
     onNoteClick: () -> Unit,
 ) {
 
-    val shortDateTime = remember(uiNote.createdAt) {
-        JDateTimeUtil.toShortDateTimeFormat(uiNote.createdAt)
-    }
-
     Card(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
@@ -88,7 +84,7 @@ fun NoteItem(
             ) {
                 Text(
                     modifier = Modifier.weight(2f),
-                    text = shortDateTime,
+                    text = uiNote.shortDateTime,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.h3.copy(

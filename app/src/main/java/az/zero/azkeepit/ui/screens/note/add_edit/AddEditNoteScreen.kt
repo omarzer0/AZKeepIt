@@ -40,6 +40,7 @@ fun AddEditNoteScreen(
 ) {
 
     val state by viewModel.state.collectAsState()
+    val note = state.note
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val bottomState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
@@ -106,7 +107,7 @@ fun AddEditNoteScreen(
                     textModifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
-                    text = state.title,
+                    text = note.title,
                     hint = stringResource(R.string.title),
                     singleLine = true,
                     maxLines = 1,
@@ -123,7 +124,7 @@ fun AddEditNoteScreen(
                 ) {
                     Text(
                         modifier = Modifier.padding(vertical = 8.dp),
-                        text = "${state.dateTime} | ${state.numberOfWordsForContent}",
+                        text = "${note.longDateTime} | ${state.numberOfWordsForContent}",
                         style = MaterialTheme.typography.body2
                     )
 
@@ -135,7 +136,7 @@ fun AddEditNoteScreen(
                     ) {
                         Text(
                             modifier = Modifier.padding(vertical = 8.dp),
-                            text = state.folder?.name ?: stringResource(R.string.select_folder),
+                            text = note.ownerUiFolder?.name ?: stringResource(R.string.select_folder),
                             style = MaterialTheme.typography.body2,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -146,7 +147,7 @@ fun AddEditNoteScreen(
                 TransparentHintTextField(
                     textModifier = Modifier
                         .fillMaxSize(),
-                    text = state.content,
+                    text = note.content,
                     hint = stringResource(R.string.content),
                     onValueChanged = viewModel::updateContent,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
