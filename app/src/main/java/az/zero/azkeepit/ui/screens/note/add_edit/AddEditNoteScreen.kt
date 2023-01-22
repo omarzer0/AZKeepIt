@@ -4,12 +4,15 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -64,7 +67,7 @@ fun AddEditNoteScreen(
         sheetElevation = 0.dp,
         sheetState = bottomState,
         sheetShape = RoundTopOnly(),
-        scrimColor = Color.Transparent ,
+        scrimColor = Color.Transparent,
         sheetBackgroundColor = MaterialTheme.colors.background,
         sheetContent = {
             SelectFolderBottomSheet(
@@ -80,8 +83,10 @@ fun AddEditNoteScreen(
                 AddEditHeader(
                     saveEnabled = state.isSaveActive,
                     deleteEnabled = !state.isNoteNew,
+                    isLocked = state.note.isLocked,
                     onDoneClick = viewModel::saveNote,
                     onBackPressed = viewModel::onBackPressed,
+                    onLockClick = viewModel::updateIsLocked,
                     onDeleteClick = {
                         focusManager.clearFocus()
                         viewModel.changeDialogOpenState(isOpened = true)
@@ -136,7 +141,8 @@ fun AddEditNoteScreen(
                     ) {
                         Text(
                             modifier = Modifier.padding(vertical = 8.dp),
-                            text = note.ownerUiFolder?.name ?: stringResource(R.string.select_folder),
+                            text = note.ownerUiFolder?.name
+                                ?: stringResource(R.string.select_folder),
                             style = MaterialTheme.typography.body2,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -165,16 +171,31 @@ fun AddEditNoteScreen(
 @Composable
 fun AddEditHeader(
     onBackPressed: () -> Unit,
-    saveEnabled: Boolean = true,
-    deleteEnabled: Boolean = false,
+    isLocked: Boolean,
+    saveEnabled: Boolean,
+    deleteEnabled: Boolean,
     onDoneClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    onLockClick: () -> Unit,
 ) {
     HeaderWithBackBtn(
         text = "",
         elevation = 0.dp,
         onBackPressed = onBackPressed,
         actions = {
+
+            IconButton(
+                modifier = Modifier.mirror(),
+                onClick = onLockClick
+            ) {
+                Icon(
+                    if (isLocked) Icons.Filled.Lock
+                    else Icons.Filled.LockOpen,
+                    if (isLocked) stringResource(id = R.string.lock)
+                    else stringResource(id = R.string.unlock),
+                    tint = MaterialTheme.colors.onBackground
+                )
+            }
 
             if (deleteEnabled) {
                 IconButton(

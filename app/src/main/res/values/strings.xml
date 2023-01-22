@@ -32,4 +32,6 @@
     <string name="no_folders">No Folder Found</string>
     <string name="no_note">No note found</string>
     <string name="no_result_found">No result found</string>
+    <string name="lock">Lock</string>
+    <string name="unlock">Unlock</string>
 </resources>

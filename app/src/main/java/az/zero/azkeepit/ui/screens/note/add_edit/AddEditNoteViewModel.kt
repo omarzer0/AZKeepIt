@@ -86,8 +86,8 @@ class AddEditNoteScreenViewModel @Inject constructor(
         localUiNote.emit(localUiNote.value.copy(content = text))
     }
 
-    fun updateIsLocked(newValue: Boolean) = viewModelScope.launch {
-        localUiNote.emit(localUiNote.value.copy(isLocked = newValue))
+    fun updateIsLocked() = viewModelScope.launch {
+        localUiNote.emit(localUiNote.value.copy(isLocked = !localUiNote.value.isLocked))
     }
 
     fun addNoteToFolder(newUiFolder: UiFolder) = viewModelScope.launch {
