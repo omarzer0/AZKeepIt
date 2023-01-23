@@ -4,19 +4,20 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -25,9 +26,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
+import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.*
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -63,6 +66,12 @@ fun AddEditNoteScreen(
         }
     }
 
+    DeleteNoteDialog(
+        openDialog = state.isDeleteDialogOpened,
+        onDismiss = { viewModel.changeDialogOpenState(isOpened = false) },
+        onDeleteClick = viewModel::deleteNote
+    )
+
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
         sheetState = bottomState,
@@ -94,19 +103,16 @@ fun AddEditNoteScreen(
                 )
             },
         ) { paddingValues ->
+
             Column(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
                     .padding(16.dp)
-                    .background(MaterialTheme.colors.background),
+                    .background(MaterialTheme.colors.background)
+                    .verticalScroll(rememberScrollState()),
             ) {
 
-                DeleteNoteDialog(
-                    openDialog = state.isDeleteDialogOpened,
-                    onDismiss = { viewModel.changeDialogOpenState(isOpened = false) },
-                    onDeleteClick = viewModel::deleteNote
-                )
 
                 TransparentHintTextField(
                     textModifier = Modifier
@@ -122,33 +128,27 @@ fun AddEditNoteScreen(
                     onValueChanged = viewModel::updateTitle
                 )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        text = "${note.longDateTime} | ${state.numberOfWordsForContent}",
-                        style = MaterialTheme.typography.body2
-                    )
 
-                    TextButton(
-                        onClick = {
-                            focusManager.clearFocus()
-                            scope.launch { bottomState.show() }
-                        }
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            text = note.ownerUiFolder?.name
-                                ?: stringResource(R.string.select_folder),
-                            style = MaterialTheme.typography.body2,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                TimeWithSelectFolder(
+                    modifier = Modifier.fillMaxWidth(),
+                    note = note,
+                    state = state,
+                    focusManager = focusManager,
+                    scope = scope,
+                    bottomState = bottomState
+                )
+
+                if (note.images.isNotEmpty()) {
+                    SlidingImage(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        dataUris = note.images
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
+
+                // List(5) { "https://tinypng.com/images/social/website.jpg" }
 
                 TransparentHintTextField(
                     textModifier = Modifier
@@ -166,6 +166,45 @@ fun AddEditNoteScreen(
         }
     }
 
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun TimeWithSelectFolder(
+    modifier: Modifier = Modifier,
+    note: UiNote,
+    state: AddEditNoteState,
+    focusManager: FocusManager,
+    scope: CoroutineScope,
+    bottomState: ModalBottomSheetState,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier.padding(vertical = 8.dp),
+            text = "${note.longDateTime} | ${state.numberOfWordsForContent}",
+            style = MaterialTheme.typography.body2
+        )
+
+        TextButton(
+            onClick = {
+                focusManager.clearFocus()
+                scope.launch { bottomState.show() }
+            }
+        ) {
+            Text(
+                modifier = Modifier.padding(vertical = 8.dp),
+                text = note.ownerUiFolder?.name
+                    ?: stringResource(R.string.select_folder),
+                style = MaterialTheme.typography.body2,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
 }
 
 @Composable

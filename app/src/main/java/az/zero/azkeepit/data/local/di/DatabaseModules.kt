@@ -7,6 +7,7 @@ import az.zero.azkeepit.data.local.AppDatabase
 import az.zero.azkeepit.data.local.DatabaseCallback
 import az.zero.azkeepit.data.local.FolderDao
 import az.zero.azkeepit.data.local.NoteDao
+import az.zero.azkeepit.data.local.helper.CustomTypeConverters
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,6 +28,7 @@ object DatabaseModules {
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.DATABASE_NAME)
             .apply {
                 addCallback(databaseCallback)
+                addTypeConverter(CustomTypeConverters())
                 if (BuildConfig.DEBUG) {
                     fallbackToDestructiveMigration()
                 }

@@ -65,6 +65,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
             content = state.value.note.content.trim(),
             isLocked = state.value.note.isLocked,
             createdAt = state.value.note.createdAt,
+            images = state.value.note.images,
             ownerFolderId = state.value.note.ownerUiFolder?.folderId ?: folderInitialId,
             noteId = args.noteId
         )
@@ -136,6 +137,7 @@ private val emptyUiNote = UiNote(
     createdDate,
     JDateTimeUtil.toShortDateTimeFormat(createdDate),
     JDateTimeUtil.toLongDateTimeFormat(createdDate),
+    emptyList(),
     -1L,
     false,
     null

@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="az.zero.azkeepit">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".AZApplication"
         android:allowBackup="true"

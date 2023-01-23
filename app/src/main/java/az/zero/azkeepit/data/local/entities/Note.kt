@@ -13,6 +13,7 @@ data class Note(
     val isLocked: Boolean,
     val createdAt: Long,
     val ownerFolderId: Long?,
+    val images :List<String>,
     @PrimaryKey(autoGenerate = true)
     val noteId: Long? = null,
 )
