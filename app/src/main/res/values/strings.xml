@@ -34,4 +34,9 @@
     <string name="no_result_found">No result found</string>
     <string name="lock">Lock</string>
     <string name="unlock">Unlock</string>
+    <string name="delete_note">Delete note</string>
+    <string name="add_note_to_folder">Add note to folder</string>
+    <string name="add_images">Add images</string>
+    <string name="drag">Drag</string>
+    <string name="remove">Remove</string>
 </resources>

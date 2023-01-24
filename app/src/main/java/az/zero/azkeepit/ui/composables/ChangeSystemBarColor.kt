@@ -1,6 +1,7 @@
 package az.zero.azkeepit.ui.composables
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.SystemUiController
@@ -25,6 +26,29 @@ fun ChangeSystemBarColor(
             systemUiController = systemUiController,
             navigationBarColor = navigationBarColor
         )
+    }
+
+}
+
+@Composable
+fun ChangeSystemBarColorAndRevertWhenClose(
+    key: Any?,
+    systemUiController: SystemUiController = rememberSystemUiController(),
+    initialStatusColor: Color,
+    newStatusColor: Color,
+    initialNavigationBarColor: Color,
+    newNavigationBarColor: Color,
+) {
+
+
+    DisposableEffect(key1 = key) {
+        systemUiController.setStatusBarColor(color = newStatusColor)
+        systemUiController.setNavigationBarColor(color = newNavigationBarColor)
+
+        onDispose {
+            systemUiController.setStatusBarColor(color = initialStatusColor)
+            systemUiController.setNavigationBarColor(color = initialNavigationBarColor)
+        }
     }
 
 }
@@ -56,4 +80,15 @@ fun ChangeNavigationBarColor(
             darkIcons = useDarkIcons
         )
     }
+}
+
+fun changeSystemBarColor(
+    systemUiController: SystemUiController,
+    navigationBarColor: Color,
+    useDarkIcons: Boolean = !navigationBarColor.isColorDark(),
+) {
+    systemUiController.setNavigationBarColor(
+        color = navigationBarColor,
+        darkIcons = useDarkIcons
+    )
 }

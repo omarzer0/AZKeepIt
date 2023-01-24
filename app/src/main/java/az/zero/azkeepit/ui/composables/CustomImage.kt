@@ -1,5 +1,6 @@
 package az.zero.azkeepit.ui.composables
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +15,7 @@ import coil.request.ImageRequest
 @Composable
 fun CustomImage(
     modifier: Modifier = Modifier,
-    data: String,
+    data: Any,
     placeHolder: Painter? = null,
     error: Painter? = null,
     contentDescription: String? = null,

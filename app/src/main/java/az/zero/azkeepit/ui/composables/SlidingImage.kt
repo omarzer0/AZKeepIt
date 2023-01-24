@@ -1,10 +1,12 @@
 package az.zero.azkeepit.ui.composables
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.LocalContentColor
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import az.zero.azkeepit.R
@@ -23,10 +26,11 @@ import kotlin.math.absoluteValue
 @Composable
 fun SlidingImage(
     modifier: Modifier = Modifier,
-    dataUris: List<String>,
+    dataUris: List<Uri>,
     activeColor: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
     inactiveColor: Color = activeColor.copy(ContentAlpha.disabled),
     indicatorBackground: Brush = SolidColor(Color.Transparent),
+    onDeleteImageClick: ((dataUri: Uri) -> Unit)? = null,
 ) {
     Box(
         modifier = modifier,
@@ -40,8 +44,8 @@ fun SlidingImage(
             count = dataUris.size
         ) { page ->
 
-            CustomImage(
-                modifier = Modifier
+            Box(
+                Modifier
                     .fillMaxSize()
                     .graphicsLayer {
                         // Calculate the absolute offset for the current page from the
@@ -66,25 +70,46 @@ fun SlidingImage(
                             fraction = 1f - pageOffset.coerceIn(0f, 1f)
                         )
                     },
-                data = dataUris[page],
-                error = painterResource(id = R.drawable.no_note),
-                placeHolder = painterResource(id = R.drawable.lock)
-            )
+            ) {
+                CustomImage(
+                    modifier = Modifier.fillMaxSize(),
+                    data = dataUris[page],
+                    error = painterResource(id = R.drawable.no_note),
+                    placeHolder = painterResource(id = R.drawable.lock)
+                )
+
+                if (onDeleteImageClick != null) {
+                    IconButton(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp),
+                        onClick = { onDeleteImageClick(dataUris[page]) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            tint = MaterialTheme.colors.onBackground,
+                            contentDescription = stringResource(id = R.string.remove)
+                        )
+                    }
+                }
+            }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(brush = indicatorBackground),
-            contentAlignment = Alignment.Center
-        ) {
-            HorizontalPagerIndicator(
-                modifier = Modifier.padding(8.dp),
-                pageCount = dataUris.size,
-                pagerState = pagerState,
-                activeColor = activeColor,
-                inactiveColor = inactiveColor,
-            )
+        if (dataUris.size > 1){
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(brush = indicatorBackground),
+                contentAlignment = Alignment.Center
+            ) {
+                HorizontalPagerIndicator(
+                    modifier = Modifier.padding(8.dp),
+                    pageCount = dataUris.size,
+                    pagerState = pagerState,
+                    activeColor = activeColor,
+                    inactiveColor = inactiveColor,
+                )
+            }
         }
     }
 }

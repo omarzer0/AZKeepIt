@@ -1,6 +1,9 @@
 package az.zero.azkeepit.domain.mappers
 
-import az.zero.azkeepit.data.local.entities.*
+import android.net.Uri
+import androidx.compose.ui.graphics.Color
+import az.zero.azkeepit.data.local.entities.Note
+import az.zero.azkeepit.data.local.entities.NoteWithFolder
 import az.zero.azkeepit.util.JDateTimeUtil
 
 data class UiNote(
@@ -10,7 +13,8 @@ data class UiNote(
     val createdAt: Long,
     val shortDateTime: String,
     val longDateTime: String,
-    val images:List<String>,
+    val images: List<Uri>,
+    val color: Color,
     val noteId: Long,
     val isSelected: Boolean,
     val ownerUiFolder: UiFolder?,
@@ -25,7 +29,8 @@ fun Note.toUiNote(
     content = this.content,
     isLocked = this.isLocked,
     createdAt = this.createdAt,
-    images = this.images,
+    images = this.images.map { Uri.parse(it) },
+    color = Color(this.color),
     shortDateTime = JDateTimeUtil.toShortDateTimeFormat(this.createdAt),
     longDateTime = JDateTimeUtil.toLongDateTimeFormat(this.createdAt),
     isSelected = isSelected,
@@ -38,7 +43,8 @@ fun NoteWithFolder.toUiNote(isSelected: Boolean = false) = UiNote(
     content = this.note.content,
     isLocked = this.note.isLocked,
     createdAt = this.note.createdAt,
-    images = this.note.images,
+    images = this.note.images.map { Uri.parse(it) },
+    color = Color(this.note.color),
     shortDateTime = JDateTimeUtil.toShortDateTimeFormat(this.note.createdAt),
     longDateTime = JDateTimeUtil.toLongDateTimeFormat(this.note.createdAt),
     isSelected = isSelected,

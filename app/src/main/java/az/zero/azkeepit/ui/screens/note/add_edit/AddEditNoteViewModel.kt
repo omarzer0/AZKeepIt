@@ -1,7 +1,11 @@
 package az.zero.azkeepit.ui.screens.note.add_edit
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +15,7 @@ import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.screens.navArgs
+import az.zero.azkeepit.ui.theme.bgColor
 import az.zero.azkeepit.util.JDateTimeUtil
 import az.zero.azkeepit.util.folderInitialId
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,8 +26,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @HiltViewModel
 class AddEditNoteScreenViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
@@ -36,14 +40,17 @@ class AddEditNoteScreenViewModel @Inject constructor(
     private val allFolders = folderRepository.getUiFolders()
     private val shouldPopUp = MutableStateFlow(false)
     private val deleteDialogOpened = MutableStateFlow(false)
+    private val selectFolderDialogOpened = MutableStateFlow(false)
 
 
     val state = combine(
         localUiNote,
         shouldPopUp,
         deleteDialogOpened,
-        allFolders
-    ) { localUiNote, shouldPopUp, isDeleteDialogOpened, allFolders ->
+        allFolders,
+        selectFolderDialogOpened
+    ) { localUiNote, shouldPopUp, isDeleteDialogOpened, allFolders, isSelectFolderDialogOpened ->
+        Log.e("ImageDebugLoad", "${localUiNote.images}")
         AddEditNoteState(
             note = localUiNote,
             numberOfWordsForContent = localUiNote.content.length,
@@ -51,7 +58,8 @@ class AddEditNoteScreenViewModel @Inject constructor(
             allFolders = allFolders,
             isNoteNew = isNewNote,
             shouldPopUp = shouldPopUp,
-            isDeleteDialogOpened = isDeleteDialogOpened
+            isDeleteDialogOpened = isDeleteDialogOpened,
+            isSelectFolderDialogOpened = isSelectFolderDialogOpened,
         )
     }.stateIn(
         viewModelScope,
@@ -65,17 +73,20 @@ class AddEditNoteScreenViewModel @Inject constructor(
             content = state.value.note.content.trim(),
             isLocked = state.value.note.isLocked,
             createdAt = state.value.note.createdAt,
-            images = state.value.note.images,
+            images = state.value.note.images.map { it.toString() },
+            color = state.value.note.color.toArgb(),
             ownerFolderId = state.value.note.ownerUiFolder?.folderId ?: folderInitialId,
             noteId = args.noteId
         )
+
+        Log.e("ImageDebugSave", "${note.images}")
 
         if (isNewNote) noteRepository.insertNote(note)
         else noteRepository.updateNote(note)
         shouldPopUp.emit(true)
     }
 
-    fun changeDialogOpenState(isOpened: Boolean) = viewModelScope.launch {
+    fun changeDeleteDialogOpenState(isOpened: Boolean) = viewModelScope.launch {
         deleteDialogOpened.emit(isOpened)
     }
 
@@ -95,6 +106,16 @@ class AddEditNoteScreenViewModel @Inject constructor(
         localUiNote.emit(localUiNote.value.copy(ownerUiFolder = newUiFolder))
     }
 
+    fun changeSelectFolderDialogOpenState(isOpened: Boolean) = viewModelScope.launch {
+        selectFolderDialogOpened.emit(isOpened)
+    }
+
+    fun updateNoteColor(newColor: Color) = viewModelScope.launch {
+        localUiNote.emit(localUiNote.value.copy(
+            color = newColor
+        ))
+    }
+
     fun deleteNote() = viewModelScope.launch {
         val noteId = args.noteId ?: return@launch
         val deletedNoteId = noteRepository.deleteNote(noteId = noteId)
@@ -103,6 +124,18 @@ class AddEditNoteScreenViewModel @Inject constructor(
 
     fun onBackPressed() = viewModelScope.launch {
         shouldPopUp.emit(true)
+    }
+
+    fun addImages(newImages: List<Uri>) = viewModelScope.launch {
+        val oldImages = localUiNote.value.images
+        val newList = (oldImages + newImages).distinct()
+        localUiNote.emit(localUiNote.value.copy(images = newList))
+    }
+
+    fun removeImage(dataUri: Uri) = viewModelScope.launch {
+        val oldImages = localUiNote.value.images.toMutableList()
+        oldImages.remove(dataUri)
+        localUiNote.emit(localUiNote.value.copy(images = oldImages))
     }
 
     init {
@@ -123,6 +156,7 @@ data class AddEditNoteState(
     val isNoteNew: Boolean = false,
     val shouldPopUp: Boolean = false,
     val isDeleteDialogOpened: Boolean = false,
+    val isSelectFolderDialogOpened: Boolean = false,
 )
 
 data class AddEditNoteScreenArgs(
@@ -138,6 +172,7 @@ private val emptyUiNote = UiNote(
     JDateTimeUtil.toShortDateTimeFormat(createdDate),
     JDateTimeUtil.toLongDateTimeFormat(createdDate),
     emptyList(),
+    bgColor,
     -1L,
     false,
     null

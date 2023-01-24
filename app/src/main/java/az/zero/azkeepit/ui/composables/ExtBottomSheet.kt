@@ -4,23 +4,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import az.zero.azkeepit.ui.theme.bgColor
 import az.zero.azkeepit.ui.theme.cardBgColor
 
 
 data class BottomSheetDateItem(
     val title: String,
-    val onClick: () -> Unit,
+    val imageVector: ImageVector? = null,
+    val iconContentDescription: String? = null,
     val dismissAfterClick: Boolean = true,
+    val onClick: () -> Unit,
 )
 
 @Composable
@@ -43,12 +44,12 @@ fun BottomSheetWithItems(
         if (header == null) Spacer(modifier = Modifier.height(16.dp))
         else header()
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        LazyColumn {
             items(items) {
-                BottomSheetItem(
+                TextWithIcon(
                     text = it.title,
+                    imageVector = it.imageVector,
+                    iconContentDescription = it.iconContentDescription,
                     onClick = {
                         it.onClick()
                         if (it.dismissAfterClick) onDismiss?.invoke()
@@ -61,24 +62,4 @@ fun BottomSheetWithItems(
 
 }
 
-@Composable
-fun BottomSheetItem(
-    modifier: Modifier = Modifier,
-    text: String,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickableSafeClick(onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 12.dp)
-    ) {
-        Text(
-            modifier = Modifier,
-            text = text,
-            style = MaterialTheme.typography.body2,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
+

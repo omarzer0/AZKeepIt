@@ -1,23 +1,22 @@
 package az.zero.azkeepit.ui.screens.note.add_edit
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -26,11 +25,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
+import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.*
+import az.zero.azkeepit.ui.theme.bgColor
+import az.zero.azkeepit.ui.theme.cardBgColor
+import az.zero.azkeepit.ui.theme.selectedColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -49,13 +51,13 @@ fun AddEditNoteScreen(
     val note = state.note
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
-    val bottomState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val bottomState = rememberBottomSheetScaffoldState()
 
     BackHandler(
-        enabled = bottomState.isVisible
+        enabled = bottomState.bottomSheetState.isExpanded
     ) {
         scope.launch {
-            bottomState.hide()
+            bottomState.bottomSheetState.collapse()
         }
     }
 
@@ -68,115 +70,228 @@ fun AddEditNoteScreen(
 
     DeleteNoteDialog(
         openDialog = state.isDeleteDialogOpened,
-        onDismiss = { viewModel.changeDialogOpenState(isOpened = false) },
+        onDismiss = { viewModel.changeDeleteDialogOpenState(isOpened = false) },
         onDeleteClick = viewModel::deleteNote
     )
 
-    ModalBottomSheetLayout(
-        sheetElevation = 0.dp,
-        sheetState = bottomState,
-        sheetShape = RoundTopOnly(),
-        scrimColor = Color.Transparent,
-        sheetBackgroundColor = MaterialTheme.colors.background,
+    SelectFolderDialog(
+        openDialog = state.isSelectFolderDialogOpened,
+        folders = state.allFolders,
+        onDismiss = { viewModel.changeSelectFolderDialogOpenState(isOpened = false) },
+        onFolderClick = viewModel::addNoteToFolder
+    )
+
+    ChangeSystemBarColorAndRevertWhenClose(
+        key = note.color,
+        initialStatusColor = MaterialTheme.colors.background,
+        newStatusColor = note.color,
+        initialNavigationBarColor = bgColor,
+        newNavigationBarColor = cardBgColor,
+    )
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetMultipleContents()
+    ) { uriList ->
+        viewModel.addImages(uriList)
+        Log.e("ImageDebug", "$uriList")
+    }
+
+
+    BottomSheetScaffold(
+        scaffoldState = bottomState,
+        sheetPeekHeight = 120.dp,
+        sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
         sheetContent = {
-            SelectFolderBottomSheet(
-                uiFolders = state.allFolders,
-                titleText = stringResource(id = R.string.select_folder),
-                onDismiss = { scope.launch { bottomState.hide() } },
-                onClick = { viewModel.addNoteToFolder(it) }
-            )
-        }
-    ) {
-        Scaffold(
-            topBar = {
-                AddEditHeader(
-                    saveEnabled = state.isSaveActive,
-                    deleteEnabled = !state.isNoteNew,
-                    isLocked = state.note.isLocked,
-                    onDoneClick = viewModel::saveNote,
-                    onBackPressed = viewModel::onBackPressed,
-                    onLockClick = viewModel::updateIsLocked,
-                    onDeleteClick = {
-                        focusManager.clearFocus()
-                        viewModel.changeDialogOpenState(isOpened = true)
+            AddEditBottomSheet(
+                isNoteLocked = state.note.isLocked,
+                isNewNote = state.isNoteNew,
+                currentlySelectedColor = note.color,
+                onLockOrUnlockClick = viewModel::updateIsLocked,
+                onAddImagesClick = { galleryLauncher.launch("image/*") },
+                onDismiss = { scope.launch { bottomState.bottomSheetState.collapse() } },
+                onAddFolderClick = { viewModel.changeSelectFolderDialogOpenState(isOpened = true) },
+                onColorSelect = viewModel::updateNoteColor,
+                onDragClick = {
+                    scope.launch {
+                        if (bottomState.bottomSheetState.isCollapsed) bottomState.bottomSheetState.expand()
+                        else bottomState.bottomSheetState.collapse()
                     }
-                )
-            },
-        ) { paddingValues ->
-
-            Column(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .background(MaterialTheme.colors.background)
-                    .verticalScroll(rememberScrollState()),
-            ) {
-
-
-                TransparentHintTextField(
-                    textModifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    text = note.title,
-                    hint = stringResource(R.string.title),
-                    singleLine = true,
-                    maxLines = 1,
-                    textStyle = MaterialTheme.typography.h1.copy(
-                        color = MaterialTheme.colors.onBackground
-                    ),
-                    onValueChanged = viewModel::updateTitle
-                )
-
-
-                TimeWithSelectFolder(
-                    modifier = Modifier.fillMaxWidth(),
-                    note = note,
-                    state = state,
-                    focusManager = focusManager,
-                    scope = scope,
-                    bottomState = bottomState
-                )
-
-                if (note.images.isNotEmpty()) {
-                    SlidingImage(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        dataUris = note.images
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
+            )
+        },
+        topBar = {
+            AddEditHeader(
+                backgroundColor = note.color,
+                onBackPressed = viewModel::onBackPressed,
+                saveEnabled = state.isSaveActive,
+                onDoneClick = viewModel::saveNote,
+            )
+        },
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .background(note.color)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+        ) {
 
-                // List(5) { "https://tinypng.com/images/social/website.jpg" }
+            TransparentHintTextField(
+                textModifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                text = note.title,
+                hint = stringResource(R.string.title),
+                singleLine = true,
+                maxLines = 1,
+                textStyle = MaterialTheme.typography.h1.copy(
+                    color = MaterialTheme.colors.onBackground
+                ),
+                onValueChanged = viewModel::updateTitle
+            )
 
-                TransparentHintTextField(
-                    textModifier = Modifier
-                        .fillMaxSize(),
-                    text = note.content,
-                    hint = stringResource(R.string.content),
-                    onValueChanged = viewModel::updateContent,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    textStyle = MaterialTheme.typography.body1.copy(
-                        color = MaterialTheme.colors.onBackground,
-                    )
+            TimeWithSelectFolder(
+                modifier = Modifier.fillMaxWidth(),
+                note = note,
+                numberOfWordsForContent = state.numberOfWordsForContent,
+                onFolderClick = {
+                    focusManager.clearFocus()
+                    scope.launch { bottomState.bottomSheetState.expand() }
+                }
+            )
+
+            if (note.images.isNotEmpty()) {
+                SlidingImage(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    dataUris = note.images,
+                    onDeleteImageClick = viewModel::removeImage
                 )
+                Spacer(modifier = Modifier.height(16.dp))
             }
+
+            TransparentHintTextField(
+                textModifier = Modifier
+                    .fillMaxSize(),
+                text = note.content,
+                hint = stringResource(R.string.content),
+                onValueChanged = viewModel::updateContent,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                textStyle = MaterialTheme.typography.body1.copy(
+                    color = MaterialTheme.colors.onBackground,
+                )
+            )
+
 
         }
     }
 
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun AddEditBottomSheet(
+    modifier: Modifier = Modifier,
+    isNoteLocked: Boolean,
+    isNewNote: Boolean,
+    currentlySelectedColor: Color,
+    onDismiss: () -> Unit,
+    onAddFolderClick: () -> Unit,
+    onColorSelect: (color: Color) -> Unit,
+    onLockOrUnlockClick: () -> Unit,
+    onAddImagesClick: () -> Unit,
+    onDragClick: () -> Unit,
+) {
+    Column(
+        modifier = modifier.background(cardBgColor)
+    ) {
+
+        Icon(
+            imageVector = Icons.Filled.DragHandle,
+            stringResource(id = R.string.drag),
+            tint = selectedColor,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickableSafeClick(onClick = onDragClick)
+                .padding(8.dp),
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        ColorsRow(
+            modifier = Modifier.fillMaxWidth(),
+            currentlySelectedColor = currentlySelectedColor,
+            onClick = onColorSelect
+        )
+
+        val items = addEditBottomSheetItems(
+            isNoteLocked = isNoteLocked,
+            isNewNote = isNewNote,
+            onAddFolderClick = onAddFolderClick,
+            onLockOrUnlockClick = onLockOrUnlockClick,
+            onAddImagesClick = onAddImagesClick
+        )
+
+        BottomSheetWithItems(
+            items = items,
+            onDismiss = onDismiss,
+        )
+    }
+}
+
+
+@Composable
+fun addEditBottomSheetItems(
+    isNoteLocked: Boolean,
+    isNewNote: Boolean,
+    onAddFolderClick: () -> Unit,
+    onLockOrUnlockClick: () -> Unit,
+    onAddImagesClick: () -> Unit,
+): List<BottomSheetDateItem> {
+
+    val list = mutableListOf<BottomSheetDateItem>()
+    val addNoteToFolder = BottomSheetDateItem(
+        title = stringResource(id = R.string.add_note_to_folder),
+        imageVector = Icons.Filled.Add,
+        iconContentDescription = stringResource(id = R.string.add_note_to_folder),
+        onClick = onAddFolderClick
+    )
+
+    val deleteNote = BottomSheetDateItem(
+        title = stringResource(id = R.string.delete_note),
+        imageVector = Icons.Filled.Delete,
+        iconContentDescription = stringResource(id = R.string.delete_note),
+        onClick = onAddFolderClick
+    )
+
+    val lockOrUnlockNote = BottomSheetDateItem(
+        title = if (isNoteLocked) stringResource(id = R.string.lock) else stringResource(id = R.string.unlock),
+        imageVector = if (isNoteLocked) Icons.Filled.Lock else Icons.Filled.LockOpen,
+        iconContentDescription = if (isNoteLocked) stringResource(id = R.string.lock)
+        else stringResource(id = R.string.unlock),
+        onClick = onLockOrUnlockClick,
+        dismissAfterClick = false
+    )
+
+    val addImages = BottomSheetDateItem(
+        title = stringResource(id = R.string.add_images),
+        imageVector = Icons.Filled.AddPhotoAlternate,
+        iconContentDescription = stringResource(id = R.string.add_images),
+        onClick = onAddImagesClick
+    )
+
+    list.addAll(listOf(addNoteToFolder, lockOrUnlockNote, addImages))
+    if (!isNewNote) list.add(deleteNote)
+    return list
+}
+
 @Composable
 fun TimeWithSelectFolder(
     modifier: Modifier = Modifier,
     note: UiNote,
-    state: AddEditNoteState,
-    focusManager: FocusManager,
-    scope: CoroutineScope,
-    bottomState: ModalBottomSheetState,
+    numberOfWordsForContent: Int,
+    onFolderClick: () -> Unit,
 ) {
     Row(
         modifier = modifier,
@@ -185,20 +300,16 @@ fun TimeWithSelectFolder(
     ) {
         Text(
             modifier = Modifier.padding(vertical = 8.dp),
-            text = "${note.longDateTime} | ${state.numberOfWordsForContent}",
+            text = "${note.longDateTime} | $numberOfWordsForContent",
             style = MaterialTheme.typography.body2
         )
 
         TextButton(
-            onClick = {
-                focusManager.clearFocus()
-                scope.launch { bottomState.show() }
-            }
+            onClick = onFolderClick,
         ) {
             Text(
                 modifier = Modifier.padding(vertical = 8.dp),
-                text = note.ownerUiFolder?.name
-                    ?: stringResource(R.string.select_folder),
+                text = note.ownerUiFolder?.name ?: stringResource(R.string.select_folder),
                 style = MaterialTheme.typography.body2,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -209,46 +320,17 @@ fun TimeWithSelectFolder(
 
 @Composable
 fun AddEditHeader(
+    backgroundColor: Color,
     onBackPressed: () -> Unit,
-    isLocked: Boolean,
     saveEnabled: Boolean,
-    deleteEnabled: Boolean,
     onDoneClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onLockClick: () -> Unit,
 ) {
     HeaderWithBackBtn(
         text = "",
         elevation = 0.dp,
         onBackPressed = onBackPressed,
+        backgroundColor = backgroundColor,
         actions = {
-
-            IconButton(
-                modifier = Modifier.mirror(),
-                onClick = onLockClick
-            ) {
-                Icon(
-                    if (isLocked) Icons.Filled.Lock
-                    else Icons.Filled.LockOpen,
-                    if (isLocked) stringResource(id = R.string.lock)
-                    else stringResource(id = R.string.unlock),
-                    tint = MaterialTheme.colors.onBackground
-                )
-            }
-
-            if (deleteEnabled) {
-                IconButton(
-                    modifier = Modifier.mirror(),
-                    onClick = onDeleteClick
-                ) {
-                    Icon(
-                        Icons.Filled.Delete,
-                        stringResource(id = R.string.delete),
-                        tint = MaterialTheme.colors.onBackground
-                    )
-                }
-            }
-
             IconButton(
                 modifier = Modifier.mirror(),
                 enabled = saveEnabled,
@@ -260,8 +342,6 @@ fun AddEditHeader(
                     tint = if (saveEnabled) MaterialTheme.colors.onBackground else Color.Gray,
                 )
             }
-
-
         }
     )
 }
@@ -281,4 +361,64 @@ fun DeleteNoteDialog(
         endBtnText = stringResource(id = R.string.cancel),
         onDismiss = onDismiss
     )
+}
+
+@Composable
+fun SelectFolderDialog(
+    openDialog: Boolean,
+    folders: List<UiFolder>,
+    onDismiss: () -> Unit,
+    onFolderClick: (uiFolder: UiFolder) -> Unit,
+) {
+    if (openDialog) {
+        AlertDialog(
+            shape = RoundedCornerShape(16.dp),
+            onDismissRequest = onDismiss,
+            text = {
+                Column(
+                    modifier = Modifier.height(100.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.select_folder),
+                        style = MaterialTheme.typography.h2.copy(color = selectedColor)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    LazyColumn(
+                        modifier = Modifier.weight(1f)
+                    ) {
+
+                        items(folders) {
+                            HeaderText(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickableSafeClick(onClick = {
+                                        onFolderClick(it)
+                                        onDismiss()
+                                    })
+                                    .padding(horizontal = 8.dp, vertical = 12.dp),
+                                text = it.name,
+                            )
+                        }
+                    }
+
+                }
+            },
+            buttons = {
+                TextButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onDismiss
+                ) {
+                    Text(
+                        modifier = Modifier.padding(4.dp),
+                        text = stringResource(id = R.string.cancel),
+                        style = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground)
+                    )
+                }
+            }
+
+        )
+    }
+
 }

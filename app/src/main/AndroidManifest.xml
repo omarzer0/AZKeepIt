@@ -4,6 +4,7 @@
     package="az.zero.azkeepit">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
 
     <application
         android:name=".AZApplication"

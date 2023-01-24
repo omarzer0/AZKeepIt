@@ -2,16 +2,15 @@ package az.zero.azkeepit.ui.composables
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.R
 
@@ -53,7 +52,7 @@ fun EtDialogWithTwoButtons(
 ) {
 
     BasicDialog(
-        textContent = {
+        content = {
             CustomEditText(
                 text = text,
                 hint = hint,
@@ -93,7 +92,7 @@ fun TextDialogWithTwoButtons(
 ) {
 
     BasicDialog(
-        textContent = {
+        content = {
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = titleText,
@@ -113,10 +112,39 @@ fun TextDialogWithTwoButtons(
     )
 }
 
+@Composable
+private fun TextItemWithIcon(
+    modifier: Modifier = Modifier,
+    text: String,
+    imageVector: ImageVector? = null,
+    iconContentDescription: String? = null,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickableSafeClick(onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 12.dp)
+    ) {
+        if (imageVector != null) {
+            Icon(imageVector = imageVector, contentDescription = iconContentDescription)
+
+            Spacer(modifier = Modifier.width(16.dp))
+        }
+
+        Text(
+            modifier = Modifier,
+            text = text,
+            style = MaterialTheme.typography.body2,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
 
 @Composable
 fun BasicDialog(
-    textContent: @Composable () -> Unit,
+    content: @Composable () -> Unit,
     openDialog: Boolean,
     startBtnText: String,
     endBtnText: String,
@@ -131,10 +159,8 @@ fun BasicDialog(
     if (openDialog) {
         AlertDialog(
             shape = RoundedCornerShape(16.dp),
-            onDismissRequest = {
-                onDismiss()
-            },
-            text = textContent,
+            onDismissRequest = onDismiss,
+            text = content,
             buttons = {
                 Row(
                     modifier = Modifier

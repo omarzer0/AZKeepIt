@@ -38,7 +38,7 @@ fun NoteItem(
                 onLongClick = onLongClick,
                 onDoubleClick = onDoubleClick,
             ),
-        backgroundColor = cardBgColor,
+        backgroundColor = uiNote.color,
     ) {
 
         Column(
