@@ -34,10 +34,7 @@ fun TransparentHintTextField(
     singleLine: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
     cursorBrush: Brush = SolidColor(selectedColor),
-    keyboardOptions: KeyboardOptions = KeyboardOptions(
-        autoCorrect = false,
-        imeAction = ImeAction.Next
-    ),
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onValueChanged: (String) -> Unit,
 ) {
 

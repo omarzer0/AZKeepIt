@@ -17,7 +17,7 @@ import az.zero.azkeepit.R
 import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.SlidingImage
 import az.zero.azkeepit.ui.composables.clickableSafeClick
-import az.zero.azkeepit.ui.theme.cardBgColor
+import az.zero.azkeepit.ui.screens.note.add_edit.getCorrectLightOrDarkColor
 import az.zero.azkeepit.ui.theme.selectedColor
 
 @Composable
@@ -90,9 +90,7 @@ private fun NoteTextSection(
             text = uiNote.title,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.h2.copy(
-                color = MaterialTheme.colors.onBackground,
-            )
+            style = MaterialTheme.typography.h2.copy(color = uiNote.color.getCorrectLightOrDarkColor(), )
         )
 
         Spacer(modifier = Modifier.size(30.dp))
@@ -118,9 +116,7 @@ private fun NoteTextSection(
                 text = uiNote.content,
                 maxLines = 5,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.body1.copy(
-                    color = MaterialTheme.colors.onBackground,
-                )
+                style = MaterialTheme.typography.body1.copy(color = uiNote.color.getCorrectLightOrDarkColor())
             )
         }
 
@@ -136,9 +132,7 @@ private fun NoteTextSection(
                 text = uiNote.shortDateTime,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.h3.copy(
-                    color = MaterialTheme.colors.onBackground,
-                )
+                style = MaterialTheme.typography.h3.copy(color = uiNote.color.getCorrectLightOrDarkColor())
             )
 
             Spacer(modifier = Modifier.weight(0.5f))
@@ -149,9 +143,7 @@ private fun NoteTextSection(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.End,
-                style = MaterialTheme.typography.h3.copy(
-                    color = MaterialTheme.colors.onBackground,
-                )
+                style = MaterialTheme.typography.h3.copy(color = uiNote.color.getCorrectLightOrDarkColor())
             )
         }
     }

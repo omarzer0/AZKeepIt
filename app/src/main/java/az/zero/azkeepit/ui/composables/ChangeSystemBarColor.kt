@@ -40,7 +40,6 @@ fun ChangeSystemBarColorAndRevertWhenClose(
     newNavigationBarColor: Color,
 ) {
 
-
     DisposableEffect(key1 = key) {
         systemUiController.setStatusBarColor(color = newStatusColor)
         systemUiController.setNavigationBarColor(color = newNavigationBarColor)

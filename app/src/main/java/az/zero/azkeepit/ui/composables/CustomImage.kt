@@ -1,7 +1,5 @@
 package az.zero.azkeepit.ui.composables
 
-import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -17,27 +15,20 @@ fun CustomImage(
     modifier: Modifier = Modifier,
     data: Any,
     placeHolder: Painter? = null,
-    error: Painter? = null,
+    error: Painter? = painterResource(id = R.drawable.ic_no_image),
     contentDescription: String? = null,
     contentScale: ContentScale = ContentScale.Crop,
 ) {
 
-//    Image(
-//        modifier = modifier,
-//        painter = painterResource(id = R.drawable.website),
-//        contentDescription = null,
-//        contentScale = ContentScale.FillBounds
-//    )
     AsyncImage(
         modifier = modifier,
         model = ImageRequest.Builder(LocalContext.current)
             .data(data)
-//            .crossfade(true)
             .build(),
         placeholder = placeHolder,
         error = error,
         contentDescription = contentDescription,
-        contentScale = contentScale
+        contentScale = contentScale,
     )
 }
 

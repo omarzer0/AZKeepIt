@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -22,6 +23,7 @@ fun HeaderWithBackBtn(
     elevation: Dp = 0.dp,
     onBackPressed: (() -> Unit)? = null,
     backgroundColor: Color = MaterialTheme.colors.background,
+    darkBackButton: Boolean = backgroundColor.luminance() > 0.5f,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
 
@@ -52,8 +54,11 @@ fun BasicHeaderWithBackBtn(
     elevation: Dp = 0.dp,
     onBackPressed: (() -> Unit)? = null,
     backgroundColor: Color = MaterialTheme.colors.background,
+    darkBackButton: Boolean = backgroundColor.luminance() > 0.5f,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
+
+    val backButtonTint = if (darkBackButton) Color.Black else Color.White
     TopAppBar(
         modifier = modifier.fillMaxWidth(),
         elevation = elevation,
@@ -68,7 +73,7 @@ fun BasicHeaderWithBackBtn(
                     Icon(
                         Icons.Filled.ArrowBack,
                         stringResource(id = R.string.back),
-                        tint = MaterialTheme.colors.onBackground,
+                        tint = backButtonTint,
                         modifier = Modifier.mirror()
                     )
                 }

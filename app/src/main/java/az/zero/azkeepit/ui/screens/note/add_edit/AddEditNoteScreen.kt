@@ -1,8 +1,8 @@
 package az.zero.azkeepit.ui.screens.note.add_edit
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -90,12 +91,10 @@ fun AddEditNoteScreen(
     )
 
     val galleryLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetMultipleContents()
+        ActivityResultContracts.PickMultipleVisualMedia()
     ) { uriList ->
         viewModel.addImages(uriList)
-        Log.e("ImageDebug", "$uriList")
     }
-
 
     BottomSheetScaffold(
         scaffoldState = bottomState,
@@ -107,7 +106,9 @@ fun AddEditNoteScreen(
                 isNewNote = state.isNoteNew,
                 currentlySelectedColor = note.color,
                 onLockOrUnlockClick = viewModel::updateIsLocked,
-                onAddImagesClick = { galleryLauncher.launch("image/*") },
+                onAddImagesClick = {
+                    galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                },
                 onDismiss = { scope.launch { bottomState.bottomSheetState.collapse() } },
                 onAddFolderClick = { viewModel.changeSelectFolderDialogOpenState(isOpened = true) },
                 onColorSelect = viewModel::updateNoteColor,
@@ -145,9 +146,8 @@ fun AddEditNoteScreen(
                 hint = stringResource(R.string.title),
                 singleLine = true,
                 maxLines = 1,
-                textStyle = MaterialTheme.typography.h1.copy(
-                    color = MaterialTheme.colors.onBackground
-                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                textStyle = MaterialTheme.typography.h1.copy(color = note.color.getCorrectLightOrDarkColor()),
                 onValueChanged = viewModel::updateTitle
             )
 
@@ -155,10 +155,10 @@ fun AddEditNoteScreen(
                 modifier = Modifier.fillMaxWidth(),
                 note = note,
                 numberOfWordsForContent = state.numberOfWordsForContent,
-                onFolderClick = {
-                    focusManager.clearFocus()
-                    scope.launch { bottomState.bottomSheetState.expand() }
-                }
+//                onFolderClick = {
+//                    focusManager.clearFocus()
+//                    scope.launch { bottomState.bottomSheetState.expand() }
+//                }
             )
 
             if (note.images.isNotEmpty()) {
@@ -178,17 +178,14 @@ fun AddEditNoteScreen(
                 text = note.content,
                 hint = stringResource(R.string.content),
                 onValueChanged = viewModel::updateContent,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                textStyle = MaterialTheme.typography.body1.copy(
-                    color = MaterialTheme.colors.onBackground,
-                )
+                textStyle = MaterialTheme.typography.body1.copy(color = note.color.getCorrectLightOrDarkColor())
             )
-
 
         }
     }
 
 }
+
 
 @Composable
 fun AddEditBottomSheet(
@@ -291,7 +288,6 @@ fun TimeWithSelectFolder(
     modifier: Modifier = Modifier,
     note: UiNote,
     numberOfWordsForContent: Int,
-    onFolderClick: () -> Unit,
 ) {
     Row(
         modifier = modifier,
@@ -301,20 +297,20 @@ fun TimeWithSelectFolder(
         Text(
             modifier = Modifier.padding(vertical = 8.dp),
             text = "${note.longDateTime} | $numberOfWordsForContent",
-            style = MaterialTheme.typography.body2
+            style = MaterialTheme.typography.body2.copy(
+                color = note.color.getCorrectLightOrDarkColor()
+            )
         )
 
-        TextButton(
-            onClick = onFolderClick,
-        ) {
-            Text(
-                modifier = Modifier.padding(vertical = 8.dp),
-                text = note.ownerUiFolder?.name ?: stringResource(R.string.select_folder),
-                style = MaterialTheme.typography.body2,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+        Text(
+            modifier = Modifier.padding(vertical = 8.dp),
+            text = note.ownerUiFolder?.name ?: "",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.body2.copy(
+                color = note.color.getCorrectLightOrDarkColor()
             )
-        }
+        )
     }
 }
 
@@ -339,11 +335,26 @@ fun AddEditHeader(
                 Icon(
                     Icons.Filled.Done,
                     stringResource(id = R.string.done),
-                    tint = if (saveEnabled) MaterialTheme.colors.onBackground else Color.Gray,
+//                    tint = if (saveEnabled) MaterialTheme.colors.onBackground else Color.Gray,
+                    tint = backgroundColor.getCorrectLightOrDarkColor(isInActiveColor = saveEnabled.not()),
                 )
             }
         }
     )
+}
+
+
+@Composable
+@Stable
+fun Color.getCorrectLightOrDarkColor(
+    darkIcon: Boolean = this.luminance() > 0.5f,
+    isInActiveColor: Boolean = false,
+): Color {
+    return when {
+        isInActiveColor -> Color.Gray
+        darkIcon -> Color.Black
+        else -> Color.White
+    }
 }
 
 @Composable
