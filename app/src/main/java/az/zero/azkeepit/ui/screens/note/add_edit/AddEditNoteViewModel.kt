@@ -14,8 +14,11 @@ import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.domain.mappers.UiNote
+import az.zero.azkeepit.ui.composables.ColorPallet.DarkHex
+import az.zero.azkeepit.ui.composables.getColorFromHex
 import az.zero.azkeepit.ui.screens.navArgs
 import az.zero.azkeepit.ui.theme.bgColor
+import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.util.JDateTimeUtil
 import az.zero.azkeepit.util.folderInitialId
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -172,7 +175,7 @@ private val emptyUiNote = UiNote(
     JDateTimeUtil.toShortDateTimeFormat(createdDate),
     JDateTimeUtil.toLongDateTimeFormat(createdDate),
     emptyList(),
-    bgColor,
+    getColorFromHex(DarkHex),
     -1L,
     false,
     null

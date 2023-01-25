@@ -29,8 +29,6 @@ import az.zero.azkeepit.R
 import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.*
-import az.zero.azkeepit.ui.theme.bgColor
-import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.ui.theme.selectedColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -82,12 +80,12 @@ fun AddEditNoteScreen(
         onFolderClick = viewModel::addNoteToFolder
     )
 
-    ChangeSystemBarColorAndRevertWhenClose(
+    ChangeSystemBarsColorAndRevertWhenClose(
         key = note.color,
-        initialStatusColor = MaterialTheme.colors.background,
-        newStatusColor = note.color,
-        initialNavigationBarColor = bgColor,
-        newNavigationBarColor = cardBgColor,
+        statusBarColors = EnterExitColors(
+            enterColor = note.color,
+            exitStatusColor = MaterialTheme.colors.background
+        )
     )
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -99,6 +97,7 @@ fun AddEditNoteScreen(
     BottomSheetScaffold(
         scaffoldState = bottomState,
         sheetPeekHeight = 120.dp,
+        backgroundColor = note.color,
         sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
         sheetContent = {
             AddEditBottomSheet(
@@ -193,6 +192,7 @@ fun AddEditBottomSheet(
     isNoteLocked: Boolean,
     isNewNote: Boolean,
     currentlySelectedColor: Color,
+    backgroundColor: Color = MaterialTheme.colors.background,
     onDismiss: () -> Unit,
     onAddFolderClick: () -> Unit,
     onColorSelect: (color: Color) -> Unit,
@@ -201,13 +201,13 @@ fun AddEditBottomSheet(
     onDragClick: () -> Unit,
 ) {
     Column(
-        modifier = modifier.background(cardBgColor)
+        modifier = modifier.background(backgroundColor)
     ) {
 
         Icon(
             imageVector = Icons.Filled.DragHandle,
             stringResource(id = R.string.drag),
-            tint = selectedColor,
+            tint = Color.White,
             modifier = Modifier
                 .fillMaxWidth()
                 .clickableSafeClick(onClick = onDragClick)
@@ -233,6 +233,7 @@ fun AddEditBottomSheet(
         BottomSheetWithItems(
             items = items,
             onDismiss = onDismiss,
+            backgroundColor = backgroundColor
         )
     }
 }

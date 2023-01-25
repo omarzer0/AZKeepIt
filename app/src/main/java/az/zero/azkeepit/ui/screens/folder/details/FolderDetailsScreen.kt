@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
@@ -30,6 +29,7 @@ import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.*
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.items.NoteItem
+import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.ui.theme.selectedColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -125,7 +125,7 @@ fun FolderDetailsScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SuccessFolderDetailsScreen(
-    paddingValues : PaddingValues = PaddingValues(0.dp),
+    paddingValues: PaddingValues = PaddingValues(0.dp),
     folderNotes: List<UiNote>,
     onNoteClick: (uiNote: UiNote) -> Unit,
 ) {
@@ -207,11 +207,9 @@ fun FolderSheetContent(
 
     BottomSheetWithItems(
         modifier = Modifier.height(bottomSheetHeight),
+        backgroundColor = cardBgColor,
         items = items,
-        onDismiss = {
-            onDismiss()
-
-        },
+        onDismiss = onDismiss,
         header = {
             Text(
                 modifier = Modifier.padding(vertical = 16.dp),

@@ -46,7 +46,7 @@ fun NoteItem(
         ) {
             Box {
 
-                if (uiNote.images.isNotEmpty()) {
+                if (uiNote.images.isNotEmpty() && uiNote.isLocked.not()) {
                     SlidingImage(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -92,8 +92,6 @@ private fun NoteTextSection(
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.h2.copy(color = uiNote.color.getCorrectLightOrDarkColor(), )
         )
-
-        Spacer(modifier = Modifier.size(30.dp))
 
         if (uiNote.isLocked) {
             Box(

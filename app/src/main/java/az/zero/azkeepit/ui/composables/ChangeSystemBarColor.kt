@@ -30,23 +30,26 @@ fun ChangeSystemBarColor(
 
 }
 
+data class EnterExitColors(
+    val enterColor: Color,
+    val exitStatusColor: Color,
+)
+
 @Composable
-fun ChangeSystemBarColorAndRevertWhenClose(
+fun ChangeSystemBarsColorAndRevertWhenClose(
     key: Any?,
     systemUiController: SystemUiController = rememberSystemUiController(),
-    initialStatusColor: Color,
-    newStatusColor: Color,
-    initialNavigationBarColor: Color,
-    newNavigationBarColor: Color,
+    statusBarColors: EnterExitColors? = null,
+    navigationBarColors: EnterExitColors? = null,
 ) {
 
     DisposableEffect(key1 = key) {
-        systemUiController.setStatusBarColor(color = newStatusColor)
-        systemUiController.setNavigationBarColor(color = newNavigationBarColor)
+        if (statusBarColors != null) systemUiController.setStatusBarColor(color = statusBarColors.enterColor)
+        if (navigationBarColors != null) systemUiController.setNavigationBarColor(color = navigationBarColors.enterColor)
 
         onDispose {
-            systemUiController.setStatusBarColor(color = initialStatusColor)
-            systemUiController.setNavigationBarColor(color = initialNavigationBarColor)
+            if (statusBarColors != null) systemUiController.setStatusBarColor(color = statusBarColors.exitStatusColor)
+            if (navigationBarColors != null) systemUiController.setNavigationBarColor(color = navigationBarColors.exitStatusColor)
         }
     }
 

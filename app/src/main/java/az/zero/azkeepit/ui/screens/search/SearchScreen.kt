@@ -27,7 +27,6 @@ import az.zero.azkeepit.ui.composables.BasicHeaderWithBackBtn
 import az.zero.azkeepit.ui.composables.TextWithClearIcon
 import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.items.NoteItem
-import az.zero.azkeepit.ui.theme.bgColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -45,7 +44,7 @@ fun SearchScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(bgColor)
+            .background(MaterialTheme.colors.background)
     ) {
         SearchHeader(
             text = searchQuery,

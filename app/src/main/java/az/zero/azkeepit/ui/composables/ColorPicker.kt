@@ -10,6 +10,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,11 +19,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.R
-import az.zero.azkeepit.ui.composables.Colors.BabyBlueHex
-import az.zero.azkeepit.ui.composables.Colors.LightGreenHex
-import az.zero.azkeepit.ui.composables.Colors.RedOrangeHex
-import az.zero.azkeepit.ui.composables.Colors.RedPinkHex
-import az.zero.azkeepit.ui.composables.Colors.VioletHex
+import az.zero.azkeepit.ui.composables.ColorPallet.BlackHex
+import az.zero.azkeepit.ui.composables.ColorPallet.BlueHex
+import az.zero.azkeepit.ui.composables.ColorPallet.DarkHex
+import az.zero.azkeepit.ui.composables.ColorPallet.GreenHex
+import az.zero.azkeepit.ui.composables.ColorPallet.OrangeHex
+import az.zero.azkeepit.ui.composables.ColorPallet.PinkHex
+import az.zero.azkeepit.ui.composables.ColorPallet.WhiteHex
+import az.zero.azkeepit.ui.screens.note.add_edit.getCorrectLightOrDarkColor
 
 @Composable
 fun ColorsRow(
@@ -30,9 +34,7 @@ fun ColorsRow(
     currentlySelectedColor: Color,
     onClick: (color: Color) -> Unit,
 ) {
-    val colors = listOf(RedOrangeHex, RedPinkHex, LightGreenHex, BabyBlueHex, VioletHex).map {
-        Color(it)
-    }
+    val colors = remember { colorPallet }
 
     LazyRow(
         modifier = modifier,
@@ -47,8 +49,6 @@ fun ColorsRow(
             )
         }
     }
-
-
 }
 
 @Composable
@@ -83,7 +83,7 @@ fun ColorItem(
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = stringResource(id = R.string.selected),
-                        tint = Color.White
+                        tint = color.getCorrectLightOrDarkColor()
                     )
                 }
             }
@@ -92,10 +92,25 @@ fun ColorItem(
     }
 }
 
-object Colors {
+private val colorPallet by lazy {
+    listOf(DarkHex, WhiteHex, BlueHex, PinkHex, GreenHex, OrangeHex, BlackHex).map {
+        getColorFromHex(it)
+    }
+}
+
+object ColorPallet {
     const val RedOrangeHex = 0xffffab91
     const val RedPinkHex = 0xfff48fb1
     const val BabyBlueHex = 0xff81deea
     const val VioletHex = 0xffcf94da
     const val LightGreenHex = 0xffe7ed9b
+
+    //    const val DarkHex = "171c26"
+    const val DarkHex = "171c26"
+    const val WhiteHex = "ffffff"
+    const val BlueHex = "3369ff"
+    const val PinkHex = "ae3b76"
+    const val GreenHex = "0aebaf"
+    const val OrangeHex = "ff7746"
+    const val BlackHex = "000000"
 }
