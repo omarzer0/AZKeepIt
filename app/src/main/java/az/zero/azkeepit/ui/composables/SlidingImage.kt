@@ -2,19 +2,20 @@ package az.zero.azkeepit.ui.composables
 
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -37,6 +38,10 @@ fun SlidingImage(
         contentAlignment = Alignment.BottomCenter
     ) {
         val pagerState = rememberPagerState()
+        val shouldShowIndicator = remember(pagerState.pageCount) { pagerState.pageCount in 2..6 }
+        val shouldShowNumberOfImages = remember(pagerState.pageCount) { pagerState.pageCount > 6 }
+        val cornerShape = RoundedCornerShape(8.dp)
+        val color = MaterialTheme.colors.background
 
         HorizontalPager(
             modifier = Modifier.fillMaxSize(),
@@ -73,29 +78,25 @@ fun SlidingImage(
             ) {
                 CustomImage(
                     modifier = Modifier.fillMaxSize(),
-                    data = dataUris[page],
-                    error = painterResource(id = R.drawable.no_note),
-                    placeHolder = painterResource(id = R.drawable.lock)
+                    data = dataUris[page]
                 )
-
-                if (onDeleteImageClick != null) {
-                    IconButton(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(8.dp),
-                        onClick = { onDeleteImageClick(dataUris[page]) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            tint = MaterialTheme.colors.onBackground,
-                            contentDescription = stringResource(id = R.string.remove)
-                        )
-                    }
-                }
             }
         }
 
-        if (dataUris.size > 1){
+        if (onDeleteImageClick != null) {
+            IconButton(
+                modifier = Modifier.align(Alignment.TopStart),
+                onClick = { onDeleteImageClick(dataUris[pagerState.currentPage]) }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Cancel,
+                    tint = color,
+                    contentDescription = stringResource(id = R.string.remove)
+                )
+            }
+        }
+
+        if (shouldShowIndicator) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -111,6 +112,28 @@ fun SlidingImage(
                 )
             }
         }
+
+        if (shouldShowNumberOfImages) {
+            Box(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.TopEnd)
+                    .border(width = 1.dp,
+                        color = color,
+                        shape = cornerShape
+                    )
+                    .padding(4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "${pagerState.currentPage + 1} / ${pagerState.pageCount}",
+                    style = MaterialTheme.typography.caption.copy(color = color)
+                )
+            }
+
+        }
+
+
     }
 }
 

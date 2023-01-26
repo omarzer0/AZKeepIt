@@ -33,7 +33,6 @@ fun BottomSheetWithItems(
     Column(
         modifier = modifier
             .background(backgroundColor),
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 

@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="az.zero.azkeepit">
 
-
     <application
         android:name=".AZApplication"
         android:allowBackup="true"

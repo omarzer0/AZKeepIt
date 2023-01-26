@@ -32,6 +32,7 @@ import az.zero.azkeepit.ui.screens.home.BottomBarItem
 import az.zero.azkeepit.ui.screens.home.HomeUiState
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
 import az.zero.azkeepit.ui.screens.items.NoteItem
+import az.zero.azkeepit.ui.screens.note.add_edit.SelectFolderDialog
 import az.zero.azkeepit.ui.theme.cardBgColor
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -95,6 +96,7 @@ private fun SuccessNotesScreen(
         sheetContent = {
             SelectFolderBottomSheet(
                 uiFolders = state.uiFolders,
+                backgroundColor = cardBgColor,
                 titleText = stringResource(id = R.string.select_folder),
                 onDismiss = { scope.launch { bottomState.hide() } },
                 onClick = { viewModel.moveSelectedNotesToFolder(it.folderId) }

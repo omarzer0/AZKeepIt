@@ -1,5 +1,6 @@
 package az.zero.azkeepit.ui.screens.note.add_edit
 
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -19,6 +20,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -88,9 +90,21 @@ fun AddEditNoteScreen(
         )
     )
 
+    val context = LocalContext.current
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickMultipleVisualMedia()
     ) { uriList ->
+
+        /*
+        * By default, the system grants your app access to media files until the device is restarted
+        * or until your app stops.
+        * takePersistableUriPermission() grants access to selected media over app stops and reboots
+        * */
+
+        val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        uriList.forEach {
+            context.contentResolver.takePersistableUriPermission(it, flag)
+        }
         viewModel.addImages(uriList)
     }
 
@@ -105,12 +119,13 @@ fun AddEditNoteScreen(
                 isNewNote = state.isNoteNew,
                 currentlySelectedColor = note.color,
                 onLockOrUnlockClick = viewModel::updateIsLocked,
-                onAddImagesClick = {
-                    galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                },
+                onDeleteNoteClick = { viewModel.changeDeleteDialogOpenState(isOpened = true) },
                 onDismiss = { scope.launch { bottomState.bottomSheetState.collapse() } },
                 onAddFolderClick = { viewModel.changeSelectFolderDialogOpenState(isOpened = true) },
                 onColorSelect = viewModel::updateNoteColor,
+                onAddImagesClick = {
+                    galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                },
                 onDragClick = {
                     scope.launch {
                         if (bottomState.bottomSheetState.isCollapsed) bottomState.bottomSheetState.expand()
@@ -128,13 +143,16 @@ fun AddEditNoteScreen(
             )
         },
     ) { paddingValues ->
+
+        val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(note.color)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp, bottom = 4.dp)
+                .verticalScroll(scrollState),
         ) {
 
             TransparentHintTextField(
@@ -151,13 +169,11 @@ fun AddEditNoteScreen(
             )
 
             TimeWithSelectFolder(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
                 note = note,
-                numberOfWordsForContent = state.numberOfWordsForContent,
-//                onFolderClick = {
-//                    focusManager.clearFocus()
-//                    scope.launch { bottomState.bottomSheetState.expand() }
-//                }
+                numberOfWordsForContent = state.numberOfWordsForContent
             )
 
             if (note.images.isNotEmpty()) {
@@ -173,6 +189,7 @@ fun AddEditNoteScreen(
 
             TransparentHintTextField(
                 textModifier = Modifier
+                    .heightIn(min = 200.dp)
                     .fillMaxSize(),
                 text = note.content,
                 hint = stringResource(R.string.content),
@@ -195,6 +212,7 @@ fun AddEditBottomSheet(
     backgroundColor: Color = MaterialTheme.colors.background,
     onDismiss: () -> Unit,
     onAddFolderClick: () -> Unit,
+    onDeleteNoteClick: () -> Unit,
     onColorSelect: (color: Color) -> Unit,
     onLockOrUnlockClick: () -> Unit,
     onAddImagesClick: () -> Unit,
@@ -225,9 +243,10 @@ fun AddEditBottomSheet(
         val items = addEditBottomSheetItems(
             isNoteLocked = isNoteLocked,
             isNewNote = isNewNote,
-            onAddFolderClick = onAddFolderClick,
+            onAddNotToFolderClick = onAddFolderClick,
             onLockOrUnlockClick = onLockOrUnlockClick,
-            onAddImagesClick = onAddImagesClick
+            onAddImagesClick = onAddImagesClick,
+            onDeleteNoteClick = onDeleteNoteClick
         )
 
         BottomSheetWithItems(
@@ -243,7 +262,8 @@ fun AddEditBottomSheet(
 fun addEditBottomSheetItems(
     isNoteLocked: Boolean,
     isNewNote: Boolean,
-    onAddFolderClick: () -> Unit,
+    onAddNotToFolderClick: () -> Unit,
+    onDeleteNoteClick: () -> Unit,
     onLockOrUnlockClick: () -> Unit,
     onAddImagesClick: () -> Unit,
 ): List<BottomSheetDateItem> {
@@ -253,14 +273,14 @@ fun addEditBottomSheetItems(
         title = stringResource(id = R.string.add_note_to_folder),
         imageVector = Icons.Filled.Add,
         iconContentDescription = stringResource(id = R.string.add_note_to_folder),
-        onClick = onAddFolderClick
+        onClick = onAddNotToFolderClick
     )
 
     val deleteNote = BottomSheetDateItem(
         title = stringResource(id = R.string.delete_note),
         imageVector = Icons.Filled.Delete,
         iconContentDescription = stringResource(id = R.string.delete_note),
-        onClick = onAddFolderClick
+        onClick = onDeleteNoteClick
     )
 
     val lockOrUnlockNote = BottomSheetDateItem(
@@ -302,6 +322,8 @@ fun TimeWithSelectFolder(
                 color = note.color.getCorrectLightOrDarkColor()
             )
         )
+
+        Spacer(modifier = Modifier.size(16.dp))
 
         Text(
             modifier = Modifier.padding(vertical = 8.dp),
