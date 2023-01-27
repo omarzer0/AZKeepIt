@@ -5,12 +5,15 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -53,6 +56,16 @@ fun AddEditNoteScreen(
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val bottomState = rememberBottomSheetScaffoldState()
+
+    CustomSetPasswordDialog(
+        openDialog = state.isNotePasswordDialogOpened,
+        startBtnText = stringResource(R.string.set_password),
+        endBtnText = stringResource(id = R.string.cancel),
+        onSetBtnClick = viewModel::updateIsLocked,
+        onDismiss = {
+            viewModel.changeSetPasswordDialogOpened(isOpened = false)
+        }
+    )
 
     BackHandler(
         enabled = bottomState.bottomSheetState.isExpanded
@@ -118,7 +131,9 @@ fun AddEditNoteScreen(
                 isNoteLocked = state.note.isLocked,
                 isNewNote = state.isNoteNew,
                 currentlySelectedColor = note.color,
-                onLockOrUnlockClick = viewModel::updateIsLocked,
+                onLockOrUnlockClick = {
+                    viewModel.changeSetPasswordDialogOpened(isOpened = true)
+                },
                 onDeleteNoteClick = { viewModel.changeDeleteDialogOpenState(isOpened = true) },
                 onDismiss = { scope.launch { bottomState.bottomSheetState.collapse() } },
                 onAddFolderClick = { viewModel.changeSelectFolderDialogOpenState(isOpened = true) },

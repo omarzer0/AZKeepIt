@@ -22,7 +22,7 @@ class HomeViewModel @Inject constructor(
     private val folderRepository: FolderRepository,
 ) : ViewModel() {
 
-    private val uiNotes = noteRepository.getNotesWithFolderName()
+    private val uiNotes = noteRepository.getUiNotes()
     private val uiFolders = folderRepository.getUiFolders()
     private val isEditModeOn = MutableStateFlow(false)
     private val isDeleteNotesDialogOpened = MutableStateFlow(false)

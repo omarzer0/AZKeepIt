@@ -13,7 +13,7 @@ class NoteRepository @Inject constructor(
     private val noteDao: NoteDao,
 ) {
 
-    fun getNotesWithFolderName() = noteDao.getNotesWithFolderName().map { it.toUiNotes() }
+    fun getUiNotes() = noteDao.getNotesWithFolderName().map { it.toUiNotes() }
 
     suspend fun getNoteById(noteId: Long) = noteDao.getNoteById(noteId)?.toUiNote()
 

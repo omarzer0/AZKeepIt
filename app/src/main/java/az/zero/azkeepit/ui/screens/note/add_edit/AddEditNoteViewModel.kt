@@ -17,14 +17,12 @@ import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.ColorPallet.DarkHex
 import az.zero.azkeepit.ui.composables.getColorFromHex
 import az.zero.azkeepit.ui.screens.navArgs
-import az.zero.azkeepit.ui.theme.bgColor
-import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.util.JDateTimeUtil
+import az.zero.azkeepit.util.combine
 import az.zero.azkeepit.util.folderInitialId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -44,6 +42,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
     private val shouldPopUp = MutableStateFlow(false)
     private val deleteDialogOpened = MutableStateFlow(false)
     private val selectFolderDialogOpened = MutableStateFlow(false)
+    private val isNotePasswordDialogOpened = MutableStateFlow(false)
 
 
     val state = combine(
@@ -51,9 +50,10 @@ class AddEditNoteScreenViewModel @Inject constructor(
         shouldPopUp,
         deleteDialogOpened,
         allFolders,
-        selectFolderDialogOpened
-    ) { localUiNote, shouldPopUp, isDeleteDialogOpened, allFolders, isSelectFolderDialogOpened ->
-        Log.e("ImageDebugLoad", "${localUiNote.images}")
+        selectFolderDialogOpened,
+        isNotePasswordDialogOpened
+    ) { localUiNote, shouldPopUp, isDeleteDialogOpened,
+        allFolders, isSelectFolderDialogOpened, isNotePasswordDialogOpened ->
         AddEditNoteState(
             note = localUiNote,
             numberOfWordsForContent = localUiNote.content.length,
@@ -63,6 +63,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
             shouldPopUp = shouldPopUp,
             isDeleteDialogOpened = isDeleteDialogOpened,
             isSelectFolderDialogOpened = isSelectFolderDialogOpened,
+            isNotePasswordDialogOpened = isNotePasswordDialogOpened
         )
     }.stateIn(
         viewModelScope,
@@ -113,10 +114,16 @@ class AddEditNoteScreenViewModel @Inject constructor(
         selectFolderDialogOpened.emit(isOpened)
     }
 
+    fun changeSetPasswordDialogOpened(isOpened: Boolean) = viewModelScope.launch {
+        isNotePasswordDialogOpened.emit(isOpened)
+    }
+
     fun updateNoteColor(newColor: Color) = viewModelScope.launch {
-        localUiNote.emit(localUiNote.value.copy(
-            color = newColor
-        ))
+        localUiNote.emit(
+            localUiNote.value.copy(
+                color = newColor
+            )
+        )
     }
 
     fun deleteNote() = viewModelScope.launch {
@@ -160,6 +167,7 @@ data class AddEditNoteState(
     val shouldPopUp: Boolean = false,
     val isDeleteDialogOpened: Boolean = false,
     val isSelectFolderDialogOpened: Boolean = false,
+    val isNotePasswordDialogOpened: Boolean = false
 )
 
 data class AddEditNoteScreenArgs(

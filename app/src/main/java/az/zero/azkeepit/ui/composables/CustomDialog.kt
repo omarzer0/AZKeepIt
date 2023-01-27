@@ -1,16 +1,20 @@
 package az.zero.azkeepit.ui.composables
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.R
 
@@ -113,36 +117,6 @@ fun TextDialogWithTwoButtons(
 }
 
 @Composable
-private fun TextItemWithIcon(
-    modifier: Modifier = Modifier,
-    text: String,
-    imageVector: ImageVector? = null,
-    iconContentDescription: String? = null,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickableSafeClick(onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 12.dp)
-    ) {
-        if (imageVector != null) {
-            Icon(imageVector = imageVector, contentDescription = iconContentDescription)
-
-            Spacer(modifier = Modifier.width(16.dp))
-        }
-
-        Text(
-            modifier = Modifier,
-            text = text,
-            style = MaterialTheme.typography.body2,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-@Composable
 fun BasicDialog(
     content: @Composable () -> Unit,
     openDialog: Boolean,
@@ -164,12 +138,15 @@ fun BasicDialog(
             buttons = {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(all = 8.dp),
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     TextButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp),
                         enabled = startBtnEnabled,
                         onClick = {
                             onStartBtnClick?.invoke()
@@ -179,9 +156,10 @@ fun BasicDialog(
                         Text(startBtnText, style = startBtnStyle)
                     }
 
-                    Spacer(modifier = Modifier.width(16.dp))
-
                     TextButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp),
                         enabled = endBtnEnabled,
                         onClick = {
                             onEndBtnClick?.invoke()
@@ -190,6 +168,7 @@ fun BasicDialog(
                     ) {
                         Text(endBtnText, style = endBtnStyle)
                     }
+
                 }
             }
         )

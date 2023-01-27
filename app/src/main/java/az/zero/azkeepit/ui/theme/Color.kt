@@ -14,6 +14,7 @@ val cardBgColor = getColorFromHex("#171c26")
 //val fabColor = getColorFromHex("#3369ff")
 val fabColor = Color(0xFF4E33FF)
 val secondaryTextColor = Color.Gray
+val hintTextColor = Color(0xFF808080)
 
 /*
 * fab -> #706fc8
