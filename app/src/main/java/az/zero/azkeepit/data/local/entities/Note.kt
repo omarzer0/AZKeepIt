@@ -16,6 +16,7 @@ data class Note(
     val ownerFolderId: Long?,
     val images :List<String>,
     val color : Int,
+    val password: String? = null,
     @PrimaryKey(autoGenerate = true)
     val noteId: Long? = null,
 )

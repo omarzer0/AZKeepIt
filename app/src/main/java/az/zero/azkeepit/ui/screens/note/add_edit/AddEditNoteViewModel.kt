@@ -184,6 +184,7 @@ private val emptyUiNote = UiNote(
     JDateTimeUtil.toLongDateTimeFormat(createdDate),
     emptyList(),
     getColorFromHex(DarkHex),
+    null,
     -1L,
     false,
     null
