@@ -46,7 +46,7 @@ fun EtDialogWithTwoButtons(
     endBtnText: String,
     textStyle: TextStyle = MaterialTheme.typography.h2.copy(color = MaterialTheme.colors.onBackground),
     onTextChange: (String) -> Unit,
-    isError: Boolean = true,
+    isError: Boolean = false,
     errorText: String? = null,
     startBtnEnabled: Boolean = true,
     dismissAfterClickStartBtn: Boolean = true,

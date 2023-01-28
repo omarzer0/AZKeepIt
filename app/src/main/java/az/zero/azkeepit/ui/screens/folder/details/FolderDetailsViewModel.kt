@@ -9,6 +9,7 @@ import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.ui.screens.navArgs
+import az.zero.azkeepit.util.emptyUiFolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -96,24 +97,6 @@ data class FolderDetailsState(
     val renameDialogOpened: Boolean = false,
     val shouldPopUp: Boolean = false,
 )
-
-val emptyUiFolder = UiFolder(
-    name = "",
-    createdAt = -1L,
-    folderId = -1L,
-    isSelected = false
-)
-
-//val emptyUiFolderWithUiNotes = UiFolderWithUiNotes(
-//    folder = null,
-//    noteWithFolders = emptyList()
-//)
-//
-//
-//val emptyUiFolderWithNotes = FolderWithNotes(
-//    folder = Folder("", -1L),
-//    notes = emptyList()
-//)
 
 data class FolderDetailsScreenArgs(
     val id: Long,

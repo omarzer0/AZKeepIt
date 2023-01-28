@@ -1,7 +1,6 @@
 package az.zero.azkeepit.ui.screens.note.add_edit
 
 import android.content.Intent
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -58,6 +57,7 @@ fun AddEditNoteScreen(
     val focusManager = LocalFocusManager.current
     val bottomState = rememberBottomSheetScaffoldState()
 
+    BackHandler { viewModel.saveNote() }
 
     BackHandler(
         enabled = bottomState.bottomSheetState.isExpanded
@@ -79,7 +79,6 @@ fun AddEditNoteScreen(
         startBtnText = stringResource(R.string.set_password),
         endBtnText = stringResource(id = R.string.cancel),
         onSetBtnClick = { password ->
-            Log.e("EnterNotePasswordDialog", "setPassword: $password")
             viewModel.updateIsLocked(isLocked = true, newPassword = password)
         },
         onDismiss = {
@@ -135,6 +134,8 @@ fun AddEditNoteScreen(
             AddEditBottomSheet(
                 isNoteLocked = state.note.isLocked,
                 isNewNote = state.isNoteNew,
+                isNoFolder = state.allFolders.isEmpty(),
+                doesNoteHasFolder = state.note.ownerUiFolder != null,
                 currentlySelectedColor = note.color,
                 onLockOrUnlockClick = {
                     if (note.isLocked)
@@ -145,6 +146,7 @@ fun AddEditNoteScreen(
                 onDismiss = { scope.launch { bottomState.bottomSheetState.collapse() } },
                 onAddFolderClick = { viewModel.changeSelectFolderDialogOpenState(isOpened = true) },
                 onColorSelect = viewModel::updateNoteColor,
+                onRemoveFromFolderClick = viewModel::removeNoteFromFolder,
                 onAddImagesClick = {
                     galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 },
@@ -159,9 +161,8 @@ fun AddEditNoteScreen(
         topBar = {
             AddEditHeader(
                 backgroundColor = note.color,
-                onBackPressed = viewModel::onBackPressed,
+                onBackPressed = viewModel::saveNote,
                 saveEnabled = state.isSaveActive,
-                onDoneClick = viewModel::saveNote,
             )
         },
     ) { paddingValues ->
@@ -230,6 +231,7 @@ fun AddEditBottomSheet(
     modifier: Modifier = Modifier,
     isNoteLocked: Boolean,
     isNewNote: Boolean,
+    isNoFolder: Boolean,
     currentlySelectedColor: Color,
     backgroundColor: Color = MaterialTheme.colors.background,
     onDismiss: () -> Unit,
@@ -239,6 +241,8 @@ fun AddEditBottomSheet(
     onLockOrUnlockClick: () -> Unit,
     onAddImagesClick: () -> Unit,
     onDragClick: () -> Unit,
+    doesNoteHasFolder: Boolean,
+    onRemoveFromFolderClick: () -> Unit,
 ) {
     Column(
         modifier = modifier.background(backgroundColor)
@@ -265,6 +269,9 @@ fun AddEditBottomSheet(
         val items = addEditBottomSheetItems(
             isNoteLocked = isNoteLocked,
             isNewNote = isNewNote,
+            isNoFolder = isNoFolder,
+            doesNoteHasFolder = doesNoteHasFolder,
+            onRemoveFromFolderClick = onRemoveFromFolderClick,
             onAddNotToFolderClick = onAddFolderClick,
             onLockOrUnlockClick = onLockOrUnlockClick,
             onAddImagesClick = onAddImagesClick,
@@ -284,10 +291,13 @@ fun AddEditBottomSheet(
 fun addEditBottomSheetItems(
     isNoteLocked: Boolean,
     isNewNote: Boolean,
+    isNoFolder: Boolean,
     onAddNotToFolderClick: () -> Unit,
     onDeleteNoteClick: () -> Unit,
     onLockOrUnlockClick: () -> Unit,
     onAddImagesClick: () -> Unit,
+    doesNoteHasFolder: Boolean,
+    onRemoveFromFolderClick: () -> Unit,
 ): List<BottomSheetDateItem> {
 
     val list = mutableListOf<BottomSheetDateItem>()
@@ -298,6 +308,14 @@ fun addEditBottomSheetItems(
         onClick = onAddNotToFolderClick
     )
 
+    val removeNoteFromFolder = BottomSheetDateItem(
+        title = stringResource(id = R.string.remove_note_from_folder),
+        imageVector = Icons.Filled.Remove,
+        iconContentDescription = stringResource(id = R.string.remove_note_from_folder),
+        onClick = onRemoveFromFolderClick
+    )
+
+
     val deleteNote = BottomSheetDateItem(
         title = stringResource(id = R.string.delete_note),
         imageVector = Icons.Filled.Delete,
@@ -306,10 +324,10 @@ fun addEditBottomSheetItems(
     )
 
     val lockOrUnlockNote = BottomSheetDateItem(
-        title = if (isNoteLocked) stringResource(id = R.string.lock) else stringResource(id = R.string.unlock),
-        imageVector = if (isNoteLocked) Icons.Filled.Lock else Icons.Filled.LockOpen,
-        iconContentDescription = if (isNoteLocked) stringResource(id = R.string.lock)
-        else stringResource(id = R.string.unlock),
+        title = if (isNoteLocked) stringResource(id = R.string.unlock) else stringResource(id = R.string.lock),
+        imageVector = if (isNoteLocked) Icons.Filled.LockOpen else Icons.Filled.Lock,
+        iconContentDescription = if (isNoteLocked) stringResource(id = R.string.unlock)
+        else stringResource(id = R.string.lock),
         onClick = onLockOrUnlockClick,
         dismissAfterClick = false
     )
@@ -321,8 +339,10 @@ fun addEditBottomSheetItems(
         onClick = onAddImagesClick
     )
 
-    list.addAll(listOf(addNoteToFolder, lockOrUnlockNote, addImages))
+    list.addAll(listOf(lockOrUnlockNote, addImages))
     if (!isNewNote) list.add(deleteNote)
+    if (!isNoFolder) list.add(addNoteToFolder)
+    if (doesNoteHasFolder) list.add(removeNoteFromFolder)
     return list
 }
 
@@ -364,27 +384,27 @@ fun AddEditHeader(
     backgroundColor: Color,
     onBackPressed: () -> Unit,
     saveEnabled: Boolean,
-    onDoneClick: () -> Unit,
+//    onDoneClick: () -> Unit,
 ) {
     HeaderWithBackBtn(
         text = "",
         elevation = 0.dp,
         onBackPressed = onBackPressed,
         backgroundColor = backgroundColor,
-        actions = {
-            IconButton(
-                modifier = Modifier.mirror(),
-                enabled = saveEnabled,
-                onClick = onDoneClick
-            ) {
-                Icon(
-                    Icons.Filled.Done,
-                    stringResource(id = R.string.done),
-//                    tint = if (saveEnabled) MaterialTheme.colors.onBackground else Color.Gray,
-                    tint = backgroundColor.getCorrectLightOrDarkColor(isInActiveColor = saveEnabled.not()),
-                )
-            }
-        }
+//        actions = {
+//            IconButton(
+//                modifier = Modifier.mirror(),
+//                enabled = saveEnabled,
+//                onClick = onDoneClick
+//            ) {
+//                Icon(
+//                    Icons.Filled.Done,
+//                    stringResource(id = R.string.done),
+////                    tint = if (saveEnabled) MaterialTheme.colors.onBackground else Color.Gray,
+//                    tint = backgroundColor.getCorrectLightOrDarkColor(isInActiveColor = saveEnabled.not()),
+//                )
+//            }
+//        }
     )
 }
 

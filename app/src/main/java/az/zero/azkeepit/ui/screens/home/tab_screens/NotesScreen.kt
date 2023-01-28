@@ -77,6 +77,7 @@ private fun SuccessNotesScreen(
         scope.launch { bottomState.hide() }
     }
 
+
     LaunchedEffect(key1 = state.isEditModeOn) {
         if (!state.isEditModeOn) scope.launch { bottomState.hide() }
     }

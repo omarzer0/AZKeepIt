@@ -1,6 +1,5 @@
 package az.zero.azkeepit.ui.composables
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -78,8 +77,6 @@ fun EnterNotePasswordDialog(
         startBtnText = stringResource(id = R.string.enter),
         dismissAfterClickStartBtn = false,
         onStartBtnClick = {
-            Log.e("EnterNotePasswordDialog", "text: $text")
-            Log.e("EnterNotePasswordDialog", "password: ${uiNote.password}")
             if (text != uiNote.password) isError = true
             else onCorrectPasswordClick(uiNote)
         },
@@ -108,7 +105,7 @@ fun CustomSetPasswordDialog(
     onDismiss: () -> Unit,
 ) {
     var password by rememberSaveable { mutableStateOf("") }
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
     var confirmPassword by rememberSaveable { mutableStateOf("") }
     var confirmPasswordVisible by rememberSaveable { mutableStateOf(false) }
     val isSetButtonEnabled by remember(openDialog) {
@@ -198,7 +195,14 @@ fun CustomSetPasswordDialog(
         endBtnEnabled = true,
         endBtnStyle = endBtnStyle,
         onEndBtnClick = onCancelClick,
-        onDismiss = onDismiss
+        onDismiss = {
+            password = ""
+            confirmPassword = ""
+            passwordVisible = false
+            confirmPasswordVisible = false
+            onDismiss()
+        }
+
     )
 
 }

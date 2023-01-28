@@ -1,7 +1,6 @@
 package az.zero.azkeepit.ui.screens.note.add_edit
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
@@ -19,6 +18,7 @@ import az.zero.azkeepit.ui.composables.getColorFromHex
 import az.zero.azkeepit.ui.screens.navArgs
 import az.zero.azkeepit.util.JDateTimeUtil
 import az.zero.azkeepit.util.combine
+import az.zero.azkeepit.util.emptyUiFolder
 import az.zero.azkeepit.util.folderInitialId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +44,6 @@ class AddEditNoteScreenViewModel @Inject constructor(
     private val selectFolderDialogOpened = MutableStateFlow(false)
     private val isNotePasswordDialogOpened = MutableStateFlow(false)
 
-
     val state = combine(
         localUiNote,
         shouldPopUp,
@@ -53,8 +52,8 @@ class AddEditNoteScreenViewModel @Inject constructor(
         selectFolderDialogOpened,
         isNotePasswordDialogOpened
     ) {
-            localUiNote, shouldPopUp, isDeleteDialogOpened,
-            allFolders, isSelectFolderDialogOpened, isNotePasswordDialogOpened,
+            localUiNote, shouldPopUp, isDeleteDialogOpened, allFolders,
+            isSelectFolderDialogOpened, isNotePasswordDialogOpened,
         ->
         AddEditNoteState(
             note = localUiNote,
@@ -74,6 +73,11 @@ class AddEditNoteScreenViewModel @Inject constructor(
     )
 
     fun saveNote() = viewModelScope.launch {
+        if (!state.value.isSaveActive) {
+            shouldPopUp.emit(true)
+            return@launch
+        }
+
         val note = Note(
             title = state.value.note.title.trim(),
             content = state.value.note.content.trim(),
@@ -136,10 +140,6 @@ class AddEditNoteScreenViewModel @Inject constructor(
         if (deletedNoteId != -1) shouldPopUp.emit(true)
     }
 
-    fun onBackPressed() = viewModelScope.launch {
-        shouldPopUp.emit(true)
-    }
-
     fun addImages(newImages: List<Uri>) = viewModelScope.launch {
         val oldImages = localUiNote.value.images
         val newList = (oldImages + newImages).distinct()
@@ -150,6 +150,10 @@ class AddEditNoteScreenViewModel @Inject constructor(
         val oldImages = localUiNote.value.images.toMutableList()
         oldImages.remove(dataUri)
         localUiNote.emit(localUiNote.value.copy(images = oldImages))
+    }
+
+    fun removeNoteFromFolder() = viewModelScope.launch {
+        localUiNote.emit(localUiNote.value.copy(ownerUiFolder = null))
     }
 
     init {

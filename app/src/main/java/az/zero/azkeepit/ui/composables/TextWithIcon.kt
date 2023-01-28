@@ -7,6 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -40,11 +41,14 @@ fun TextWithIcon(
 fun HeaderText(
     modifier: Modifier = Modifier,
     text: String,
+    textStyle: TextStyle = MaterialTheme.typography.h3.copy(
+        color = MaterialTheme.colors.onBackground
+    ),
 ) {
     Text(
         modifier = modifier,
         text = text,
-        style = MaterialTheme.typography.body2,
+        style = textStyle,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
     )

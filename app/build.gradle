@@ -4,7 +4,6 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'kotlin-parcelize'
-//    id 'androidx.navigation.safeargs'
     // Search here by you kotlin version-> https://github.com/google/ksp/releases
     id 'com.google.devtools.ksp' version "1.7.20-1.0.8"
 }
@@ -136,7 +135,7 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$compose_version_1"
 }
 
-// Allow references to generated code
 kapt {
+    // Allow references to generated code
     correctErrorTypes true
 }
