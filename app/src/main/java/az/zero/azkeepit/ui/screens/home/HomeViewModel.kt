@@ -28,9 +28,11 @@ class HomeViewModel @Inject constructor(
     private val isDeleteNotesDialogOpened = MutableStateFlow(false)
     private val isCreateFolderDialogOpened = MutableStateFlow(false)
     private val isDeleteFoldersDialogOpen = MutableStateFlow(false)
+    private val isEnterPasswordDialogOpen = MutableStateFlow(false)
     private val currentTab = MutableStateFlow(0)
     private val selectedNotes = MutableStateFlow(mutableListOf<Long>())
     private val selectedFolders = MutableStateFlow(mutableListOf<Long>())
+    val lockedUiNoteToOpen = MutableStateFlow<UiNote?>(null)
 
     fun createFolder(folderName: String) = viewModelScope.launch {
         folderRepository.insertFolder(Folder(folderName, JDateTimeUtil.now(), null))
@@ -102,6 +104,11 @@ class HomeViewModel @Inject constructor(
         isDeleteFoldersDialogOpen.emit(isOpened)
     }
 
+    fun changeEnterPasswordOpenState(isOpen: Boolean, uiNote: UiNote?) = viewModelScope.launch {
+        lockedUiNoteToOpen.emit(uiNote)
+        isEnterPasswordDialogOpen.emit(isOpen)
+    }
+
     val state = combine(
         uiNotes,
         uiFolders,
@@ -112,9 +119,12 @@ class HomeViewModel @Inject constructor(
         selectedFolders,
         isDeleteNotesDialogOpened,
         isDeleteFoldersDialogOpen,
-    ) {
+        isEnterPasswordDialogOpen,
+    )
+    {
             uiNotes, uiFolders, isEditModeOn, currentTab, isCreateFolderDialogOpened,
             selectedNotes, selectedFolders, isDeleteNotesDialogOpened, isDeleteFoldersDialogOpen,
+            isEnterPasswordDialogOpen,
         ->
         HomeUiState(
             uiNotes = uiNotes.map { it.copy(isSelected = selectedNotes.contains(it.noteId)) },
@@ -129,7 +139,8 @@ class HomeViewModel @Inject constructor(
             selectedNotesNumber = selectedNotes.size,
             selectedFolderNumber = selectedFolders.size,
             isDeleteNotesDialogOpen = isDeleteNotesDialogOpened,
-            isDeleteFoldersDialogOpen = isDeleteFoldersDialogOpen
+            isDeleteFoldersDialogOpen = isDeleteFoldersDialogOpen,
+            isEnterPasswordDialogOpen = isEnterPasswordDialogOpen
         )
     }.stateIn(
         viewModelScope,
@@ -153,4 +164,5 @@ data class HomeUiState(
     val currentTab: Int = 0,
     val isDeleteNotesDialogOpen: Boolean = false,
     val isDeleteFoldersDialogOpen: Boolean = false,
+    val isEnterPasswordDialogOpen: Boolean = false,
 )

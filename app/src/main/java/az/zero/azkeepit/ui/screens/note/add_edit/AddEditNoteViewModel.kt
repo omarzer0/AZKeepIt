@@ -52,8 +52,10 @@ class AddEditNoteScreenViewModel @Inject constructor(
         allFolders,
         selectFolderDialogOpened,
         isNotePasswordDialogOpened
-    ) { localUiNote, shouldPopUp, isDeleteDialogOpened,
-        allFolders, isSelectFolderDialogOpened, isNotePasswordDialogOpened ->
+    ) {
+            localUiNote, shouldPopUp, isDeleteDialogOpened,
+            allFolders, isSelectFolderDialogOpened, isNotePasswordDialogOpened,
+        ->
         AddEditNoteState(
             note = localUiNote,
             numberOfWordsForContent = localUiNote.content.length,
@@ -79,11 +81,10 @@ class AddEditNoteScreenViewModel @Inject constructor(
             createdAt = state.value.note.createdAt,
             images = state.value.note.images.map { it.toString() },
             color = state.value.note.color.toArgb(),
+            password = state.value.note.password,
             ownerFolderId = state.value.note.ownerUiFolder?.folderId ?: folderInitialId,
             noteId = args.noteId
         )
-
-        Log.e("ImageDebugSave", "${note.images}")
 
         if (isNewNote) noteRepository.insertNote(note)
         else noteRepository.updateNote(note)
@@ -102,8 +103,11 @@ class AddEditNoteScreenViewModel @Inject constructor(
         localUiNote.emit(localUiNote.value.copy(content = text))
     }
 
-    fun updateIsLocked() = viewModelScope.launch {
-        localUiNote.emit(localUiNote.value.copy(isLocked = !localUiNote.value.isLocked))
+    fun updateIsLocked(isLocked: Boolean, newPassword: String?) = viewModelScope.launch {
+        localUiNote.emit(localUiNote.value.copy(
+            isLocked = isLocked,
+            password = newPassword
+        ))
     }
 
     fun addNoteToFolder(newUiFolder: UiFolder) = viewModelScope.launch {
@@ -167,7 +171,7 @@ data class AddEditNoteState(
     val shouldPopUp: Boolean = false,
     val isDeleteDialogOpened: Boolean = false,
     val isSelectFolderDialogOpened: Boolean = false,
-    val isNotePasswordDialogOpened: Boolean = false
+    val isNotePasswordDialogOpened: Boolean = false,
 )
 
 data class AddEditNoteScreenArgs(

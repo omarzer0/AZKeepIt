@@ -1,6 +1,7 @@
 package az.zero.azkeepit.ui.screens.note.add_edit
 
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -57,15 +58,6 @@ fun AddEditNoteScreen(
     val focusManager = LocalFocusManager.current
     val bottomState = rememberBottomSheetScaffoldState()
 
-    CustomSetPasswordDialog(
-        openDialog = state.isNotePasswordDialogOpened,
-        startBtnText = stringResource(R.string.set_password),
-        endBtnText = stringResource(id = R.string.cancel),
-        onSetBtnClick = viewModel::updateIsLocked,
-        onDismiss = {
-            viewModel.changeSetPasswordDialogOpened(isOpened = false)
-        }
-    )
 
     BackHandler(
         enabled = bottomState.bottomSheetState.isExpanded
@@ -81,6 +73,19 @@ fun AddEditNoteScreen(
             navigator.popBackStack()
         }
     }
+
+    CustomSetPasswordDialog(
+        openDialog = state.isNotePasswordDialogOpened,
+        startBtnText = stringResource(R.string.set_password),
+        endBtnText = stringResource(id = R.string.cancel),
+        onSetBtnClick = { password ->
+            Log.e("EnterNotePasswordDialog", "setPassword: $password")
+            viewModel.updateIsLocked(isLocked = true, newPassword = password)
+        },
+        onDismiss = {
+            viewModel.changeSetPasswordDialogOpened(isOpened = false)
+        }
+    )
 
     DeleteNoteDialog(
         openDialog = state.isDeleteDialogOpened,
@@ -132,7 +137,9 @@ fun AddEditNoteScreen(
                 isNewNote = state.isNoteNew,
                 currentlySelectedColor = note.color,
                 onLockOrUnlockClick = {
-                    viewModel.changeSetPasswordDialogOpened(isOpened = true)
+                    if (note.isLocked)
+                        viewModel.updateIsLocked(isLocked = false, newPassword = null)
+                    else viewModel.changeSetPasswordDialogOpened(isOpened = true)
                 },
                 onDeleteNoteClick = { viewModel.changeDeleteDialogOpenState(isOpened = true) },
                 onDismiss = { scope.launch { bottomState.bottomSheetState.collapse() } },

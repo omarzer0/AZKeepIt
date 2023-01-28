@@ -1,5 +1,6 @@
 package az.zero.azkeepit.ui.composables
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.R
+import az.zero.azkeepit.domain.mappers.UiNote
 
 @Composable
 fun CustomCreateDialog(
@@ -55,13 +57,51 @@ fun CustomCreateDialog(
 }
 
 @Composable
+fun EnterNotePasswordDialog(
+    openDialog: Boolean,
+    uiNote: UiNote,
+    onDismiss: () -> Unit,
+    onCorrectPasswordClick: (uiNote: UiNote) -> Unit,
+) {
+    var text by rememberSaveable { mutableStateOf("") }
+    val isStartBtnEnabled by remember { derivedStateOf { text.isNotBlank() } }
+    val startBtnColor = if (isStartBtnEnabled) MaterialTheme.colors.onBackground else Color.Gray
+    var isError by remember { mutableStateOf(false) }
+
+    EtDialogWithTwoButtons(
+        text = text,
+        headerText = stringResource(id = R.string.enter_note_password),
+        onTextChange = { text = it },
+        openDialog = openDialog,
+        isError = isError,
+        errorText = stringResource(id = R.string.wrong_password),
+        startBtnText = stringResource(id = R.string.enter),
+        dismissAfterClickStartBtn = false,
+        onStartBtnClick = {
+            Log.e("EnterNotePasswordDialog", "text: $text")
+            Log.e("EnterNotePasswordDialog", "password: ${uiNote.password}")
+            if (text != uiNote.password) isError = true
+            else onCorrectPasswordClick(uiNote)
+        },
+        startBtnEnabled = isStartBtnEnabled,
+        startBtnStyle = MaterialTheme.typography.h3.copy(color = startBtnColor),
+        endBtnText = stringResource(id = R.string.cancel),
+        onDismiss = {
+            text = ""
+            onDismiss()
+        }
+    )
+}
+
+
+@Composable
 fun CustomSetPasswordDialog(
     openDialog: Boolean,
     startBtnText: String,
     textStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
     hintTextStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
     startBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
-    onSetBtnClick: (() -> Unit)? = null,
+    onSetBtnClick: ((String) -> Unit)? = null,
     endBtnText: String,
     endBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
     onCancelClick: (() -> Unit)? = null,
@@ -152,7 +192,7 @@ fun CustomSetPasswordDialog(
         openDialog = openDialog,
         startBtnEnabled = isSetButtonEnabled,
         startBtnStyle = startBtnStyle.copy(color = setBtnColor),
-        onStartBtnClick = onSetBtnClick,
+        onStartBtnClick = { onSetBtnClick?.invoke(password) },
         startBtnText = startBtnText,
         endBtnText = endBtnText,
         endBtnEnabled = true,

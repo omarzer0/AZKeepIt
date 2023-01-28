@@ -1,6 +1,5 @@
 package az.zero.azkeepit.ui.composables
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +28,7 @@ fun CustomEditText(
     hint: String = "",
     maxLines: Int = 1,
     isError: Boolean = false,
-    errorText: String = stringResource(R.string.password_and_confirm_password_doesnt_match),
+    errorText: String? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     cursorColor: Color = selectedColor,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -73,7 +72,7 @@ fun CustomEditText(
             ),
         )
 
-        if (isError) {
+        if (isError && errorText != null) {
             Text(
                 text = errorText,
                 color = MaterialTheme.colors.error,

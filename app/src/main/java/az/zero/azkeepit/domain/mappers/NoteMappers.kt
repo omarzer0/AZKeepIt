@@ -47,7 +47,7 @@ fun NoteWithFolder.toUiNote(isSelected: Boolean = false) = UiNote(
     createdAt = this.note.createdAt,
     images = this.note.images.map { Uri.parse(it) },
     color = Color(this.note.color),
-    password = null,
+    password = this.note.password,
     shortDateTime = JDateTimeUtil.toShortDateTimeFormat(this.note.createdAt),
     longDateTime = JDateTimeUtil.toLongDateTimeFormat(this.note.createdAt),
     isSelected = isSelected,

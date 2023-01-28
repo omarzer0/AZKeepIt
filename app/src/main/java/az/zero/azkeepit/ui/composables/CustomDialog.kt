@@ -46,7 +46,10 @@ fun EtDialogWithTwoButtons(
     endBtnText: String,
     textStyle: TextStyle = MaterialTheme.typography.h2.copy(color = MaterialTheme.colors.onBackground),
     onTextChange: (String) -> Unit,
+    isError: Boolean = true,
+    errorText: String? = null,
     startBtnEnabled: Boolean = true,
+    dismissAfterClickStartBtn: Boolean = true,
     startBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
     endBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
     onStartBtnClick: (() -> Unit)? = null,
@@ -60,6 +63,8 @@ fun EtDialogWithTwoButtons(
             CustomEditText(
                 text = text,
                 hint = hint,
+                isError = isError,
+                errorText = errorText,
                 headerText = headerText,
                 textStyle = textStyle,
                 modifier = Modifier.fillMaxWidth(),
@@ -74,6 +79,7 @@ fun EtDialogWithTwoButtons(
         endBtnText = endBtnText,
         endBtnEnabled = endBtnEnabled,
         endBtnStyle = endBtnStyle,
+        dismissAfterClickStartBtn = dismissAfterClickStartBtn,
         onEndBtnClick = onEndBtnClick,
         onDismiss = onDismiss
     )
@@ -125,6 +131,7 @@ fun BasicDialog(
     startBtnEnabled: Boolean = true,
     startBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
     onStartBtnClick: (() -> Unit)? = null,
+    dismissAfterClickStartBtn: Boolean = true,
     endBtnEnabled: Boolean = true,
     endBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
     onEndBtnClick: (() -> Unit)? = null,
@@ -150,7 +157,7 @@ fun BasicDialog(
                         enabled = startBtnEnabled,
                         onClick = {
                             onStartBtnClick?.invoke()
-                            onDismiss()
+                            if (dismissAfterClickStartBtn) onDismiss()
                         }
                     ) {
                         Text(startBtnText, style = startBtnStyle)

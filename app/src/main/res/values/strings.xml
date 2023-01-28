@@ -46,4 +46,7 @@
     <string name="hide">Hide</string>
     <string name="set_password">Set password</string>
     <string name="password_and_confirm_password_doesnt_match">Password and confirm password doesn\'t match</string>
+    <string name="enter_note_password">Enter note\'s password</string>
+    <string name="wrong_password">Wrong password</string>
+    <string name="enter">Enter</string>
 </resources>
