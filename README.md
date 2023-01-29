@@ -2,8 +2,9 @@
 
 ## Tech stack & Open-source libraries
 - Minimum SDK level 21
-- [Kotlin](https://kotlinlang.org/) based, [Coroutines](https://github.com/Kotlin/kotlinx.coroutines) together with [Flow](https://developer.android.com/kotlin/flow) for asynchronous streams and one side viewModel to fragment communication.
+- [Kotlin](https://kotlinlang.org/) based, [Coroutines](https://github.com/Kotlin/kotlinx.coroutines) together with [Flow](https://developer.android.com/kotlin/flow) for asynchronous streams and one side viewModel communication.
 - [Dagger Hilt](https://developer.android.com/training/dependency-injection/hilt-android) for dependency injection.
+- [DateTimeFormatter](https://developer.android.com/reference/java/time/format/DateTimeFormatter) for parsing date-time objects.
   
 - Compose:
   - [Jetpack Compose](https://developer.android.com/jetpack/compose/documentation) for the UI.
