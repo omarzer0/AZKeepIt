@@ -31,20 +31,6 @@ private val LightColorPalette = darkColors(
     onSurface = Color.White
 )
 
-//private val LightColorPalette = lightColors(
-//    primary = Purple500,
-//    primaryVariant = Purple700,
-//    secondary = Teal200,
-//    onPrimary = Color.Black,
-//    background = bgColor
-//)
-
-/*
-* fab -> #706fc8
-* card -> #262636
-* bg -> #1f1d2c
-* */
-
 @Composable
 fun AZKeepItTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) {

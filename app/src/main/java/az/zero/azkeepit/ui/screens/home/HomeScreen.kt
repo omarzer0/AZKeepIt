@@ -84,7 +84,6 @@ fun HomeScreen(
             HomeAppBar(
                 selectedNumber = selectedNumber,
                 isEditModeOn = state.isEditModeOn,
-                isScrollingUp = isScrollingUp,
                 onSearchClick = { navigator.navigate(SearchScreenDestination()) },
                 onClearSelectionClick = { viewModel.changeEditModeState(isActive = false) }
             )
@@ -192,7 +191,6 @@ fun HomeFab(
 fun HomeAppBar(
     modifier: Modifier = Modifier,
     isEditModeOn: Boolean,
-    isScrollingUp: Boolean,
     onSearchClick: () -> Unit,
     selectedNumber: Int,
     onClearSelectionClick: () -> Unit,
@@ -244,38 +242,4 @@ fun HomeAppBar(
                 }
             }
         )
-
-//    }
 }
-
-//    val density = LocalDensity.current
-//    val statusBarTop = WindowInsets.statusBars.getTop(density)
-//    val toolbarHeight = 80.dp
-//    val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
-//
-//    // our offset to collapse toolbar
-//    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
-//
-//    val nestedScrollConnection = remember {
-//        object : NestedScrollConnection {
-//            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-//                val delta = available.y
-//                val newOffset = toolbarOffsetHeightPx.value + delta
-//                toolbarOffsetHeightPx.value =
-//                    newOffset.coerceIn(-(2 * statusBarTop + toolbarHeightPx), 0f)
-//                return Offset.Zero
-//            }
-//        }
-//    }
-//
-
-//            .nestedScroll(nestedScrollConnection)
-
-//                modifier = Modifier
-//                    .height(toolbarHeight)
-//                    .offset {
-//                        IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt())
-//                    },
-
-
-

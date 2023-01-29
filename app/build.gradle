@@ -81,9 +81,6 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
-    // Datastore
-    implementation "androidx.datastore:datastore-preferences:$datastore"
-
     // Java Date-Time desugar
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:1.1.5"
 

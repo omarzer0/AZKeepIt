@@ -161,8 +161,7 @@ fun AddEditNoteScreen(
         topBar = {
             AddEditHeader(
                 backgroundColor = note.color,
-                onBackPressed = viewModel::saveNote,
-                saveEnabled = state.isSaveActive,
+                onBackPressed = viewModel::saveNote
             )
         },
     ) { paddingValues ->
@@ -383,28 +382,12 @@ fun TimeWithSelectFolder(
 fun AddEditHeader(
     backgroundColor: Color,
     onBackPressed: () -> Unit,
-    saveEnabled: Boolean,
-//    onDoneClick: () -> Unit,
 ) {
     HeaderWithBackBtn(
         text = "",
         elevation = 0.dp,
         onBackPressed = onBackPressed,
         backgroundColor = backgroundColor,
-//        actions = {
-//            IconButton(
-//                modifier = Modifier.mirror(),
-//                enabled = saveEnabled,
-//                onClick = onDoneClick
-//            ) {
-//                Icon(
-//                    Icons.Filled.Done,
-//                    stringResource(id = R.string.done),
-////                    tint = if (saveEnabled) MaterialTheme.colors.onBackground else Color.Gray,
-//                    tint = backgroundColor.getCorrectLightOrDarkColor(isInActiveColor = saveEnabled.not()),
-//                )
-//            }
-//        }
     )
 }
 
