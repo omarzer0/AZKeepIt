@@ -66,6 +66,7 @@ fun EnterNotePasswordDialog(
     val isStartBtnEnabled by remember { derivedStateOf { text.isNotBlank() } }
     val startBtnColor = if (isStartBtnEnabled) MaterialTheme.colors.onBackground else Color.Gray
     var isError by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     EtDialogWithTwoButtons(
         text = text,
@@ -73,7 +74,9 @@ fun EnterNotePasswordDialog(
         onTextChange = { text = it },
         openDialog = openDialog,
         isError = isError,
+        textStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
         errorText = stringResource(id = R.string.wrong_password),
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         startBtnText = stringResource(id = R.string.enter),
         dismissAfterClickStartBtn = false,
         onStartBtnClick = {
@@ -83,6 +86,14 @@ fun EnterNotePasswordDialog(
         startBtnEnabled = isStartBtnEnabled,
         startBtnStyle = MaterialTheme.typography.h3.copy(color = startBtnColor),
         endBtnText = stringResource(id = R.string.cancel),
+        trailingIcon = {
+            ShowHideIcon(
+                isVisible = passwordVisible,
+                onVisibilityChange = {
+                    passwordVisible = !passwordVisible
+                }
+            )
+        },
         onDismiss = {
             text = ""
             onDismiss()

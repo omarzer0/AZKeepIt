@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.R
 
@@ -50,6 +51,8 @@ fun EtDialogWithTwoButtons(
     errorText: String? = null,
     startBtnEnabled: Boolean = true,
     dismissAfterClickStartBtn: Boolean = true,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    trailingIcon: @Composable (() -> Unit)? = null,
     startBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
     endBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
     onStartBtnClick: (() -> Unit)? = null,
@@ -67,8 +70,10 @@ fun EtDialogWithTwoButtons(
                 errorText = errorText,
                 headerText = headerText,
                 textStyle = textStyle,
+                trailingIcon = trailingIcon,
+                visualTransformation = visualTransformation,
                 modifier = Modifier.fillMaxWidth(),
-                onTextChanged = onTextChange
+                onTextChanged = onTextChange,
             )
         },
         openDialog = openDialog,
