@@ -23,22 +23,23 @@
     - Create notes and Save them locally
     - Add Title and Content
     - Select note color
-    - Lock Note with password
+    - Lock note with a password
     - Add Images to note
     - Delete Note
     - Add or Remove Note from Folder (Note has 0 or 1 Folder "One to one relation")
-    - Save changes when back button pressed
+    - Save changes when the back button pressed
     - Doesn't save empty note
-   
+
   - Folder:
     - Create Folders to group notes
     - Delete Folder
-    - Rename Folder 
-    - Delete all notes form a Folder
-    - Add Mutliple notes to Folder (Folder has 0 to many Notes "One to many relation")
+    - Rename Folder
+    - Delete all folder notes
+    - Add Multiple notes to Folder (Folder has 0 to many Notes "One-to-many relation")
 
   - Search:
     - Search Notes by either title or content
+    
 
 ## Tech stack & Open-source libraries
 - Minimum SDK level 21
