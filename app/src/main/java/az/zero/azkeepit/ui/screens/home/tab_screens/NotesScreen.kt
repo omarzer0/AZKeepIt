@@ -124,7 +124,7 @@ private fun SuccessNotesScreen(
                 modifier = Modifier.weight(1f),
                 columns = StaggeredGridCells.Fixed(2),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalItemSpacing = 16.dp,
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 items(state.uiNotes) { uiNote ->
