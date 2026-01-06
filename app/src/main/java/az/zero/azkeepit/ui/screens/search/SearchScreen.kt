@@ -3,7 +3,14 @@ package az.zero.azkeepit.ui.screens.search
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -13,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
@@ -21,21 +27,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
 import az.zero.azkeepit.R
 import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.BasicHeaderWithBackBtn
 import az.zero.azkeepit.ui.composables.TextWithClearIcon
-import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
+import az.zero.azkeepit.ui.screens.SearchScreenDestination
 import az.zero.azkeepit.ui.screens.items.NoteItem
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
-@Destination
 fun SearchScreen(
+    onBackPressed: () -> Unit,
+    onNoteClick: (noteId: Long) -> Unit,
     viewModel: SearchViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator,
 ) {
     val focusManager = LocalFocusManager.current
     val searchedUiNotes by viewModel.searchedUiNotes.collectAsState()
@@ -52,7 +57,7 @@ fun SearchScreen(
             onClearClick = { viewModel.searchNotes("") },
             onBackPressed = {
                 focusManager.clearFocus()
-                navigator.popBackStack()
+                onBackPressed()
             }
         )
 
@@ -61,7 +66,7 @@ fun SearchScreen(
         } else {
             SuccessSearchScreen(
                 searchedUiNotes = searchedUiNotes,
-                onNoteClick = { navigator.navigate(AddEditNoteScreenDestination(noteId = it.noteId)) }
+                onNoteClick = onNoteClick
             )
         }
     }
@@ -72,7 +77,7 @@ fun SearchScreen(
 @Composable
 private fun SuccessSearchScreen(
     searchedUiNotes: List<UiNote>,
-    onNoteClick: (uiNote: UiNote) -> Unit,
+    onNoteClick: (noteId: Long) -> Unit,
 ) {
 
     LazyVerticalStaggeredGrid(
@@ -88,7 +93,7 @@ private fun SuccessSearchScreen(
             NoteItem(
                 uiNote = it,
                 isEditModeOn = false,
-                onNoteClick = { onNoteClick(it) }
+                onNoteClick = onNoteClick
             )
         }
     }
@@ -143,4 +148,16 @@ fun SearchHeader(
             )
         }
     )
+}
+
+internal fun NavGraphBuilder.searchScreen(
+    onBackPressed: () -> Unit,
+    onNoteClick: (noteId: Long) -> Unit,
+) {
+    composable<SearchScreenDestination> {
+        SearchScreen(
+            onBackPressed = onBackPressed,
+            onNoteClick = onNoteClick
+        )
+    }
 }

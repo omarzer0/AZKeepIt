@@ -1,20 +1,43 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package az.zero.azkeepit.ui.screens.folder.details
 
-import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.runtime.*
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -24,28 +47,30 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
 import az.zero.azkeepit.R
 import az.zero.azkeepit.domain.mappers.UiNote
-import az.zero.azkeepit.ui.composables.*
-import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
+import az.zero.azkeepit.ui.composables.BottomSheetDateItem
+import az.zero.azkeepit.ui.composables.BottomSheetWithItems
+import az.zero.azkeepit.ui.composables.DeleteDialog
+import az.zero.azkeepit.ui.composables.EtDialogWithTwoButtons
+import az.zero.azkeepit.ui.composables.HeaderWithBackBtn
+import az.zero.azkeepit.ui.composables.RoundTopOnly
+import az.zero.azkeepit.ui.composables.mirror
+import az.zero.azkeepit.ui.screens.FolderDetailsScreenDestination
 import az.zero.azkeepit.ui.screens.items.NoteItem
+import az.zero.azkeepit.ui.screens.serializableNavType
 import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.ui.theme.selectedColor
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
+import kotlin.reflect.typeOf
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterialApi::class)
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
 @Composable
-@Destination(
-    navArgsDelegate = FolderDetailsScreenArgs::class
-)
 fun FolderDetailsScreen(
+    onBackPressed: () -> Unit,
+    onNoteClick: (noteId: Long) -> Unit,
     viewModel: FolderDetailsViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator,
 ) {
 
     val state by viewModel.folderDetailsState.collectAsState()
@@ -57,7 +82,7 @@ fun FolderDetailsScreen(
     }
 
     LaunchedEffect(state.shouldPopUp) {
-        if (state.shouldPopUp) navigator.popBackStack()
+        if (state.shouldPopUp) onBackPressed()
     }
 
     DeleteDialog(
@@ -113,9 +138,7 @@ fun FolderDetailsScreen(
                 else -> SuccessFolderDetailsScreen(
                     paddingValues = paddingValues,
                     folderNotes = state.uiFolder.folderNotes,
-                    onNoteClick = { uiNote ->
-                        navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
-                    }
+                    onNoteClick = onNoteClick
                 )
             }
         }
@@ -127,7 +150,7 @@ fun FolderDetailsScreen(
 private fun SuccessFolderDetailsScreen(
     paddingValues: PaddingValues = PaddingValues(0.dp),
     folderNotes: List<UiNote>,
-    onNoteClick: (uiNote: UiNote) -> Unit,
+    onNoteClick: (noteId: Long) -> Unit,
 ) {
 
     LazyVerticalStaggeredGrid(
@@ -144,9 +167,7 @@ private fun SuccessFolderDetailsScreen(
             NoteItem(
                 uiNote = uiNote,
                 isEditModeOn = false,
-                onNoteClick = {
-                    onNoteClick(uiNote)
-                }
+                onNoteClick = onNoteClick
             )
         }
 
@@ -264,4 +285,19 @@ fun FolderRenameDialog(
             onDismiss()
         }
     )
+}
+
+
+internal fun NavGraphBuilder.folderDetailsScreen(
+    onBackPressed: () -> Unit,
+    onNoteClick: (noteId: Long) -> Unit,
+) {
+    composable<FolderDetailsScreenDestination>(
+//        typeMap = mapOf(typeOf<FolderDetailsScreenArgs>() to serializableNavType<FolderDetailsScreenArgs>())
+    ) {
+        FolderDetailsScreen(
+            onBackPressed = onBackPressed,
+            onNoteClick = onNoteClick
+        )
+    }
 }

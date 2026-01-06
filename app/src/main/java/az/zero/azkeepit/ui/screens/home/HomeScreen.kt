@@ -1,15 +1,41 @@
+@file:OptIn(ExperimentalPagerApi::class, InternalSerializationApi::class)
+
 package az.zero.azkeepit.ui.screens.home
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.*
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.with
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CreateNewFolder
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -21,27 +47,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
 import az.zero.azkeepit.R
-import az.zero.azkeepit.ui.composables.*
-import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
-import az.zero.azkeepit.ui.screens.destinations.SearchScreenDestination
+import az.zero.azkeepit.ui.composables.HeaderWithBackBtn
+import az.zero.azkeepit.ui.composables.TabPager
+import az.zero.azkeepit.ui.composables.clickableSafeClick
+import az.zero.azkeepit.ui.screens.HomeScreenDestination
+import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
 import az.zero.azkeepit.ui.screens.home.tab_screens.FolderScreen
 import az.zero.azkeepit.ui.screens.home.tab_screens.NotesScreen
 import az.zero.azkeepit.ui.theme.selectedColor
 import com.google.accompanist.pager.ExperimentalPagerApi
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.serialization.InternalSerializationApi
 
-@OptIn(ExperimentalPagerApi::class)
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
-@RootNavGraph(start = true)
-@Destination
 @Composable
 fun HomeScreen(
+    onSearchClick: () -> Unit,
+    onNavigateToAddEditNoteScreen: (noteId: Long?) -> Unit,
+    // TODO 2: move the navArgs to the proper place+
+    onNavigateToFolderDetailsScreen: (FolderDetailsScreenArgs) -> Unit,
     modifier: Modifier = Modifier,
-    navigator: DestinationsNavigator,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val tabs = remember(Unit) { listOf("Notes", "Folders") }
@@ -84,7 +110,7 @@ fun HomeScreen(
             HomeAppBar(
                 selectedNumber = selectedNumber,
                 isEditModeOn = state.isEditModeOn,
-                onSearchClick = { navigator.navigate(SearchScreenDestination()) },
+                onSearchClick = onSearchClick,
                 onClearSelectionClick = { viewModel.changeEditModeState(isActive = false) }
             )
         },
@@ -94,7 +120,9 @@ fun HomeScreen(
                 currentTab = state.currentTab,
                 isEditModeOn = state.isEditModeOn,
                 isScrollingUp = isScrollingUp,
-                onAddNoteClick = { navigator.navigate(AddEditNoteScreenDestination(null)) },
+                onAddNoteClick = { onNavigateToAddEditNoteScreen(null) },
+
+                // TODO 3: Update this
                 onAddFolderClick = { viewModel.changeCreateFolderDialogState(isOpened = true) }
             )
         }
@@ -113,8 +141,13 @@ fun HomeScreen(
                 onTabChange = viewModel::changeCurrentTap
             ) {
                 when (it) {
-                    0 -> NotesScreen(navigator = navigator)
-                    1 -> FolderScreen(navigator = navigator)
+                    0 -> NotesScreen(
+                        onNavigateToAddEditNoteScreen = onNavigateToAddEditNoteScreen,
+                    )
+
+                    1 -> FolderScreen(
+                        onNavigateToFolderDetailsScreen = onNavigateToFolderDetailsScreen,
+                    )
                 }
             }
         }
@@ -148,7 +181,8 @@ fun BottomBarItem(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = tint)
+            tint = tint
+        )
 
         Text(text = text, style = textStyle)
     }
@@ -197,49 +231,65 @@ fun HomeAppBar(
 ) {
     // fixme: when hide the appbar the bottom sheet appears for a sec as the layout height changes
 //    AnimatedVisibility(visible = isEditModeOn || isScrollingUp) {
-        HeaderWithBackBtn(
-            modifier = modifier,
-            text = stringResource(id = R.string.app_name),
-            elevation = 0.dp,
-            actions = {
-                AnimatedContent(
-                    transitionSpec = {
-                        fadeIn() + expandHorizontally() with fadeOut() + shrinkHorizontally()
-                    },
-                    targetState = isEditModeOn
-                ) {
-                    if (it) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "$selectedNumber ${stringResource(id = R.string.selected)}",
-                                style = MaterialTheme.typography.h2.copy(color = selectedColor)
-                            )
+    HeaderWithBackBtn(
+        modifier = modifier,
+        text = stringResource(id = R.string.app_name),
+        elevation = 0.dp,
+        actions = {
+            AnimatedContent(
+                transitionSpec = {
+                    fadeIn() + expandHorizontally() with fadeOut() + shrinkHorizontally()
+                },
+                targetState = isEditModeOn
+            ) {
+                if (it) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "$selectedNumber ${stringResource(id = R.string.selected)}",
+                            style = MaterialTheme.typography.h2.copy(color = selectedColor)
+                        )
 
-                            IconButton(
-                                onClick = onClearSelectionClick
-                            ) {
-                                Icon(
-                                    Icons.Filled.Close,
-                                    stringResource(id = R.string.close),
-                                    tint = MaterialTheme.colors.onBackground,
-                                )
-                            }
-                        }
-                    } else {
                         IconButton(
-                            onClick = onSearchClick
+                            onClick = onClearSelectionClick
                         ) {
                             Icon(
-                                Icons.Filled.Search,
-                                stringResource(id = R.string.search),
-                                tint = MaterialTheme.colors.onBackground
+                                Icons.Filled.Close,
+                                stringResource(id = R.string.close),
+                                tint = MaterialTheme.colors.onBackground,
                             )
                         }
                     }
-
+                } else {
+                    IconButton(
+                        onClick = onSearchClick
+                    ) {
+                        Icon(
+                            Icons.Filled.Search,
+                            stringResource(id = R.string.search),
+                            tint = MaterialTheme.colors.onBackground
+                        )
+                    }
                 }
+
             }
+        }
+    )
+}
+
+
+internal fun NavGraphBuilder.homeScreen(
+    onSearchClick: () -> Unit,
+    onNavigateToAddEditNoteScreen: (noteId: Long?) -> Unit,
+    // TODO 2: move the navArgs to the proper place+
+    onNavigateToFolderDetailsScreen: (FolderDetailsScreenArgs) -> Unit,
+) {
+    composable<HomeScreenDestination> {
+        HomeScreen(
+            onSearchClick = onSearchClick,
+            onNavigateToAddEditNoteScreen = onNavigateToAddEditNoteScreen,
+            onNavigateToFolderDetailsScreen = onNavigateToFolderDetailsScreen
         )
+    }
 }

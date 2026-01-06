@@ -46,14 +46,14 @@ android {
         }
     }
 
-    // For navigation generated classes
-    applicationVariants.all {
-        kotlin.sourceSets {
-            getByName(name) {
-                kotlin.srcDir("build/generated/ksp/$name/kotlin")
-            }
-        }
-    }
+//    // For navigation generated classes
+//    applicationVariants.all {
+//        kotlin.sourceSets {
+//            getByName(name) {
+//                kotlin.srcDir("build/generated/ksp/$name/kotlin")
+//            }
+//        }
+//    }
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -116,8 +116,8 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Navigation
-    implementation(libs.compose.destinations.core)
-    ksp(libs.compose.destinations.ksp)
+//    implementation(libs.compose.destinations.core)
+//    ksp(libs.compose.destinations.ksp)
     implementation(libs.androidx.navigation.compose)
 
     // Serialization

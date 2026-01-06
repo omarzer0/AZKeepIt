@@ -4,7 +4,15 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -26,21 +34,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
 import az.zero.azkeepit.ui.composables.CustomCreateDialog
 import az.zero.azkeepit.ui.composables.DeleteDialog
-import az.zero.azkeepit.ui.screens.destinations.FolderDetailsScreenDestination
 import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
 import az.zero.azkeepit.ui.screens.home.BottomBarItem
 import az.zero.azkeepit.ui.screens.home.HomeUiState
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
 import az.zero.azkeepit.ui.screens.items.FolderItem
 import az.zero.azkeepit.ui.theme.cardBgColor
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
 @Composable
 fun FolderScreen(
+    onNavigateToFolderDetailsScreen: (FolderDetailsScreenArgs) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator,
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -52,13 +56,14 @@ fun FolderScreen(
     )
 
     when {
-        state.isFoldersLoading -> {}
-        state.uiFolders.isEmpty() -> {
-            EmptyFolderScreen()
-        }
-        else -> {
-            SuccessFolderScreen(state = state, viewModel = viewModel, navigator = navigator)
-        }
+        state.isFoldersLoading -> Unit
+        state.uiFolders.isEmpty() -> EmptyFolderScreen()
+
+        else -> SuccessFolderScreen(
+            onNavigateToFolderDetailsScreen = onNavigateToFolderDetailsScreen,
+            state = state,
+            viewModel = viewModel,
+        )
     }
 
 }
@@ -67,11 +72,10 @@ fun FolderScreen(
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun SuccessFolderScreen(
+    onNavigateToFolderDetailsScreen: (FolderDetailsScreenArgs) -> Unit,
     state: HomeUiState,
     viewModel: HomeViewModel,
-    navigator: DestinationsNavigator,
 ) {
-
 
     DeleteDialog(
         openDialog = state.isDeleteFoldersDialogOpen,
@@ -105,9 +109,11 @@ private fun SuccessFolderScreen(
                         if (state.isEditModeOn) {
                             viewModel.addOrRemoveFolderFromSelected(folderId = uiFolder.folderId)
                         } else {
-                            val args = FolderDetailsScreenArgs(id = uiFolder.folderId,
-                                folderName = uiFolder.name)
-                            navigator.navigate(FolderDetailsScreenDestination(navArgs = args))
+                            val args = FolderDetailsScreenArgs(
+                                id = uiFolder.folderId,
+                                folderName = uiFolder.name
+                            )
+                            onNavigateToFolderDetailsScreen(args)
                         }
 
                     }

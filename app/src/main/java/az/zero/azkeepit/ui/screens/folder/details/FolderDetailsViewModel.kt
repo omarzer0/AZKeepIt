@@ -5,10 +5,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.domain.mappers.UiFolder
-import az.zero.azkeepit.ui.screens.navArgs
 import az.zero.azkeepit.util.emptyUiFolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
@@ -26,7 +27,10 @@ class FolderDetailsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val folderDetailsScreenArgs: FolderDetailsScreenArgs = savedStateHandle.navArgs()
+    private val folderDetailsScreenArgs = savedStateHandle.toRoute<FolderDetailsScreenArgs>(
+//        typeMap = mapOf(typeOf<FolderDetailsScreenArgs>() to serializableNavType<FolderDetailsScreenArgs>())
+    )
+
     private val folderId = folderDetailsScreenArgs.id
     private val uiFolder = folderRepository.getUiFolderById(folderId)
     private val deleteFolderDialogOpened = MutableStateFlow(false)
@@ -98,6 +102,7 @@ data class FolderDetailsState(
     val shouldPopUp: Boolean = false,
 )
 
+@Serializable
 data class FolderDetailsScreenArgs(
     val id: Long,
     val folderName: String,

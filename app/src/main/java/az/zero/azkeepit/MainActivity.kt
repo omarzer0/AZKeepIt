@@ -6,10 +6,18 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import az.zero.azkeepit.ui.composables.ChangeSystemBarColor
-import az.zero.azkeepit.ui.screens.NavGraphs
+import az.zero.azkeepit.ui.screens.AddEditNoteScreenDestination
+import az.zero.azkeepit.ui.screens.FolderDetailsScreenDestination
+import az.zero.azkeepit.ui.screens.HomeScreenDestination
+import az.zero.azkeepit.ui.screens.SearchScreenDestination
+import az.zero.azkeepit.ui.screens.folder.details.folderDetailsScreen
+import az.zero.azkeepit.ui.screens.home.homeScreen
+import az.zero.azkeepit.ui.screens.note.add_edit.addEditNoteScreen
+import az.zero.azkeepit.ui.screens.search.searchScreen
 import az.zero.azkeepit.ui.theme.AZKeepItTheme
-import com.ramcosta.composedestinations.DestinationsNavHost
 import dagger.hilt.android.AndroidEntryPoint
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
@@ -23,7 +31,47 @@ class MainActivity : ComponentActivity() {
                     statusColor = MaterialTheme.colors.background,
                     navigationBarColor = MaterialTheme.colors.background,
                 )
-                DestinationsNavHost(navGraph = NavGraphs.root)
+
+                val navController = rememberNavController()
+
+                NavHost(
+                    navController = navController,
+                    startDestination = HomeScreenDestination,
+                ) {
+
+                    homeScreen(
+                        onSearchClick = { navController.navigate(SearchScreenDestination) },
+                        onNavigateToAddEditNoteScreen = { noteId ->
+                            navController.navigate(AddEditNoteScreenDestination(noteId))
+                        },
+                        onNavigateToFolderDetailsScreen = { folderDetailsScreenArgs ->
+                            navController.navigate(FolderDetailsScreenDestination(
+                                id = folderDetailsScreenArgs.id,
+                                folderName = folderDetailsScreenArgs.folderName
+                            ))
+                        },
+                    )
+
+                    searchScreen(
+                        onBackPressed = navController::navigateUp,
+                        onNoteClick = { noteId ->
+                            navController.navigate(AddEditNoteScreenDestination(noteId))
+                        },
+                    )
+
+                    addEditNoteScreen(
+                        onBackPressed = navController::navigateUp
+                    )
+
+                    folderDetailsScreen(
+                        onBackPressed = navController::navigateUp,
+                        onNoteClick = { noteId ->
+                            navController.navigate(AddEditNoteScreenDestination(noteId))
+                        }
+                    )
+
+                }
+
             }
         }
     }

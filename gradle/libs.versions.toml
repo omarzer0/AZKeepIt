@@ -28,7 +28,7 @@ hilt-navigation-compose = "1.1.0"
 
 # Navigation
 compose-destinations = "1.10.2"
-navigation-compose = "2.7.6"
+navigation-compose = "2.8.0"
 
 # Accompanist
 accompanist = "0.32.0"
