@@ -45,10 +45,7 @@ class MainActivity : ComponentActivity() {
                             navController.navigate(AddEditNoteScreenDestination(noteId))
                         },
                         onNavigateToFolderDetailsScreen = { folderDetailsScreenArgs ->
-                            navController.navigate(FolderDetailsScreenDestination(
-                                id = folderDetailsScreenArgs.id,
-                                folderName = folderDetailsScreenArgs.folderName
-                            ))
+                            navController.navigate(FolderDetailsScreenDestination(folderDetailsScreenArgs))
                         },
                     )
 

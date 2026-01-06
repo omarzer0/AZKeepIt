@@ -9,15 +9,24 @@ object HomeScreenDestination
 @Serializable
 object SearchScreenDestination
 
-// TODO remove this
 //@Serializable
 //data class FolderDetailsScreenDestination(val folderDetailsScreenArgs: FolderDetailsScreenArgs)
 
+// TODO remove this
+//@Serializable
+//data class FolderDetailsScreenDestination(
+//    val id: Long,
+//    val folderName: String
+//)
+
 @Serializable
 data class FolderDetailsScreenDestination(
-    val id: Long,
-    val folderName: String
-)
+    val folderDetailsScreenArgs: FolderDetailsScreenArgs
+) {
+    companion object {
+        val typeMap = FolderDetailsScreenArgs.typeMap
+    }
+}
 
 
 @Serializable

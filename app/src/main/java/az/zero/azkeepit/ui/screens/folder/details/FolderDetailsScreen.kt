@@ -47,8 +47,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import az.zero.azkeepit.R
 import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.BottomSheetDateItem
@@ -64,6 +66,7 @@ import az.zero.azkeepit.ui.screens.serializableNavType
 import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.ui.theme.selectedColor
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import kotlin.reflect.typeOf
 
 @Composable
@@ -287,13 +290,35 @@ fun FolderRenameDialog(
     )
 }
 
+// TODO remove this
+//object FolderDetailsScreenNavTypes {
+//    val typeMap = mapOf(
+//        typeOf<FolderDetailsScreenArgs>() to serializableNavType<FolderDetailsScreenArgs>()
+//    )
+//}
+
+@Serializable
+data class FolderDetailsScreenArgs(
+    val id: Long,
+    val folderName: String,
+) {
+    companion object {
+        val typeMap = mapOf(
+            typeOf<FolderDetailsScreenArgs>() to serializableNavType<FolderDetailsScreenArgs>()
+        )
+
+        fun from(savedStateHandle: SavedStateHandle): FolderDetailsScreenDestination {
+            return savedStateHandle.toRoute(typeMap)
+        }
+    }
+}
 
 internal fun NavGraphBuilder.folderDetailsScreen(
     onBackPressed: () -> Unit,
     onNoteClick: (noteId: Long) -> Unit,
 ) {
     composable<FolderDetailsScreenDestination>(
-//        typeMap = mapOf(typeOf<FolderDetailsScreenArgs>() to serializableNavType<FolderDetailsScreenArgs>())
+        typeMap = FolderDetailsScreenDestination.typeMap
     ) {
         FolderDetailsScreen(
             onBackPressed = onBackPressed,
