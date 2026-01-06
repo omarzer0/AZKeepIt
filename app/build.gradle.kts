@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.hilt.android)
     id("kotlin-parcelize")
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -118,6 +119,9 @@ dependencies {
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
     implementation(libs.androidx.navigation.compose)
+
+    // Serialization
+    implementation(libs.kotlinx.serialization.json)
 
     // Accompanist
     implementation(libs.accompanist.systemuicontroller)
