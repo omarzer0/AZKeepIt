@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -65,10 +67,8 @@ import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.BottomSheetDateItem
 import az.zero.azkeepit.ui.composables.BottomSheetWithItems
-import az.zero.azkeepit.ui.composables.ChangeSystemBarsColorAndRevertWhenClose
 import az.zero.azkeepit.ui.composables.ColorsRow
 import az.zero.azkeepit.ui.composables.CustomSetPasswordDialog
-import az.zero.azkeepit.ui.composables.EnterExitColors
 import az.zero.azkeepit.ui.composables.HeaderText
 import az.zero.azkeepit.ui.composables.HeaderWithBackBtn
 import az.zero.azkeepit.ui.composables.SlidingImage
@@ -133,14 +133,6 @@ fun AddEditNoteScreen(
         onFolderClick = viewModel::addNoteToFolder
     )
 
-    ChangeSystemBarsColorAndRevertWhenClose(
-        key = note.color,
-        statusBarColors = EnterExitColors(
-            enterColor = note.color,
-            exitStatusColor = MaterialTheme.colors.background
-        )
-    )
-
     val context = LocalContext.current
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickMultipleVisualMedia()
@@ -160,6 +152,7 @@ fun AddEditNoteScreen(
     }
 
     BottomSheetScaffold(
+        modifier = Modifier.navigationBarsPadding(),
         scaffoldState = bottomState,
         sheetPeekHeight = 120.dp,
         backgroundColor = note.color,
@@ -416,8 +409,10 @@ fun TimeWithSelectFolder(
 fun AddEditHeader(
     backgroundColor: Color,
     onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     HeaderWithBackBtn(
+        modifier = modifier.systemBarsPadding(),
         text = "",
         elevation = 0.dp,
         onBackPressed = onBackPressed,

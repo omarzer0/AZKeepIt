@@ -1,50 +1,45 @@
 [versions]
-# SDK Versions
-compile-sdk = "34"
+# SDK Versions (Updated to Android 15)
+compile-sdk = "35"
 min-sdk = "21"
-target-sdk = "34"
+target-sdk = "35"
 
-# Plugin Versions
-agp = "8.2.2"
-kotlin = "1.9.22"
-ksp = "1.9.22-1.0.17"
+# Plugin Versions (Latest stable versions)
+agp = "8.8.0"
+kotlin = "2.1.21"
+ksp = "2.1.21-2.0.1"
 
 # Core Libraries
-core-ktx = "1.12.0"
-lifecycle-runtime = "2.7.0"
-activity-compose = "1.8.2"
+core-ktx = "1.15.0"
+lifecycle-runtime = "2.8.7"
+activity-compose = "1.10.0"
 
 # Compose
-compose-bom = "2024.02.00"
-compose-compiler = "1.5.8"
+compose-bom = "2025.01.00"
 
-# Room
-room = "2.6.1"
+# Room (Updated to latest with KSP support)
+room = "2.7.1"
 
-# Hilt
-hilt = "2.50"
-hilt-compiler = "1.1.0"
-hilt-navigation-compose = "1.1.0"
+# Hilt (Updated with full KSP support)
+hilt = "2.57"
+hilt-compiler = "1.2.0"
+hilt-navigation-compose = "1.2.0"
 
-# Navigation
-compose-destinations = "1.10.2"
-navigation-compose = "2.8.0"
+# Navigation (Latest stable)
+navigation-compose = "2.9.0"
 
-# Accompanist
-accompanist = "0.32.0"
-
-# Serialization
-kotlinx-serialization = "1.6.2"
+# Serialization (Latest)
+kotlinx-serialization = "1.8.0"
 
 # Other
-gson = "2.10.1"
-coil = "2.5.0"
-desugar = "2.0.4"
+gson = "2.11.0"
+coil = "2.7.0"
+desugar = "2.1.4"
 
 # Testing
 junit = "4.13.2"
-androidx-junit = "1.1.5"
-espresso = "3.5.1"
+androidx-junit = "1.2.1"
+espresso = "3.6.1"
 
 [libraries]
 # Core Android
@@ -63,6 +58,9 @@ androidx-compose-material = { module = "androidx.compose.material:material" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-compose-ui-util = { module = "androidx.compose.ui:ui-util" }
 
+# Compose Foundation (for Pager and FlowLayout - replaces Accompanist)
+androidx-compose-foundation = { module = "androidx.compose.foundation:foundation" }
+
 # Room
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
@@ -75,15 +73,7 @@ androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref =
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
 
 # Navigation
-compose-destinations-core = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "compose-destinations" }
-compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
-
-# Accompanist
-accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
-accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanist" }
-accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanist" }
-accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanist" }
 
 # ViewModel
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-runtime" }
@@ -105,5 +95,6 @@ androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", vers
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

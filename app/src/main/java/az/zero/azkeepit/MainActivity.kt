@@ -4,11 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import az.zero.azkeepit.ui.composables.ChangeSystemBarColor
 import az.zero.azkeepit.ui.screens.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.FolderDetailsScreenDestination
 import az.zero.azkeepit.ui.screens.HomeScreenDestination
@@ -27,25 +25,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AZKeepItTheme {
-                ChangeSystemBarColor(
-                    statusColor = MaterialTheme.colors.background,
-                    navigationBarColor = MaterialTheme.colors.background,
-                )
-
                 val navController = rememberNavController()
 
                 NavHost(
                     navController = navController,
                     startDestination = HomeScreenDestination,
                 ) {
-
                     homeScreen(
                         onSearchClick = { navController.navigate(SearchScreenDestination) },
                         onNavigateToAddEditNoteScreen = { noteId ->
                             navController.navigate(AddEditNoteScreenDestination(noteId))
                         },
                         onNavigateToFolderDetailsScreen = { folderDetailsScreenArgs ->
-                            navController.navigate(FolderDetailsScreenDestination(folderDetailsScreenArgs))
+                            navController.navigate(
+                                FolderDetailsScreenDestination(folderDetailsScreenArgs)
+                            )
                         },
                     )
 
@@ -66,9 +60,7 @@ class MainActivity : ComponentActivity() {
                             navController.navigate(AddEditNoteScreenDestination(noteId))
                         }
                     )
-
                 }
-
             }
         }
     }

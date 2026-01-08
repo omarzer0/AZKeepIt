@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    kotlin("kapt")
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     id("kotlin-parcelize")
     alias(libs.plugins.ksp)
@@ -46,15 +46,6 @@ android {
         }
     }
 
-//    // For navigation generated classes
-//    applicationVariants.all {
-//        kotlin.sourceSets {
-//            getByName(name) {
-//                kotlin.srcDir("build/generated/ksp/$name/kotlin")
-//            }
-//        }
-//    }
-
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -68,10 +59,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     packaging {
@@ -99,6 +86,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.util)
     implementation(libs.androidx.compose.material.icons.extended)
 
+    // Compose Foundation (includes Pager and FlowLayout)
+    implementation(libs.androidx.compose.foundation)
+
     // Compose Debug/Testing
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
@@ -106,28 +96,20 @@ dependencies {
 
     // Room
     implementation(libs.androidx.room.runtime)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
     // Hilt
     implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
-    kapt(libs.androidx.hilt.compiler)
+    ksp(libs.hilt.android.compiler)
+    ksp(libs.androidx.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Navigation
-//    implementation(libs.compose.destinations.core)
-//    ksp(libs.compose.destinations.ksp)
     implementation(libs.androidx.navigation.compose)
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
-
-    // Accompanist
-    implementation(libs.accompanist.systemuicontroller)
-    implementation(libs.accompanist.flowlayout)
-    implementation(libs.accompanist.pager)
-    implementation(libs.accompanist.pager.indicators)
 
     // ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -141,8 +123,4 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-}
-
-kapt {
-    correctErrorTypes = true
 }

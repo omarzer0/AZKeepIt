@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalPagerApi::class, InternalSerializationApi::class)
-
 package az.zero.azkeepit.ui.screens.home
 
 import androidx.activity.compose.BackHandler
@@ -16,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -58,8 +57,6 @@ import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
 import az.zero.azkeepit.ui.screens.home.tab_screens.FolderScreen
 import az.zero.azkeepit.ui.screens.home.tab_screens.NotesScreen
 import az.zero.azkeepit.ui.theme.selectedColor
-import com.google.accompanist.pager.ExperimentalPagerApi
-import kotlinx.serialization.InternalSerializationApi
 
 @Composable
 fun HomeScreen(
@@ -103,6 +100,7 @@ fun HomeScreen(
 
     Scaffold(
         modifier = modifier
+            .systemBarsPadding()
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection),
 

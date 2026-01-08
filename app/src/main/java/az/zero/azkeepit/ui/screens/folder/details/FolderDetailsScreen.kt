@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -110,6 +111,7 @@ fun FolderDetailsScreen(
     )
 
     ModalBottomSheetLayout(
+        modifier = Modifier.systemBarsPadding(),
         sheetElevation = 0.dp,
         sheetState = bottomState,
         sheetShape = RoundTopOnly(),
