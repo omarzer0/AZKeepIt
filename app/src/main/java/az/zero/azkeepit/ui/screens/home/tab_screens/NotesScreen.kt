@@ -5,15 +5,32 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DriveFileMove
-import androidx.compose.runtime.*
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -28,31 +45,32 @@ import az.zero.azkeepit.ui.composables.DeleteDialog
 import az.zero.azkeepit.ui.composables.EnterNotePasswordDialog
 import az.zero.azkeepit.ui.composables.RoundTopOnly
 import az.zero.azkeepit.ui.composables.SelectFolderBottomSheet
-import az.zero.azkeepit.ui.screens.destinations.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.screens.home.BottomBarItem
 import az.zero.azkeepit.ui.screens.home.HomeUiState
 import az.zero.azkeepit.ui.screens.home.HomeViewModel
 import az.zero.azkeepit.ui.screens.items.NoteItem
 import az.zero.azkeepit.ui.theme.cardBgColor
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
 @Composable
 fun NotesScreen(
+    onNavigateToAddEditNoteScreen: (noteId: Long) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator,
 ) {
     val state by viewModel.state.collectAsState()
 
     when {
-        state.isNotesLoading -> {}
+        state.isNotesLoading -> Unit
         state.uiNotes.isEmpty() -> {
             EmptyNotesScreen()
         }
+
         else -> {
-            SuccessNotesScreen(state = state, viewModel = viewModel, navigator = navigator)
+            SuccessNotesScreen(
+                onNavigateToAddEditNoteScreen = onNavigateToAddEditNoteScreen,
+                state = state,
+                viewModel = viewModel
+            )
         }
     }
 
@@ -66,8 +84,8 @@ fun NotesScreen(
 @Composable
 private fun SuccessNotesScreen(
     state: HomeUiState,
+    onNavigateToAddEditNoteScreen: (noteId: Long) -> Unit,
     viewModel: HomeViewModel,
-    navigator: DestinationsNavigator,
 ) {
     val scope = rememberCoroutineScope()
     val bottomState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
@@ -76,7 +94,6 @@ private fun SuccessNotesScreen(
     BackHandler(enabled = bottomState.isVisible) {
         scope.launch { bottomState.hide() }
     }
-
 
     LaunchedEffect(key1 = state.isEditModeOn) {
         if (!state.isEditModeOn) scope.launch { bottomState.hide() }
@@ -96,7 +113,7 @@ private fun SuccessNotesScreen(
             onDismiss = { viewModel.changeEnterPasswordOpenState(isOpen = false, null) },
             onCorrectPasswordClick = { uiNote ->
                 viewModel.changeEnterPasswordOpenState(isOpen = false, uiNote = null)
-                navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
+                onNavigateToAddEditNoteScreen(uiNote.noteId)
             }
         )
     }
@@ -124,7 +141,7 @@ private fun SuccessNotesScreen(
                 modifier = Modifier.weight(1f),
                 columns = StaggeredGridCells.Fixed(2),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalItemSpacing = 16.dp,
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 items(state.uiNotes) { uiNote ->
@@ -142,14 +159,16 @@ private fun SuccessNotesScreen(
                                 state.isEditModeOn -> {
                                     viewModel.addOrRemoveNoteFromSelected(noteId = uiNote.noteId)
                                 }
+
                                 uiNote.isLocked -> {
                                     viewModel.changeEnterPasswordOpenState(
                                         isOpen = true,
                                         uiNote = uiNote
                                     )
                                 }
+
                                 else -> {
-                                    navigator.navigate(AddEditNoteScreenDestination(noteId = uiNote.noteId))
+                                    onNavigateToAddEditNoteScreen(uiNote.noteId)
                                 }
                             }
                         }

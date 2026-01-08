@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import az.zero.azkeepit.data.local.entities.Note
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
@@ -15,16 +16,15 @@ import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.ColorPallet.DarkHex
 import az.zero.azkeepit.ui.composables.getColorFromHex
-import az.zero.azkeepit.ui.screens.navArgs
 import az.zero.azkeepit.util.JDateTimeUtil
 import az.zero.azkeepit.util.combine
-import az.zero.azkeepit.util.emptyUiFolder
 import az.zero.azkeepit.util.folderInitialId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
@@ -35,8 +35,9 @@ class AddEditNoteScreenViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val args: AddEditNoteScreenArgs = savedStateHandle.navArgs()
+    private val args: AddEditNoteScreenArgs = savedStateHandle.toRoute()
     private val isNewNote = args.noteId == null
+
     private val localUiNote = MutableStateFlow(emptyUiNote)
     private val allFolders = folderRepository.getUiFolders()
     private val shouldPopUp = MutableStateFlow(false)
@@ -108,10 +109,12 @@ class AddEditNoteScreenViewModel @Inject constructor(
     }
 
     fun updateIsLocked(isLocked: Boolean, newPassword: String?) = viewModelScope.launch {
-        localUiNote.emit(localUiNote.value.copy(
-            isLocked = isLocked,
-            password = newPassword
-        ))
+        localUiNote.emit(
+            localUiNote.value.copy(
+                isLocked = isLocked,
+                password = newPassword
+            )
+        )
     }
 
     fun addNoteToFolder(newUiFolder: UiFolder) = viewModelScope.launch {
@@ -178,9 +181,8 @@ data class AddEditNoteState(
     val isNotePasswordDialogOpened: Boolean = false,
 )
 
-data class AddEditNoteScreenArgs(
-    val noteId: Long?,
-)
+@Serializable
+data class AddEditNoteScreenArgs(val noteId: Long?)
 
 private val createdDate = JDateTimeUtil.now()
 private val emptyUiNote = UiNote(

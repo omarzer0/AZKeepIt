@@ -27,14 +27,14 @@ fun NoteItem(
     isEditModeOn: Boolean,
     onLongClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
-    onNoteClick: () -> Unit,
+    onNoteClick: (noteId: Long) -> Unit,
 ) {
 
     Card(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .clickableSafeClick(
-                onClick = onNoteClick,
+                onClick = { onNoteClick(uiNote.noteId) },
                 onLongClick = onLongClick,
                 onDoubleClick = onDoubleClick,
             ),
@@ -90,7 +90,7 @@ private fun NoteTextSection(
             text = uiNote.title,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.h2.copy(color = uiNote.color.getCorrectLightOrDarkColor(), )
+            style = MaterialTheme.typography.h2.copy(color = uiNote.color.getCorrectLightOrDarkColor())
         )
 
         if (uiNote.isLocked) {

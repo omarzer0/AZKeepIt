@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.domain.mappers.UiFolder
-import az.zero.azkeepit.ui.screens.navArgs
 import az.zero.azkeepit.util.emptyUiFolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +25,10 @@ class FolderDetailsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val folderDetailsScreenArgs: FolderDetailsScreenArgs = savedStateHandle.navArgs()
+    private val route = FolderDetailsScreenArgs.from(savedStateHandle)
+
+    private val folderDetailsScreenArgs = route.folderDetailsScreenArgs
+
     private val folderId = folderDetailsScreenArgs.id
     private val uiFolder = folderRepository.getUiFolderById(folderId)
     private val deleteFolderDialogOpened = MutableStateFlow(false)
@@ -96,9 +98,4 @@ data class FolderDetailsState(
     val deleteAllNotesDialogOpened: Boolean = false,
     val renameDialogOpened: Boolean = false,
     val shouldPopUp: Boolean = false,
-)
-
-data class FolderDetailsScreenArgs(
-    val id: Long,
-    val folderName: String,
 )

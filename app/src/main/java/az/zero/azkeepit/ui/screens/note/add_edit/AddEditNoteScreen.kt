@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
+
 package az.zero.azkeepit.ui.screens.note.add_edit
 
 import android.content.Intent
@@ -5,19 +7,47 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.rememberBottomSheetScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -30,25 +60,29 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
 import az.zero.azkeepit.R
 import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.domain.mappers.UiNote
-import az.zero.azkeepit.ui.composables.*
+import az.zero.azkeepit.ui.composables.BottomSheetDateItem
+import az.zero.azkeepit.ui.composables.BottomSheetWithItems
+import az.zero.azkeepit.ui.composables.ColorsRow
+import az.zero.azkeepit.ui.composables.CustomSetPasswordDialog
+import az.zero.azkeepit.ui.composables.HeaderText
+import az.zero.azkeepit.ui.composables.HeaderWithBackBtn
+import az.zero.azkeepit.ui.composables.SlidingImage
+import az.zero.azkeepit.ui.composables.TextDialogWithTwoButtons
+import az.zero.azkeepit.ui.composables.TransparentHintTextField
+import az.zero.azkeepit.ui.composables.clickableSafeClick
+import az.zero.azkeepit.ui.screens.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.theme.selectedColor
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
 @Composable
-@Destination(
-    navArgsDelegate = AddEditNoteScreenArgs::class
-)
 fun AddEditNoteScreen(
+    onBackPressed: () -> Unit,
     viewModel: AddEditNoteScreenViewModel = hiltViewModel(),
-    navigator: DestinationsNavigator,
 ) {
 
     val state by viewModel.state.collectAsState()
@@ -70,7 +104,7 @@ fun AddEditNoteScreen(
     LaunchedEffect(state.shouldPopUp) {
         if (state.shouldPopUp) {
             focusManager.clearFocus()
-            navigator.popBackStack()
+            onBackPressed()
         }
     }
 
@@ -99,14 +133,6 @@ fun AddEditNoteScreen(
         onFolderClick = viewModel::addNoteToFolder
     )
 
-    ChangeSystemBarsColorAndRevertWhenClose(
-        key = note.color,
-        statusBarColors = EnterExitColors(
-            enterColor = note.color,
-            exitStatusColor = MaterialTheme.colors.background
-        )
-    )
-
     val context = LocalContext.current
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickMultipleVisualMedia()
@@ -126,6 +152,7 @@ fun AddEditNoteScreen(
     }
 
     BottomSheetScaffold(
+        modifier = Modifier.navigationBarsPadding(),
         scaffoldState = bottomState,
         sheetPeekHeight = 120.dp,
         backgroundColor = note.color,
@@ -382,8 +409,10 @@ fun TimeWithSelectFolder(
 fun AddEditHeader(
     backgroundColor: Color,
     onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     HeaderWithBackBtn(
+        modifier = modifier.systemBarsPadding(),
         text = "",
         elevation = 0.dp,
         onBackPressed = onBackPressed,
@@ -479,5 +508,15 @@ fun SelectFolderDialog(
 
         )
     }
+}
 
+
+internal fun NavGraphBuilder.addEditNoteScreen(
+    onBackPressed: () -> Unit,
+) {
+    composable<AddEditNoteScreenDestination> {
+        AddEditNoteScreen(
+            onBackPressed = onBackPressed,
+        )
+    }
 }
