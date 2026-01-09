@@ -1,8 +1,6 @@
 package az.zero.azkeepit.ui.screens.note.add_edit
 
 import android.net.Uri
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
@@ -27,7 +25,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @HiltViewModel
 class AddEditNoteScreenViewModel @Inject constructor(
     private val noteRepository: NoteRepository,

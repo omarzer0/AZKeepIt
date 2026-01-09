@@ -3,12 +3,11 @@ package az.zero.azkeepit.ui.screens.home
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.with
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -218,7 +217,6 @@ fun HomeFab(
 
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeAppBar(
     modifier: Modifier = Modifier,
@@ -227,31 +225,29 @@ fun HomeAppBar(
     selectedNumber: Int,
     onClearSelectionClick: () -> Unit,
 ) {
-    // fixme: when hide the appbar the bottom sheet appears for a sec as the layout height changes
-//    AnimatedVisibility(visible = isEditModeOn || isScrollingUp) {
     HeaderWithBackBtn(
         modifier = modifier,
         text = stringResource(id = R.string.app_name),
         elevation = 0.dp,
         actions = {
             AnimatedContent(
+                targetState = isEditModeOn,
                 transitionSpec = {
-                    fadeIn() + expandHorizontally() with fadeOut() + shrinkHorizontally()
-                },
-                targetState = isEditModeOn
-            ) {
-                if (it) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                            scaleIn(
+                                initialScale = 0.92f,
+                                animationSpec = tween(220, delayMillis = 90)
+                            ))
+                        .togetherWith(fadeOut(animationSpec = tween(90)))
+                }
+            ) { editMode ->
+                if (editMode) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "$selectedNumber ${stringResource(id = R.string.selected)}",
                             style = MaterialTheme.typography.h2.copy(color = selectedColor)
                         )
-
-                        IconButton(
-                            onClick = onClearSelectionClick
-                        ) {
+                        IconButton(onClick = onClearSelectionClick) {
                             Icon(
                                 Icons.Filled.Close,
                                 stringResource(id = R.string.close),
@@ -260,9 +256,7 @@ fun HomeAppBar(
                         }
                     }
                 } else {
-                    IconButton(
-                        onClick = onSearchClick
-                    ) {
+                    IconButton(onClick = onSearchClick) {
                         Icon(
                             Icons.Filled.Search,
                             stringResource(id = R.string.search),
@@ -270,12 +264,10 @@ fun HomeAppBar(
                         )
                     }
                 }
-
             }
         }
     )
 }
-
 
 internal fun NavGraphBuilder.homeScreen(
     onSearchClick: () -> Unit,

@@ -1,7 +1,5 @@
 package az.zero.azkeepit.ui.screens.folder.details
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,7 +15,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @HiltViewModel
 class FolderDetailsViewModel @Inject constructor(
     private val noteRepository: NoteRepository,

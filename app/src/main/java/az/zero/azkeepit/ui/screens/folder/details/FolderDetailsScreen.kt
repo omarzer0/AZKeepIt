@@ -3,7 +3,6 @@
 package az.zero.azkeepit.ui.screens.folder.details
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -150,7 +149,6 @@ fun FolderDetailsScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SuccessFolderDetailsScreen(
     paddingValues: PaddingValues = PaddingValues(0.dp),

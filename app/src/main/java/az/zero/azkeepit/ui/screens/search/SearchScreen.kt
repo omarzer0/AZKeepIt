@@ -1,6 +1,5 @@
 package az.zero.azkeepit.ui.screens.search
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -75,7 +74,6 @@ fun SearchScreen(
 
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SuccessSearchScreen(
     searchedUiNotes: List<UiNote>,

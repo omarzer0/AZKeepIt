@@ -4,8 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import az.zero.azkeepit.ui.screens.AddEditNoteScreenDestination
@@ -19,7 +17,6 @@ import az.zero.azkeepit.ui.screens.search.searchScreen
 import az.zero.azkeepit.ui.theme.AZKeepItTheme
 import dagger.hilt.android.AndroidEntryPoint
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
