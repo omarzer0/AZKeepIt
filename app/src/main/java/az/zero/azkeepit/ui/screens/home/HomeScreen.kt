@@ -60,9 +60,10 @@ import az.zero.azkeepit.ui.theme.selectedColor
 @Composable
 fun HomeScreen(
     onSearchClick: () -> Unit,
-    onNavigateToAddEditNoteScreen: (noteId: Long?) -> Unit,
     // TODO 2: move the navArgs to the proper place+
-    onNavigateToFolderDetailsScreen: (FolderDetailsScreenArgs) -> Unit,
+    onFolderClick: (FolderDetailsScreenArgs) -> Unit,
+    onNoteClick: (noteId: Long?) -> Unit,
+    onNoteWithPasswordClick: (noteId: Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -117,7 +118,7 @@ fun HomeScreen(
                 currentTab = state.currentTab,
                 isEditModeOn = state.isEditModeOn,
                 isScrollingUp = isScrollingUp,
-                onAddNoteClick = { onNavigateToAddEditNoteScreen(null) },
+                onAddNoteClick = { onNoteClick(null) },
 
                 // TODO 3: Update this
                 onAddFolderClick = { viewModel.changeCreateFolderDialogState(isOpened = true) }
@@ -139,11 +140,12 @@ fun HomeScreen(
             ) {
                 when (it) {
                     0 -> NotesScreen(
-                        onNavigateToAddEditNoteScreen = onNavigateToAddEditNoteScreen,
+                        onNoteClick = onNoteClick,
+                        onNoteWithPasswordClick = onNoteWithPasswordClick
                     )
 
                     1 -> FolderScreen(
-                        onNavigateToFolderDetailsScreen = onNavigateToFolderDetailsScreen,
+                        onFolderClick = onFolderClick,
                     )
                 }
             }
@@ -271,15 +273,17 @@ fun HomeAppBar(
 
 internal fun NavGraphBuilder.homeScreen(
     onSearchClick: () -> Unit,
-    onNavigateToAddEditNoteScreen: (noteId: Long?) -> Unit,
     // TODO 2: move the navArgs to the proper place+
-    onNavigateToFolderDetailsScreen: (FolderDetailsScreenArgs) -> Unit,
+    onFolderClick: (FolderDetailsScreenArgs) -> Unit,
+    onNoteClick: (noteId: Long?) -> Unit,
+    onNoteWithPasswordClick: (noteId: Long) -> Unit,
 ) {
     composable<HomeScreenDestination> {
         HomeScreen(
             onSearchClick = onSearchClick,
-            onNavigateToAddEditNoteScreen = onNavigateToAddEditNoteScreen,
-            onNavigateToFolderDetailsScreen = onNavigateToFolderDetailsScreen
+            onFolderClick = onFolderClick,
+            onNoteClick = onNoteClick,
+            onNoteWithPasswordClick = onNoteWithPasswordClick
         )
     }
 }

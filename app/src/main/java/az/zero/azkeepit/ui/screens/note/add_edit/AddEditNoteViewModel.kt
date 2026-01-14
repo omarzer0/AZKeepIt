@@ -83,7 +83,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
             createdAt = state.value.note.createdAt,
             images = state.value.note.images.map { it.toString() },
             color = state.value.note.color.toArgb(),
-            password = state.value.note.password,
+            password = state.value.note.password?.let { noteRepository.doHashPassword(it)  },
             ownerFolderId = state.value.note.ownerUiFolder?.folderId ?: folderInitialId,
             noteId = args.noteId
         )

@@ -41,7 +41,7 @@ import az.zero.azkeepit.ui.theme.cardBgColor
 
 @Composable
 fun FolderScreen(
-    onNavigateToFolderDetailsScreen: (FolderDetailsScreenArgs) -> Unit,
+    onFolderClick: (FolderDetailsScreenArgs) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -58,7 +58,7 @@ fun FolderScreen(
         state.uiFolders.isEmpty() -> EmptyFolderScreen()
 
         else -> SuccessFolderScreen(
-            onNavigateToFolderDetailsScreen = onNavigateToFolderDetailsScreen,
+            onFolderClick = onFolderClick,
             state = state,
             viewModel = viewModel,
         )
@@ -69,7 +69,7 @@ fun FolderScreen(
 
 @Composable
 private fun SuccessFolderScreen(
-    onNavigateToFolderDetailsScreen: (FolderDetailsScreenArgs) -> Unit,
+    onFolderClick: (FolderDetailsScreenArgs) -> Unit,
     state: HomeUiState,
     viewModel: HomeViewModel,
 ) {
@@ -110,7 +110,7 @@ private fun SuccessFolderScreen(
                                 id = uiFolder.folderId,
                                 folderName = uiFolder.name
                             )
-                            onNavigateToFolderDetailsScreen(args)
+                            onFolderClick(args)
                         }
 
                     }

@@ -1,8 +1,11 @@
 package az.zero.azkeepit.data.local
 
-import androidx.room.*
-import az.zero.azkeepit.data.local.entities.Folder
-import az.zero.azkeepit.data.local.entities.FolderWithNotes
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
 import az.zero.azkeepit.data.local.entities.Note
 import az.zero.azkeepit.data.local.entities.NoteWithFolder
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +18,7 @@ interface NoteDao {
     fun getNotesWithFolderName(): Flow<List<NoteWithFolder>>
 
     @Query("SELECT * FROM Note WHERE noteId=:noteId")
-    suspend fun getNoteById(noteId: Long): NoteWithFolder?
+    suspend fun getNoteWithFolderById(noteId: Long): NoteWithFolder?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertNote(note: Note)
@@ -37,6 +40,9 @@ interface NoteDao {
 
     @Query("UPDATE Note SET ownerFolderId=:folderId WHERE noteId in (:selectedNotesIds)")
     suspend fun moveNotesToFolder(folderId: Long, selectedNotesIds: MutableList<Long>)
+
+    @Query("SELECT password FROM note WHERE noteId = :noteId")
+    suspend fun getPasswordHash(noteId: Long): String?
 
 
 }

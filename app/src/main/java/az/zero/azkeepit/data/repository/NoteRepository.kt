@@ -1,5 +1,6 @@
 package az.zero.azkeepit.data.repository
 
+import az.zero.azkeepit.data.hashing.SHA256PasswordHasher
 import az.zero.azkeepit.data.local.NoteDao
 import az.zero.azkeepit.data.local.entities.Note
 import az.zero.azkeepit.domain.mappers.toUiNote
@@ -11,11 +12,12 @@ import javax.inject.Singleton
 @Singleton
 class NoteRepository @Inject constructor(
     private val noteDao: NoteDao,
+    private val passwordHasher: SHA256PasswordHasher
 ) {
 
     fun getUiNotes() = noteDao.getNotesWithFolderName().map { it.toUiNotes() }
 
-    suspend fun getNoteById(noteId: Long) = noteDao.getNoteById(noteId)?.toUiNote()
+    suspend fun getNoteById(noteId: Long) = noteDao.getNoteWithFolderById(noteId)?.toUiNote()
 
     suspend fun insertNote(note: Note) = noteDao.insertNote(note)
 
@@ -35,5 +37,15 @@ class NoteRepository @Inject constructor(
 
     suspend fun moveNotesToFolder(folderId: Long, selectedNotesIds: MutableList<Long>) =
         noteDao.moveNotesToFolder(folderId, selectedNotesIds)
+
+    fun doHashPassword(enteredPassword: String) = passwordHasher.hash(enteredPassword)
+
+    private suspend fun getStoredHashForNoteById(noteId: Long): String? =
+        noteDao.getPasswordHash(noteId)
+
+    suspend fun verifyPassword(noteId: Long, enteredPassword: String): Boolean {
+        val storedHash = getStoredHashForNoteById(noteId) ?: ""
+        return passwordHasher.verify(enteredPassword, storedHash)
+    }
 
 }

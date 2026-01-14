@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
 import az.zero.azkeepit.ui.composables.DeleteDialog
-import az.zero.azkeepit.ui.composables.EnterNotePasswordDialog
 import az.zero.azkeepit.ui.composables.RoundTopOnly
 import az.zero.azkeepit.ui.composables.SelectFolderBottomSheet
 import az.zero.azkeepit.ui.screens.home.BottomBarItem
@@ -51,7 +50,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun NotesScreen(
-    onNavigateToAddEditNoteScreen: (noteId: Long) -> Unit,
+    onNoteClick: (noteId: Long) -> Unit,
+    onNoteWithPasswordClick: (noteId: Long) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -64,7 +64,8 @@ fun NotesScreen(
 
         else -> {
             SuccessNotesScreen(
-                onNavigateToAddEditNoteScreen = onNavigateToAddEditNoteScreen,
+                onNoteClick = onNoteClick,
+                onNoteWithPasswordClick = onNoteWithPasswordClick,
                 state = state,
                 viewModel = viewModel
             )
@@ -76,12 +77,12 @@ fun NotesScreen(
 @Composable
 private fun SuccessNotesScreen(
     state: HomeUiState,
-    onNavigateToAddEditNoteScreen: (noteId: Long) -> Unit,
+    onNoteClick: (noteId: Long) -> Unit,
+    onNoteWithPasswordClick: (noteId: Long) -> Unit,
     viewModel: HomeViewModel,
 ) {
     val scope = rememberCoroutineScope()
     val bottomState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val lockedUiNoteToOpen by viewModel.lockedUiNoteToOpen.collectAsState()
 
     BackHandler(enabled = bottomState.isVisible) {
         scope.launch { bottomState.hide() }
@@ -97,20 +98,6 @@ private fun SuccessNotesScreen(
         onDismiss = { viewModel.changeDeleteNotesDialogState(isOpened = false) },
         onDeleteClick = viewModel::deleteSelectedNotes
     )
-
-    lockedUiNoteToOpen?.let {
-        EnterNotePasswordDialog(
-            openDialog = state.isEnterPasswordDialogOpen,
-            uiNote = it,
-            onDismiss = { viewModel.changeEnterPasswordOpenState(isOpen = false, null) },
-            onCorrectPasswordClick = { uiNote ->
-                viewModel.changeEnterPasswordOpenState(isOpen = false, uiNote = null)
-                onNavigateToAddEditNoteScreen(uiNote.noteId)
-            }
-        )
-    }
-
-
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -152,15 +139,10 @@ private fun SuccessNotesScreen(
                                     viewModel.addOrRemoveNoteFromSelected(noteId = uiNote.noteId)
                                 }
 
-                                uiNote.isLocked -> {
-                                    viewModel.changeEnterPasswordOpenState(
-                                        isOpen = true,
-                                        uiNote = uiNote
-                                    )
-                                }
+                                uiNote.isLocked -> onNoteWithPasswordClick(uiNote.noteId)
 
                                 else -> {
-                                    onNavigateToAddEditNoteScreen(uiNote.noteId)
+                                    onNoteClick(uiNote.noteId)
                                 }
                             }
                         }
