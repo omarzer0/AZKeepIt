@@ -10,13 +10,13 @@ import androidx.navigation.toRoute
 import az.zero.azkeepit.data.local.entities.Note
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
+import az.zero.azkeepit.domain.commons.FOLDER_INITIAL_ID
 import az.zero.azkeepit.domain.mappers.UiFolder
 import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.ColorPallet.DarkHex
 import az.zero.azkeepit.ui.composables.getColorFromHex
 import az.zero.azkeepit.util.JDateTimeUtil
 import az.zero.azkeepit.util.combine
-import az.zero.azkeepit.util.folderInitialId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -83,13 +83,12 @@ class AddEditNoteScreenViewModel @Inject constructor(
             createdAt = state.value.note.createdAt,
             images = state.value.note.images.map { it.toString() },
             color = state.value.note.color.toArgb(),
-            password = state.value.note.password?.let { noteRepository.doHashPassword(it)  },
-            ownerFolderId = state.value.note.ownerUiFolder?.folderId ?: folderInitialId,
+            hashedPassword = state.value.note.password,
+            ownerFolderId = state.value.note.ownerUiFolder?.folderId ?: FOLDER_INITIAL_ID,
             noteId = args.noteId
         )
 
-        if (isNewNote) noteRepository.insertNote(note)
-        else noteRepository.updateNote(note)
+        noteRepository.saveNote(isNewNote = isNewNote, note = note)
         shouldPopUp.emit(true)
     }
 

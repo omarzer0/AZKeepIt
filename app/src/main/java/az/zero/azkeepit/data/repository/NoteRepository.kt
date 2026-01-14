@@ -19,9 +19,16 @@ class NoteRepository @Inject constructor(
 
     suspend fun getNoteById(noteId: Long) = noteDao.getNoteWithFolderById(noteId)?.toUiNote()
 
-    suspend fun insertNote(note: Note) = noteDao.insertNote(note)
 
-    suspend fun updateNote(note: Note) = noteDao.updateNote(note)
+    suspend fun saveNote(isNewNote: Boolean, note: Note) {
+        // TODO(improvement) Consider getting isNew from DB if the id doesn't exist = new
+        if (isNewNote) insertNote(note.copy(hashedPassword = passwordHasher.hash(note.hashedPassword)))
+        else updateNote(note)
+    }
+
+    private suspend fun insertNote(note: Note) = noteDao.insertNote(note)
+
+    private suspend fun updateNote(note: Note) = noteDao.updateNote(note)
 
     suspend fun deleteNote(noteId: Long) = noteDao.deleteNote(noteId)
 

@@ -41,7 +41,7 @@ interface NoteDao {
     @Query("UPDATE Note SET ownerFolderId=:folderId WHERE noteId in (:selectedNotesIds)")
     suspend fun moveNotesToFolder(folderId: Long, selectedNotesIds: MutableList<Long>)
 
-    @Query("SELECT password FROM note WHERE noteId = :noteId")
+    @Query("SELECT hashedPassword FROM note WHERE noteId = :noteId")
     suspend fun getPasswordHash(noteId: Long): String?
 
 

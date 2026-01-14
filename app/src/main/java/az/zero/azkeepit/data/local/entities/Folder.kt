@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 
-@Entity
+@Entity(tableName = "Folder")
 data class Folder(
     val name: String,
     val createdAt: Long,
@@ -13,6 +13,7 @@ data class Folder(
     val folderId: Long? = null,
 )
 
+@Entity(tableName = "FolderWithNotes")
 data class FolderWithNotes(
     @Embedded
     val folder: Folder,
