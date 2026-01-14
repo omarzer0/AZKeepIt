@@ -19,7 +19,6 @@ data class Note(
     val noteId: Long? = null,
 )
 
-@Entity(tableName = "NoteWithFolder")
 data class NoteWithFolder(
     @Embedded val note: Note,
     @Relation(

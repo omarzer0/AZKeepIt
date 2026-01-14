@@ -13,7 +13,6 @@ data class Folder(
     val folderId: Long? = null,
 )
 
-@Entity(tableName = "FolderWithNotes")
 data class FolderWithNotes(
     @Embedded
     val folder: Folder,
