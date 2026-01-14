@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 
-@Entity
+@Entity(tableName = "Note")
 data class Note(
     val title: String,
     val content: String,
@@ -14,12 +14,12 @@ data class Note(
     val ownerFolderId: Long?,
     val images: List<String>,
     val color: Int,
-    val password: String?,
+    val hashedPassword: String?,
     @PrimaryKey(autoGenerate = true)
     val noteId: Long? = null,
 )
 
-
+@Entity(tableName = "NoteWithFolder")
 data class NoteWithFolder(
     @Embedded val note: Note,
     @Relation(

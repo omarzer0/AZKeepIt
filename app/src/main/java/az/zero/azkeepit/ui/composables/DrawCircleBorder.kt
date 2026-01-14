@@ -17,7 +17,7 @@ fun DrawCircleBorder(
 ) {
     return Box(modifier = Modifier
         .border(
-            width = 0.5.dp,
+            width = borderWidth,
             color = Color.Gray,
             shape = CircleShape
         )

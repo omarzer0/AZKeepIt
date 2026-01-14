@@ -14,7 +14,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.R
-import az.zero.azkeepit.util.singleLineValue
+import az.zero.azkeepit.domain.commons.SINGLE_LINE_VALUE
 
 @Composable
 fun HeaderWithBackBtn(
@@ -35,7 +35,7 @@ fun HeaderWithBackBtn(
                 Text(
                     text = text,
                     color = MaterialTheme.colors.onPrimary,
-                    maxLines = singleLineValue,
+                    maxLines = SINGLE_LINE_VALUE,
                     overflow = TextOverflow.Ellipsis
                 )
             }
@@ -43,6 +43,7 @@ fun HeaderWithBackBtn(
         elevation = elevation,
         onBackPressed = onBackPressed,
         backgroundColor = backgroundColor,
+        darkBackButton = darkBackButton,
         actions = actions
     )
 }

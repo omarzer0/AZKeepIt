@@ -9,7 +9,7 @@ import az.zero.azkeepit.data.local.helper.CustomTypeConverters
 
 @Database(
     entities = [Note::class, Folder::class],
-    version = 1
+    version = 2
 )
 @TypeConverters(CustomTypeConverters::class)
 abstract class AppDatabase : RoomDatabase() {

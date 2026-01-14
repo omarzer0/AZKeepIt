@@ -2,11 +2,12 @@ package az.zero.azkeepit.data.local.di
 
 import android.content.Context
 import androidx.room.Room
-import az.zero.azkeepit.BuildConfig
 import az.zero.azkeepit.data.local.AppDatabase
 import az.zero.azkeepit.data.local.FolderDao
 import az.zero.azkeepit.data.local.NoteDao
 import az.zero.azkeepit.data.local.helper.CustomTypeConverters
+import az.zero.azkeepit.domain.hashing.PasswordHasher
+import createMigration1To2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,14 +23,12 @@ object DatabaseModules {
     @Provides
     fun provideDatabase(
         @ApplicationContext context: Context,
+        passwordHasher: PasswordHasher
     ): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.DATABASE_NAME)
             .apply {
-                addMigrations()
+                addMigrations(createMigration1To2(passwordHasher))
                 addTypeConverter(CustomTypeConverters())
-//                if (BuildConfig.DEBUG) {
-//                    fallbackToDestructiveMigration()
-//                }
             }
             .build()
 
