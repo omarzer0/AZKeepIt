@@ -2,7 +2,7 @@ package az.zero.azkeepit.data.repository
 
 import az.zero.azkeepit.data.hashing.SHA256PasswordHasher
 import az.zero.azkeepit.data.local.NoteDao
-import az.zero.azkeepit.data.local.entities.Note
+import az.zero.azkeepit.data.local.entities.DbNote
 import az.zero.azkeepit.domain.mappers.toUiNote
 import az.zero.azkeepit.domain.mappers.toUiNotes
 import kotlinx.coroutines.flow.map
@@ -20,15 +20,15 @@ class NoteRepository @Inject constructor(
     suspend fun getNoteById(noteId: Long) = noteDao.getNoteWithFolderById(noteId)?.toUiNote()
 
 
-    suspend fun saveNote(isNewNote: Boolean, note: Note) {
+    suspend fun saveNote(isNewNote: Boolean, dbNote: DbNote) {
         // TODO(improvement) Consider getting isNew from DB if the id doesn't exist = new
-        if (isNewNote) insertNote(note.copy(hashedPassword = passwordHasher.hash(note.hashedPassword)))
-        else updateNote(note)
+        if (isNewNote) insertNote(dbNote.copy(hashedPassword = passwordHasher.hash(dbNote.hashedPassword)))
+        else updateNote(dbNote)
     }
 
-    private suspend fun insertNote(note: Note) = noteDao.insertNote(note)
+    private suspend fun insertNote(dbNote: DbNote) = noteDao.insertNote(dbNote)
 
-    private suspend fun updateNote(note: Note) = noteDao.updateNote(note)
+    private suspend fun updateNote(dbNote: DbNote) = noteDao.updateNote(dbNote)
 
     suspend fun deleteNote(noteId: Long) = noteDao.deleteNote(noteId)
 

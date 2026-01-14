@@ -3,12 +3,12 @@ package az.zero.azkeepit.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import az.zero.azkeepit.data.local.entities.Folder
-import az.zero.azkeepit.data.local.entities.Note
+import az.zero.azkeepit.data.local.entities.DbFolder
+import az.zero.azkeepit.data.local.entities.DbNote
 import az.zero.azkeepit.data.local.helper.CustomTypeConverters
 
 @Database(
-    entities = [Note::class, Folder::class],
+    entities = [DbNote::class, DbFolder::class],
     version = 2
 )
 @TypeConverters(CustomTypeConverters::class)

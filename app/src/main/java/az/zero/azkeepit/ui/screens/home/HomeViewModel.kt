@@ -2,7 +2,7 @@ package az.zero.azkeepit.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import az.zero.azkeepit.data.local.entities.Folder
+import az.zero.azkeepit.data.local.entities.DbFolder
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.domain.mappers.UiFolder
@@ -33,7 +33,7 @@ class HomeViewModel @Inject constructor(
     private val selectedFolders = MutableStateFlow(mutableListOf<Long>())
 
     fun createFolder(folderName: String) = viewModelScope.launch {
-        folderRepository.insertFolder(Folder(folderName, JDateTimeUtil.now(), null))
+        folderRepository.insertFolder(DbFolder(folderName, JDateTimeUtil.now(), null))
     }
 
     fun changeEditModeState(

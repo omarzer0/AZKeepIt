@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import az.zero.azkeepit.data.local.entities.Note
+import az.zero.azkeepit.data.local.entities.DbNote
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.domain.commons.FOLDER_INITIAL_ID
@@ -76,7 +76,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
             return@launch
         }
 
-        val note = Note(
+        val dbNote = DbNote(
             title = state.value.note.title.trim(),
             content = state.value.note.content.trim(),
             isLocked = state.value.note.isLocked,
@@ -88,7 +88,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
             noteId = args.noteId
         )
 
-        noteRepository.saveNote(isNewNote = isNewNote, note = note)
+        noteRepository.saveNote(isNewNote = isNewNote, dbNote = dbNote)
         shouldPopUp.emit(true)
     }
 

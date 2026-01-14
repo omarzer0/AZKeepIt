@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 
 @Entity(tableName = "Note")
-data class Note(
+data class DbNote(
     val title: String,
     val content: String,
     val isLocked: Boolean,
@@ -19,11 +19,11 @@ data class Note(
     val noteId: Long? = null,
 )
 
-data class NoteWithFolder(
-    @Embedded val note: Note,
+data class DbNoteWithFolder(
+    @Embedded val dbNote: DbNote,
     @Relation(
         parentColumn = "ownerFolderId",
         entityColumn = "folderId"
     )
-    val folder: Folder?,
+    val dbFolder: DbFolder?,
 )

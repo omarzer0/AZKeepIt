@@ -2,8 +2,8 @@ package az.zero.azkeepit.domain.mappers
 
 import android.net.Uri
 import androidx.compose.ui.graphics.Color
-import az.zero.azkeepit.data.local.entities.Note
-import az.zero.azkeepit.data.local.entities.NoteWithFolder
+import az.zero.azkeepit.data.local.entities.DbNote
+import az.zero.azkeepit.data.local.entities.DbNoteWithFolder
 import az.zero.azkeepit.util.JDateTimeUtil
 
 data class UiNote(
@@ -21,7 +21,7 @@ data class UiNote(
     val ownerUiFolder: UiFolder?,
 )
 
-fun Note.toUiNote(
+fun DbNote.toUiNote(
     isSelected: Boolean = false,
     ownerUiFolder: UiFolder? = null,
 ) = UiNote(
@@ -39,21 +39,21 @@ fun Note.toUiNote(
     ownerUiFolder = ownerUiFolder
 )
 
-fun NoteWithFolder.toUiNote(isSelected: Boolean = false) = UiNote(
-    noteId = this.note.noteId!!,
-    title = this.note.title,
-    content = this.note.content,
-    isLocked = this.note.isLocked,
-    createdAt = this.note.createdAt,
-    images = this.note.images.map { Uri.parse(it) },
-    color = Color(this.note.color),
-    password = this.note.hashedPassword,
-    shortDateTime = JDateTimeUtil.toShortDateTimeFormat(this.note.createdAt),
-    longDateTime = JDateTimeUtil.toLongDateTimeFormat(this.note.createdAt),
+fun DbNoteWithFolder.toUiNote(isSelected: Boolean = false) = UiNote(
+    noteId = this.dbNote.noteId!!,
+    title = this.dbNote.title,
+    content = this.dbNote.content,
+    isLocked = this.dbNote.isLocked,
+    createdAt = this.dbNote.createdAt,
+    images = this.dbNote.images.map { Uri.parse(it) },
+    color = Color(this.dbNote.color),
+    password = this.dbNote.hashedPassword,
+    shortDateTime = JDateTimeUtil.toShortDateTimeFormat(this.dbNote.createdAt),
+    longDateTime = JDateTimeUtil.toLongDateTimeFormat(this.dbNote.createdAt),
     isSelected = isSelected,
-    ownerUiFolder = this.folder?.toUiFolder()
+    ownerUiFolder = this.dbFolder?.toUiFolder()
 )
 
-fun List<NoteWithFolder>.toUiNotes() = this.map {
+fun List<DbNoteWithFolder>.toUiNotes() = this.map {
     it.toUiNote()
 }

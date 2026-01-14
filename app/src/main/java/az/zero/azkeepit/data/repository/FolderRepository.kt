@@ -1,7 +1,7 @@
 package az.zero.azkeepit.data.repository
 
 import az.zero.azkeepit.data.local.FolderDao
-import az.zero.azkeepit.data.local.entities.Folder
+import az.zero.azkeepit.data.local.entities.DbFolder
 import kotlinx.coroutines.flow.map
 import az.zero.azkeepit.domain.mappers.toUiFolder
 import az.zero.azkeepit.domain.mappers.toUiFolders
@@ -19,7 +19,7 @@ class FolderRepository @Inject constructor(
         it?.toUiFolder()
     }
 
-    suspend fun insertFolder(folder: Folder) = folderDao.insertFolder(folder)
+    suspend fun insertFolder(dbFolder: DbFolder) = folderDao.insertFolder(dbFolder)
 
     suspend fun deleteFolder(folderId: Long) = folderDao.deleteFolder(folderId)
 

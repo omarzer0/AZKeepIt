@@ -6,8 +6,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import az.zero.azkeepit.data.local.entities.Note
-import az.zero.azkeepit.data.local.entities.NoteWithFolder
+import az.zero.azkeepit.data.local.entities.DbNote
+import az.zero.azkeepit.data.local.entities.DbNoteWithFolder
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -15,22 +15,22 @@ interface NoteDao {
 
     @Transaction
     @Query("SELECT * FROM Note ORDER BY createdAt DESC")
-    fun getNotesWithFolderName(): Flow<List<NoteWithFolder>>
+    fun getNotesWithFolderName(): Flow<List<DbNoteWithFolder>>
 
     @Query("SELECT * FROM Note WHERE noteId=:noteId")
-    suspend fun getNoteWithFolderById(noteId: Long): NoteWithFolder?
+    suspend fun getNoteWithFolderById(noteId: Long): DbNoteWithFolder?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertNote(note: Note)
+    suspend fun insertNote(dbNote: DbNote)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateNote(note: Note)
+    suspend fun updateNote(dbNote: DbNote)
 
     @Query("DELETE FROM Note WHERE noteId=:noteId")
     suspend fun deleteNote(noteId: Long): Int
 
     @Query("SELECT * FROM Note WHERE title LIKE '%' || :searchQuery || '%' OR content LIKE '%' || :searchQuery || '%' ORDER BY createdAt DESC ")
-    fun searchNotes(searchQuery: String): Flow<List<NoteWithFolder>>
+    fun searchNotes(searchQuery: String): Flow<List<DbNoteWithFolder>>
 
     @Query("DELETE FROM Note WHERE ownerFolderId=:folderId")
     suspend fun deleteAllNotesFromFolder(folderId: Long)

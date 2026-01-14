@@ -6,16 +6,16 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 
 @Entity(tableName = "Folder")
-data class Folder(
+data class DbFolder(
     val name: String,
     val createdAt: Long,
     @PrimaryKey(autoGenerate = true)
     val folderId: Long? = null,
 )
 
-data class FolderWithNotes(
+data class DbFolderWithNotes(
     @Embedded
-    val folder: Folder,
+    val dbFolder: DbFolder,
     @Relation(
         // Id of the parent (it is in one-to-many relation the table that has one relation)
         // like folder that has many notes but the notes has only one folder
@@ -23,5 +23,5 @@ data class FolderWithNotes(
         // correspond to the field in LocalNote (the child)
         entityColumn = "ownerFolderId",
     )
-    val notes: List<Note>,
+    val dbNotes: List<DbNote>,
 )

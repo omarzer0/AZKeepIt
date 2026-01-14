@@ -1,34 +1,32 @@
 package az.zero.azkeepit.data.local
 
 import androidx.room.*
-import az.zero.azkeepit.data.local.entities.Folder
-import az.zero.azkeepit.data.local.entities.FolderWithNotes
-import az.zero.azkeepit.data.local.entities.Note
-import az.zero.azkeepit.data.local.entities.NoteWithFolder
+import az.zero.azkeepit.data.local.entities.DbFolder
+import az.zero.azkeepit.data.local.entities.DbFolderWithNotes
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FolderDao {
 
     @Query("SELECT * FROM Folder ORDER BY createdAt DESC")
-    fun getFolders(): Flow<List<Folder>>
+    fun getFolders(): Flow<List<DbFolder>>
 
     @Transaction
     @Query("SELECT * FROM Folder ORDER BY createdAt DESC")
-    fun getFoldersWithNotes(): Flow<List<FolderWithNotes>>
+    fun getFoldersWithNotes(): Flow<List<DbFolderWithNotes>>
 
     @Query("SELECT * FROM Folder WHERE folderId=:folderId")
-    suspend fun getFolderById(folderId: Long): Folder?
+    suspend fun getFolderById(folderId: Long): DbFolder?
 
     @Transaction
     @Query("SELECT * FROM Folder WHERE folderId=:folderId")
-    fun getFolderWithNotesById(folderId: Long): Flow<FolderWithNotes?>
+    fun getFolderWithNotesById(folderId: Long): Flow<DbFolderWithNotes?>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertFolder(folder: Folder)
+    suspend fun insertFolder(dbFolder: DbFolder)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateFolder(folder: Folder)
+    suspend fun updateFolder(dbFolder: DbFolder)
 
     @Query("DELETE FROM Folder WHERE folderId =:folderId")
     suspend fun deleteFolder(folderId: Long)

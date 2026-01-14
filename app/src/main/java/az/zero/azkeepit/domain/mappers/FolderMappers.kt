@@ -1,7 +1,7 @@
 package az.zero.azkeepit.domain.mappers
 
-import az.zero.azkeepit.data.local.entities.Folder
-import az.zero.azkeepit.data.local.entities.FolderWithNotes
+import az.zero.azkeepit.data.local.entities.DbFolder
+import az.zero.azkeepit.data.local.entities.DbFolderWithNotes
 
 
 data class UiFolder(
@@ -12,24 +12,24 @@ data class UiFolder(
     val isSelected: Boolean = false,
 )
 
-fun FolderWithNotes.toUiFolder() = UiFolder(
-    name = this.folder.name,
-    createdAt = this.folder.createdAt,
-    folderId = this.folder.folderId!!,
-    folderNotes = this.notes.map {
-        it.toUiNote(ownerUiFolder = this.folder.toUiFolder())
+fun DbFolderWithNotes.toUiFolder() = UiFolder(
+    name = this.dbFolder.name,
+    createdAt = this.dbFolder.createdAt,
+    folderId = this.dbFolder.folderId!!,
+    folderNotes = this.dbNotes.map {
+        it.toUiNote(ownerUiFolder = this.dbFolder.toUiFolder())
     },
     isSelected = false
 )
 
 
-fun Folder.toUiFolder() = UiFolder(
+fun DbFolder.toUiFolder() = UiFolder(
     name = this.name,
     createdAt = this.createdAt,
     folderId = this.folderId!!,
     isSelected = false
 )
 
-fun List<FolderWithNotes>.toUiFolders() = this.map {
+fun List<DbFolderWithNotes>.toUiFolders() = this.map {
     it.toUiFolder()
 }
