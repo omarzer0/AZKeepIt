@@ -1,7 +1,6 @@
 package az.zero.azkeepit.ui.screens.home.tab_screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -43,7 +41,7 @@ import az.zero.azkeepit.ui.theme.cardBgColor
 
 @Composable
 fun FolderScreen(
-    onNavigateToFolderDetailsScreen: (FolderDetailsScreenArgs) -> Unit,
+    onFolderClick: (FolderDetailsScreenArgs) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -60,7 +58,7 @@ fun FolderScreen(
         state.uiFolders.isEmpty() -> EmptyFolderScreen()
 
         else -> SuccessFolderScreen(
-            onNavigateToFolderDetailsScreen = onNavigateToFolderDetailsScreen,
+            onFolderClick = onFolderClick,
             state = state,
             viewModel = viewModel,
         )
@@ -69,10 +67,9 @@ fun FolderScreen(
 }
 
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun SuccessFolderScreen(
-    onNavigateToFolderDetailsScreen: (FolderDetailsScreenArgs) -> Unit,
+    onFolderClick: (FolderDetailsScreenArgs) -> Unit,
     state: HomeUiState,
     viewModel: HomeViewModel,
 ) {
@@ -113,7 +110,7 @@ private fun SuccessFolderScreen(
                                 id = uiFolder.folderId,
                                 folderName = uiFolder.name
                             )
-                            onNavigateToFolderDetailsScreen(args)
+                            onFolderClick(args)
                         }
 
                     }

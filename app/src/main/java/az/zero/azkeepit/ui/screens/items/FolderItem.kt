@@ -1,11 +1,20 @@
 package az.zero.azkeepit.ui.screens.items
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.RadioButton
+import androidx.compose.material.RadioButtonDefaults
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +29,6 @@ import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.ui.theme.selectedColor
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LazyGridItemScope.FolderItem(
     modifier: Modifier = Modifier,
@@ -32,13 +40,13 @@ fun LazyGridItemScope.FolderItem(
 ) {
     Card(
         modifier = modifier
+            .animateItem()
             .clip(RoundedCornerShape(12.dp))
             .clickableSafeClick(
                 onClick = onFolderClick,
                 onLongClick = onLongClick,
                 onDoubleClick = onDoubleClick,
-            )
-            .animateItemPlacement(),
+            ),
         backgroundColor = cardBgColor
     ) {
         Column(

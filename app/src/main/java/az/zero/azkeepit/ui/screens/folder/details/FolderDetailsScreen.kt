@@ -3,7 +3,6 @@
 package az.zero.azkeepit.ui.screens.folder.details
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -150,7 +149,6 @@ fun FolderDetailsScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SuccessFolderDetailsScreen(
     paddingValues: PaddingValues = PaddingValues(0.dp),
@@ -278,17 +276,17 @@ fun FolderRenameDialog(
     EtDialogWithTwoButtons(
         text = text,
         headerText = stringResource(id = R.string.rename_folder),
-        onTextChange = { text = it },
         openDialog = openDialog,
         startBtnText = stringResource(id = R.string.rename),
-        onStartBtnClick = { onRenameClick(text) },
+        endBtnText = stringResource(id = R.string.cancel),
+        onTextChange = { text = it },
         startBtnEnabled = isStartBtnEnabled,
         startBtnStyle = MaterialTheme.typography.h3.copy(color = startBtnColor),
-        endBtnText = stringResource(id = R.string.cancel),
+        onEnterBtnClick = { onRenameClick(text) },
         onDismiss = {
             text = ""
             onDismiss()
-        }
+        },
     )
 }
 

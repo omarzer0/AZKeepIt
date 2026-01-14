@@ -25,10 +25,11 @@ object DatabaseModules {
     ): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.DATABASE_NAME)
             .apply {
+                addMigrations()
                 addTypeConverter(CustomTypeConverters())
-                if (BuildConfig.DEBUG) {
-                    fallbackToDestructiveMigration()
-                }
+//                if (BuildConfig.DEBUG) {
+//                    fallbackToDestructiveMigration()
+//                }
             }
             .build()
 

@@ -1,6 +1,5 @@
 package az.zero.azkeepit.ui.screens.search
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +40,7 @@ import az.zero.azkeepit.ui.screens.items.NoteItem
 fun SearchScreen(
     onBackPressed: () -> Unit,
     onNoteClick: (noteId: Long) -> Unit,
+    onNoteWithPasswordClick: (noteId: Long) -> Unit,
     viewModel: SearchViewModel = hiltViewModel(),
 ) {
     val focusManager = LocalFocusManager.current
@@ -68,18 +68,19 @@ fun SearchScreen(
         } else {
             SuccessSearchScreen(
                 searchedUiNotes = searchedUiNotes,
-                onNoteClick = onNoteClick
+                onNoteClick = onNoteClick,
+                onNoteWithPasswordClick = onNoteWithPasswordClick
             )
         }
     }
 
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SuccessSearchScreen(
     searchedUiNotes: List<UiNote>,
     onNoteClick: (noteId: Long) -> Unit,
+    onNoteWithPasswordClick: (noteId: Long) -> Unit,
 ) {
 
     LazyVerticalStaggeredGrid(
@@ -91,11 +92,14 @@ private fun SuccessSearchScreen(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
 
-        items(searchedUiNotes) {
+        items(searchedUiNotes) { uiNote ->
             NoteItem(
-                uiNote = it,
+                uiNote = uiNote,
                 isEditModeOn = false,
-                onNoteClick = onNoteClick
+                onNoteClick = {
+                    if (uiNote.password == null) onNoteClick(uiNote.noteId)
+                    else onNoteWithPasswordClick(uiNote.noteId)
+                }
             )
         }
     }
@@ -155,11 +159,13 @@ fun SearchHeader(
 internal fun NavGraphBuilder.searchScreen(
     onBackPressed: () -> Unit,
     onNoteClick: (noteId: Long) -> Unit,
+    onNoteWithPasswordClick: (noteId: Long) -> Unit,
 ) {
     composable<SearchScreenDestination> {
         SearchScreen(
             onBackPressed = onBackPressed,
-            onNoteClick = onNoteClick
+            onNoteClick = onNoteClick,
+            onNoteWithPasswordClick = onNoteWithPasswordClick
         )
     }
 }

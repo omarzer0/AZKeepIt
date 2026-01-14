@@ -32,4 +32,7 @@ data class FolderDetailsScreenDestination(
 @Serializable
 data class AddEditNoteScreenDestination(val noteId: Long?)
 
+@Serializable
+data class UnlockNoteDialogDestination(val noteId: Long)
+
 

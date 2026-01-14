@@ -45,6 +45,7 @@ fun EtDialogWithTwoButtons(
     openDialog: Boolean,
     startBtnText: String,
     endBtnText: String,
+    modifier: Modifier = Modifier,
     textStyle: TextStyle = MaterialTheme.typography.h2.copy(color = MaterialTheme.colors.onBackground),
     onTextChange: (String) -> Unit,
     isError: Boolean = false,
@@ -55,13 +56,14 @@ fun EtDialogWithTwoButtons(
     trailingIcon: @Composable (() -> Unit)? = null,
     startBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
     endBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
-    onStartBtnClick: (() -> Unit)? = null,
+    onEnterBtnClick: (() -> Unit)? = null,
     endBtnEnabled: Boolean = true,
     onEndBtnClick: (() -> Unit)? = null,
     onDismiss: () -> Unit,
 ) {
 
     BasicDialog(
+        modifier = modifier,
         content = {
             CustomEditText(
                 text = text,
@@ -79,7 +81,7 @@ fun EtDialogWithTwoButtons(
         openDialog = openDialog,
         startBtnEnabled = startBtnEnabled,
         startBtnStyle = startBtnStyle,
-        onStartBtnClick = onStartBtnClick,
+        onEnterBtnClick = onEnterBtnClick,
         startBtnText = startBtnText,
         endBtnText = endBtnText,
         endBtnEnabled = endBtnEnabled,
@@ -117,7 +119,7 @@ fun TextDialogWithTwoButtons(
         openDialog = openDialog,
         startBtnEnabled = startBtnEnabled,
         startBtnStyle = startBtnStyle,
-        onStartBtnClick = onStartBtnClick,
+        onEnterBtnClick = onStartBtnClick,
         startBtnText = startBtnText,
         endBtnText = endBtnText,
         endBtnEnabled = endBtnEnabled,
@@ -133,9 +135,10 @@ fun BasicDialog(
     openDialog: Boolean,
     startBtnText: String,
     endBtnText: String,
+    modifier: Modifier = Modifier,
     startBtnEnabled: Boolean = true,
     startBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
-    onStartBtnClick: (() -> Unit)? = null,
+    onEnterBtnClick: (() -> Unit)? = null,
     dismissAfterClickStartBtn: Boolean = true,
     endBtnEnabled: Boolean = true,
     endBtnStyle: TextStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
@@ -144,6 +147,7 @@ fun BasicDialog(
 ) {
     if (openDialog) {
         AlertDialog(
+            modifier = modifier,
             shape = RoundedCornerShape(16.dp),
             onDismissRequest = onDismiss,
             text = content,
@@ -161,7 +165,7 @@ fun BasicDialog(
                             .padding(8.dp),
                         enabled = startBtnEnabled,
                         onClick = {
-                            onStartBtnClick?.invoke()
+                            onEnterBtnClick?.invoke()
                             if (dismissAfterClickStartBtn) onDismiss()
                         }
                     ) {

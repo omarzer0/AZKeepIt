@@ -7,69 +7,64 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
 
-internal interface MultipleEventsCutter {
-    fun processEvent(event: () -> Unit)
+/**
+ * Debounce implementation to prevent multiple rapid clicks
+ */
+private class DebounceClickHandler(private val debounceDelayMs: Long = 300L) {
+    private var lastClickTime = 0L
 
-    companion object
-}
-
-internal fun MultipleEventsCutter.Companion.get(): MultipleEventsCutter =
-    MultipleEventsCutterImpl()
-
-private class MultipleEventsCutterImpl : MultipleEventsCutter {
-    private val now: Long
-        get() = System.currentTimeMillis()
-
-    private var lastEventTimeMs: Long = 0
-
-    override fun processEvent(event: () -> Unit) {
-        if (now - lastEventTimeMs >= 300L) {
-            event.invoke()
+    fun canClick(): Boolean {
+        val currentTime = System.currentTimeMillis()
+        return (currentTime - lastClickTime >= debounceDelayMs).also { canClick ->
+            if (canClick) lastClickTime = currentTime
         }
-        lastEventTimeMs = now
     }
 }
 
+/**
+ * Clickable modifier with debouncing to prevent rapid multiple clicks.
+ *
+ * Supports single click, long press, and double click with automatic debouncing
+ * on the onClick action to prevent accidental duplicate triggers.
+ *
+ * @param enabled Whether the clickable is enabled
+ * @param debounceMs Debounce delay in milliseconds (default: 300ms)
+ * @param onClickLabel Semantic label for onClick action
+ * @param onLongClickLabel Semantic label for onLongClick action
+ * @param role Semantic role for accessibility
+ * @param onClick Lambda invoked on click (debounced)
+ * @param onLongClick Optional lambda invoked on long press (not debounced)
+ * @param onDoubleClick Optional lambda invoked on double click (not debounced)
+ */
 @OptIn(ExperimentalFoundationApi::class)
 fun Modifier.clickableSafeClick(
     enabled: Boolean = true,
+    debounceMs: Long = 300L,
     onClickLabel: String? = null,
     onLongClickLabel: String? = null,
     role: Role? = null,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
-) = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "clickable"
-        properties["enabled"] = enabled
-        properties["onClickLabel"] = onClickLabel
-        properties["role"] = role
-        properties["onClick"] = onClick
-        properties["onLongClick"] = onLongClick
-        properties["onDoubleClick"] = onDoubleClick
-    }
-) {
-    val onClickEventsCutter = remember { MultipleEventsCutter.get() }
-//    val onLongEventsCutter = remember { MultipleEventsCutter.get() }
-//    val onDoubleEventsCutter = remember { MultipleEventsCutter.get() }
+): Modifier = composed {
+    val debouncer = remember { DebounceClickHandler(debounceMs) }
+    val interactionSource = remember { MutableInteractionSource() }
 
-    Modifier.combinedClickable(
-        enabled = enabled,
-        onClick = { onClickEventsCutter.processEvent { onClick() } },
-//        onLongClick = { onLongEventsCutter.processEvent { onLongClick?.invoke() } },
-//        onDoubleClick = { onDoubleEventsCutter.processEvent { onDoubleClick?.invoke() } },
-        onLongClick = onLongClick,
-        onDoubleClick = onDoubleClick,
-        onLongClickLabel = onLongClickLabel,
-        onClickLabel = onClickLabel,
-        role = role,
-        indication = LocalIndication.current,
-        interactionSource = remember { MutableInteractionSource() }
-
+    this.then(
+        Modifier.combinedClickable(
+            enabled = enabled,
+            onClick = {
+                if (debouncer.canClick()) onClick()
+            },
+            onLongClick = onLongClick,
+            onDoubleClick = onDoubleClick,
+            onClickLabel = onClickLabel,
+            onLongClickLabel = onLongClickLabel,
+            role = role,
+            indication = LocalIndication.current,
+            interactionSource = interactionSource
+        )
     )
 }
-
