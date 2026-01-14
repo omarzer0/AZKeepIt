@@ -1,9 +1,7 @@
-package az.zero.azkeepit.data.local.entities
+package az.zero.azkeepit.data.local.entities.note
 
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 
 @Entity(tableName = "Note")
 data class DbNote(
@@ -17,13 +15,4 @@ data class DbNote(
     val hashedPassword: String?,
     @PrimaryKey(autoGenerate = true)
     val noteId: Long? = null,
-)
-
-data class DbNoteWithFolder(
-    @Embedded val dbNote: DbNote,
-    @Relation(
-        parentColumn = "ownerFolderId",
-        entityColumn = "folderId"
-    )
-    val dbFolder: DbFolder?,
 )

@@ -1,7 +1,7 @@
 package az.zero.azkeepit.domain.mappers
 
-import az.zero.azkeepit.data.local.entities.DbFolder
-import az.zero.azkeepit.data.local.entities.DbFolderWithNotes
+import az.zero.azkeepit.data.local.entities.folder.DbFolder
+import az.zero.azkeepit.data.local.entities.folder.DbFolderWithNotes
 
 
 data class UiFolder(

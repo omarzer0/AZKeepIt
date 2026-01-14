@@ -3,8 +3,8 @@ package az.zero.azkeepit.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import az.zero.azkeepit.data.local.entities.DbFolder
-import az.zero.azkeepit.data.local.entities.DbNote
+import az.zero.azkeepit.data.local.entities.folder.DbFolder
+import az.zero.azkeepit.data.local.entities.note.DbNote
 import az.zero.azkeepit.data.local.helper.CustomTypeConverters
 
 @Database(

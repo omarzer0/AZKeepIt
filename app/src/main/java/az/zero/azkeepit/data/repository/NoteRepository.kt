@@ -2,7 +2,7 @@ package az.zero.azkeepit.data.repository
 
 import az.zero.azkeepit.data.hashing.SHA256PasswordHasher
 import az.zero.azkeepit.data.local.NoteDao
-import az.zero.azkeepit.data.local.entities.DbNote
+import az.zero.azkeepit.data.local.entities.note.DbNote
 import az.zero.azkeepit.domain.mappers.toUiNote
 import az.zero.azkeepit.domain.mappers.toUiNotes
 import kotlinx.coroutines.flow.map

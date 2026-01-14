@@ -1,7 +1,7 @@
 package az.zero.azkeepit.data.repository
 
 import az.zero.azkeepit.data.local.FolderDao
-import az.zero.azkeepit.data.local.entities.DbFolder
+import az.zero.azkeepit.data.local.entities.folder.DbFolder
 import kotlinx.coroutines.flow.map
 import az.zero.azkeepit.domain.mappers.toUiFolder
 import az.zero.azkeepit.domain.mappers.toUiFolders

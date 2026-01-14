@@ -2,7 +2,7 @@ package az.zero.azkeepit.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import az.zero.azkeepit.data.local.entities.DbFolder
+import az.zero.azkeepit.data.local.entities.folder.DbFolder
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.domain.mappers.UiFolder

@@ -1,8 +1,8 @@
 package az.zero.azkeepit.data.local
 
 import androidx.room.*
-import az.zero.azkeepit.data.local.entities.DbFolder
-import az.zero.azkeepit.data.local.entities.DbFolderWithNotes
+import az.zero.azkeepit.data.local.entities.folder.DbFolder
+import az.zero.azkeepit.data.local.entities.folder.DbFolderWithNotes
 import kotlinx.coroutines.flow.Flow
 
 @Dao

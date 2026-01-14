@@ -2,8 +2,8 @@ package az.zero.azkeepit.domain.mappers
 
 import android.net.Uri
 import androidx.compose.ui.graphics.Color
-import az.zero.azkeepit.data.local.entities.DbNote
-import az.zero.azkeepit.data.local.entities.DbNoteWithFolder
+import az.zero.azkeepit.data.local.entities.note.DbNote
+import az.zero.azkeepit.data.local.entities.note.DbNoteWithFolder
 import az.zero.azkeepit.util.JDateTimeUtil
 
 data class UiNote(

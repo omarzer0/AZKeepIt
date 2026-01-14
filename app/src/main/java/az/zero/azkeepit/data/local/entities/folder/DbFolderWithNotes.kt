@@ -1,17 +1,8 @@
-package az.zero.azkeepit.data.local.entities
+package az.zero.azkeepit.data.local.entities.folder
 
 import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import androidx.room.Relation
-
-@Entity(tableName = "Folder")
-data class DbFolder(
-    val name: String,
-    val createdAt: Long,
-    @PrimaryKey(autoGenerate = true)
-    val folderId: Long? = null,
-)
+import az.zero.azkeepit.data.local.entities.note.DbNote
 
 data class DbFolderWithNotes(
     @Embedded

@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import az.zero.azkeepit.data.local.entities.DbNote
+import az.zero.azkeepit.data.local.entities.note.DbNote
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
 import az.zero.azkeepit.domain.commons.FOLDER_INITIAL_ID

@@ -6,8 +6,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import az.zero.azkeepit.data.local.entities.DbNote
-import az.zero.azkeepit.data.local.entities.DbNoteWithFolder
+import az.zero.azkeepit.data.local.entities.note.DbNote
+import az.zero.azkeepit.data.local.entities.note.DbNoteWithFolder
 import kotlinx.coroutines.flow.Flow
 
 @Dao
