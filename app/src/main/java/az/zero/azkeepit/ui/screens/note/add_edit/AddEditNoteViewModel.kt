@@ -10,12 +10,10 @@ import androidx.navigation.toRoute
 import az.zero.azkeepit.data.local.entities.note.DbNote
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
-import az.zero.azkeepit.domain.commons.FOLDER_INITIAL_ID
-import az.zero.azkeepit.domain.mappers.UiFolder
-import az.zero.azkeepit.domain.mappers.UiNote
-import az.zero.azkeepit.ui.composables.ColorPallet.DarkHex
-import az.zero.azkeepit.ui.composables.getColorFromHex
-import az.zero.azkeepit.util.JDateTimeUtil
+import az.zero.azkeepit.domain.commons.INVALID_ID
+import az.zero.azkeepit.ui.models.folder.UiFolder
+import az.zero.azkeepit.ui.models.note.UiNote
+import az.zero.azkeepit.ui.models.note.emptyUiNote
 import az.zero.azkeepit.util.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -84,7 +82,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
             images = state.value.note.images.map { it.toString() },
             color = state.value.note.color.toArgb(),
             hashedPassword = state.value.note.password,
-            ownerFolderId = state.value.note.ownerUiFolder?.folderId ?: FOLDER_INITIAL_ID,
+            ownerFolderId = state.value.note.ownerFolder?.folderId ?: INVALID_ID,
             noteId = args.noteId
         )
 
@@ -114,7 +112,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
     }
 
     fun addNoteToFolder(newUiFolder: UiFolder) = viewModelScope.launch {
-        localUiNote.emit(localUiNote.value.copy(ownerUiFolder = newUiFolder))
+        localUiNote.emit(localUiNote.value.copy(ownerFolder = newUiFolder))
     }
 
     fun changeSelectFolderDialogOpenState(isOpened: Boolean) = viewModelScope.launch {
@@ -152,7 +150,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
     }
 
     fun removeNoteFromFolder() = viewModelScope.launch {
-        localUiNote.emit(localUiNote.value.copy(ownerUiFolder = null))
+        localUiNote.emit(localUiNote.value.copy(ownerFolder = null))
     }
 
     init {
@@ -179,19 +177,3 @@ data class AddEditNoteState(
 
 @Serializable
 data class AddEditNoteScreenArgs(val noteId: Long?)
-
-private val createdDate = JDateTimeUtil.now()
-private val emptyUiNote = UiNote(
-    "",
-    "",
-    false,
-    createdDate,
-    JDateTimeUtil.toShortDateTimeFormat(createdDate),
-    JDateTimeUtil.toLongDateTimeFormat(createdDate),
-    emptyList(),
-    getColorFromHex(DarkHex),
-    null,
-    -1L,
-    false,
-    null
-)

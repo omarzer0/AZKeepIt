@@ -30,7 +30,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.R
-import az.zero.azkeepit.domain.mappers.UiNote
 
 
 // TODO(Improve these composables and maybe rename or split in different files)

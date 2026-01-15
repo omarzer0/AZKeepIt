@@ -1,7 +1,6 @@
 package az.zero.azkeepit.ui.screens.items
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -15,9 +14,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import az.zero.azkeepit.R
-import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.SlidingImage
 import az.zero.azkeepit.ui.composables.clickableSafeClick
+import az.zero.azkeepit.ui.models.note.UiNote
 import az.zero.azkeepit.ui.screens.note.add_edit.getCorrectLightOrDarkColor
 import az.zero.azkeepit.ui.theme.selectedColor
 
@@ -138,7 +137,7 @@ private fun NoteTextSection(
 
             Text(
                 modifier = Modifier.weight(2f),
-                text = uiNote.ownerUiFolder?.name ?: "",
+                text = uiNote.ownerFolder?.name ?: "",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.End,

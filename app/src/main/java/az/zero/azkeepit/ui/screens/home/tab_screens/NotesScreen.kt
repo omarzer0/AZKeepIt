@@ -54,14 +54,12 @@ fun NotesScreen(
     onNoteWithPasswordClick: (noteId: Long) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
+    // TODO(Improve) try split the 2 states from home screen to noteScreenState and folderScreenState
     val state by viewModel.state.collectAsState()
 
     when {
         state.isNotesLoading -> Unit
-        state.uiNotes.isEmpty() -> {
-            EmptyNotesScreen()
-        }
-
+        state.uiNotes.isEmpty() -> EmptyNotesScreen()
         else -> {
             SuccessNotesScreen(
                 onNoteClick = onNoteClick,

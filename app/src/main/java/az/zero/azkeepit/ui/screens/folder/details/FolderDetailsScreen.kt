@@ -52,7 +52,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import az.zero.azkeepit.R
-import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.BottomSheetDateItem
 import az.zero.azkeepit.ui.composables.BottomSheetWithItems
 import az.zero.azkeepit.ui.composables.DeleteDialog
@@ -60,6 +59,7 @@ import az.zero.azkeepit.ui.composables.EtDialogWithTwoButtons
 import az.zero.azkeepit.ui.composables.HeaderWithBackBtn
 import az.zero.azkeepit.ui.composables.RoundTopOnly
 import az.zero.azkeepit.ui.composables.mirror
+import az.zero.azkeepit.ui.models.note.UiNote
 import az.zero.azkeepit.ui.screens.FolderDetailsScreenDestination
 import az.zero.azkeepit.ui.screens.items.NoteItem
 import az.zero.azkeepit.ui.screens.serializableNavType
@@ -138,10 +138,10 @@ fun FolderDetailsScreen(
         ) { paddingValues ->
             when {
                 state.isUiFolderLoading -> {}
-                state.uiFolder.folderNotes.isEmpty() -> EmptyFolderDetailsScreen()
+                state.uiFolderWithNotes.folderNotes.isEmpty() -> EmptyFolderDetailsScreen()
                 else -> SuccessFolderDetailsScreen(
                     paddingValues = paddingValues,
-                    folderNotes = state.uiFolder.folderNotes,
+                    folderNotes = state.uiFolderWithNotes.folderNotes,
                     onNoteClick = onNoteClick
                 )
             }

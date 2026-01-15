@@ -4,6 +4,8 @@ import az.zero.azkeepit.ui.models.note.UiNote
 
 
 data class UiFolderWithNotes(
-    val folder: UiFolder,
-    val notes: List<UiNote>
+    val folderId: Long,
+    val name: String,
+    val createdAt: Long,
+    val folderNotes: List<UiNote>,
 )

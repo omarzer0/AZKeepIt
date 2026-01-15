@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import az.zero.azkeepit.data.local.entities.folder.DbFolder
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
-import az.zero.azkeepit.domain.mappers.UiFolder
-import az.zero.azkeepit.domain.mappers.UiNote
+import az.zero.azkeepit.ui.models.folder.UiFolder
+import az.zero.azkeepit.ui.models.note.UiNote
 import az.zero.azkeepit.util.JDateTimeUtil
 import az.zero.azkeepit.util.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +24,7 @@ class HomeViewModel @Inject constructor(
 
     private val uiNotes = noteRepository.getUiNotes()
     private val uiFolders = folderRepository.getUiFolders()
+
     private val isEditModeOn = MutableStateFlow(false)
     private val isDeleteNotesDialogOpened = MutableStateFlow(false)
     private val isCreateFolderDialogOpened = MutableStateFlow(false)

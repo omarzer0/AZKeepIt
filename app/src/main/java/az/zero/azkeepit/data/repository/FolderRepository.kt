@@ -2,9 +2,11 @@ package az.zero.azkeepit.data.repository
 
 import az.zero.azkeepit.data.local.FolderDao
 import az.zero.azkeepit.data.local.entities.folder.DbFolder
+import az.zero.azkeepit.data.mappers.folder.toDomainFolder
+import az.zero.azkeepit.data.mappers.folder.toDomainFolderWithNotes
+import az.zero.azkeepit.ui.mappers.folder.toUiFolder
+import az.zero.azkeepit.ui.mappers.folder.toUiFolderWithNote
 import kotlinx.coroutines.flow.map
-import az.zero.azkeepit.domain.mappers.toUiFolder
-import az.zero.azkeepit.domain.mappers.toUiFolders
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,10 +15,18 @@ class FolderRepository @Inject constructor(
     private val folderDao: FolderDao,
 ) {
 
-    fun getUiFolders() = folderDao.getFoldersWithNotes().map { it.toUiFolders() }
+    // TODO(Improvement) use list mapper ext fun to map
 
-    fun getUiFolderById(folderId: Long) = folderDao.getFolderWithNotesById(folderId).map {
-        it?.toUiFolder()
+    fun getUiFolders() = folderDao.getFolders().map {
+        it.map { it.toDomainFolder().toUiFolder()}
+    }
+
+    fun getUiFoldersWithNotes() = folderDao.getFoldersWithNotes().map {
+        it.map { it.toDomainFolderWithNotes().toUiFolderWithNote() }
+    }
+
+    fun getUiFolderWithNotesById(folderId: Long) = folderDao.getFolderWithNotesById(folderId).map {
+        it?.toDomainFolderWithNotes()?.toUiFolderWithNote()
     }
 
     suspend fun insertFolder(dbFolder: DbFolder) = folderDao.insertFolder(dbFolder)

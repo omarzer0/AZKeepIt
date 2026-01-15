@@ -9,13 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import az.zero.azkeepit.R
-import az.zero.azkeepit.domain.mappers.UiFolder
-import az.zero.azkeepit.ui.theme.cardBgColor
+import az.zero.azkeepit.ui.models.folder.UiFolder
 import az.zero.azkeepit.ui.theme.selectedColor
+import kotlin.collections.map
 
 @Composable
 fun SelectFolderBottomSheet(

@@ -3,8 +3,8 @@ package az.zero.azkeepit.data.repository
 import az.zero.azkeepit.data.hashing.SHA256PasswordHasher
 import az.zero.azkeepit.data.local.NoteDao
 import az.zero.azkeepit.data.local.entities.note.DbNote
-import az.zero.azkeepit.domain.mappers.toUiNote
-import az.zero.azkeepit.domain.mappers.toUiNotes
+import az.zero.azkeepit.data.mappers.note.toDomainNote
+import az.zero.azkeepit.ui.mappers.note.toUiNote
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,9 +15,12 @@ class NoteRepository @Inject constructor(
     private val passwordHasher: SHA256PasswordHasher
 ) {
 
-    fun getUiNotes() = noteDao.getNotesWithFolderName().map { it.toUiNotes() }
+    fun getUiNotes() = noteDao.getNotesWithFolderName().map {
+        it.map { it.toDomainNote().toUiNote() }
+    }
 
-    suspend fun getNoteById(noteId: Long) = noteDao.getNoteWithFolderById(noteId)?.toUiNote()
+    suspend fun getNoteById(noteId: Long) =
+        noteDao.getNoteWithFolderById(noteId)?.toDomainNote()?.toUiNote()
 
 
     suspend fun saveNote(isNewNote: Boolean, dbNote: DbNote) {
@@ -33,7 +36,7 @@ class NoteRepository @Inject constructor(
     suspend fun deleteNote(noteId: Long) = noteDao.deleteNote(noteId)
 
     fun searchNotes(query: String) = noteDao.searchNotes(query.trim()).map {
-        it.toUiNotes()
+        it.map { it.toDomainNote().toUiNote() }
     }
 
     suspend fun deleteAllNotesFromFolder(folderId: Long) =

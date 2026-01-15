@@ -30,9 +30,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import az.zero.azkeepit.R
-import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.BasicHeaderWithBackBtn
 import az.zero.azkeepit.ui.composables.TextWithClearIcon
+import az.zero.azkeepit.ui.models.note.UiNote
 import az.zero.azkeepit.ui.screens.SearchScreenDestination
 import az.zero.azkeepit.ui.screens.items.NoteItem
 

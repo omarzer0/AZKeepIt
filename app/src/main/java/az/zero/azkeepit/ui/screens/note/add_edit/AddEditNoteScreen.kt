@@ -63,8 +63,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import az.zero.azkeepit.R
-import az.zero.azkeepit.domain.mappers.UiFolder
-import az.zero.azkeepit.domain.mappers.UiNote
 import az.zero.azkeepit.ui.composables.BottomSheetDateItem
 import az.zero.azkeepit.ui.composables.BottomSheetWithItems
 import az.zero.azkeepit.ui.composables.ColorsRow
@@ -75,6 +73,8 @@ import az.zero.azkeepit.ui.composables.SlidingImage
 import az.zero.azkeepit.ui.composables.TextDialogWithTwoButtons
 import az.zero.azkeepit.ui.composables.TransparentHintTextField
 import az.zero.azkeepit.ui.composables.clickableSafeClick
+import az.zero.azkeepit.ui.models.folder.UiFolder
+import az.zero.azkeepit.ui.models.note.UiNote
 import az.zero.azkeepit.ui.screens.AddEditNoteScreenDestination
 import az.zero.azkeepit.ui.theme.selectedColor
 import kotlinx.coroutines.launch
@@ -162,7 +162,7 @@ fun AddEditNoteScreen(
                 isNoteLocked = state.note.isLocked,
                 isNewNote = state.isNoteNew,
                 isNoFolder = state.allFolders.isEmpty(),
-                doesNoteHasFolder = state.note.ownerUiFolder != null,
+                doesNoteHasFolder = state.note.ownerFolder != null,
                 currentlySelectedColor = note.color,
                 onLockOrUnlockClick = {
                     if (note.isLocked)
@@ -395,7 +395,7 @@ fun TimeWithSelectFolder(
 
         Text(
             modifier = Modifier.padding(vertical = 8.dp),
-            text = note.ownerUiFolder?.name ?: "",
+            text = note.ownerFolder?.name ?: "",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.body2.copy(

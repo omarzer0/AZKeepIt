@@ -5,8 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
-import az.zero.azkeepit.domain.mappers.UiFolder
+import az.zero.azkeepit.ui.models.folder.UiFolderWithNotes
 import az.zero.azkeepit.util.emptyUiFolder
+import az.zero.azkeepit.util.emptyUiFolderWithNotes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,7 +28,7 @@ class FolderDetailsViewModel @Inject constructor(
     private val folderDetailsScreenArgs = route.folderDetailsScreenArgs
 
     private val folderId = folderDetailsScreenArgs.id
-    private val uiFolder = folderRepository.getUiFolderById(folderId)
+    private val uiFolderWithNotes = folderRepository.getUiFolderWithNotesById(folderId)
     private val deleteFolderDialogOpened = MutableStateFlow(false)
     private val deleteAllNotesDialogOpened = MutableStateFlow(false)
     private val renameDialogOpened = MutableStateFlow(false)
@@ -35,15 +36,15 @@ class FolderDetailsViewModel @Inject constructor(
 
 
     val folderDetailsState = combine(
-        uiFolder,
+        uiFolderWithNotes,
         deleteFolderDialogOpened,
         deleteAllNotesDialogOpened,
         renameDialogOpened,
         shouldPopUp
-    ) { uiFolder, deleteFolderDialogOpened, deleteAllNotesDialogOpened, renameDialogOpened, shouldPopUp ->
+    ) { uiFolderWithNotes, deleteFolderDialogOpened, deleteAllNotesDialogOpened, renameDialogOpened, shouldPopUp ->
         FolderDetailsState(
-            title = uiFolder?.name ?: folderDetailsScreenArgs.folderName,
-            uiFolder = uiFolder ?: emptyUiFolder,
+            title = uiFolderWithNotes?.name ?: folderDetailsScreenArgs.folderName,
+            uiFolderWithNotes = uiFolderWithNotes ?: emptyUiFolderWithNotes,
             deleteFolderDialogOpened = deleteFolderDialogOpened,
             deleteAllNotesDialogOpened = deleteAllNotesDialogOpened,
             renameDialogOpened = renameDialogOpened,
@@ -89,7 +90,7 @@ class FolderDetailsViewModel @Inject constructor(
 
 data class FolderDetailsState(
     val title: String = "",
-    val uiFolder: UiFolder = emptyUiFolder,
+    val uiFolderWithNotes: UiFolderWithNotes = emptyUiFolderWithNotes,
     val isUiFolderLoading: Boolean = true,
     val deleteFolderDialogOpened: Boolean = false,
     val deleteAllNotesDialogOpened: Boolean = false,
