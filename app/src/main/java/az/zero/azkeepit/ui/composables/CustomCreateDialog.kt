@@ -61,55 +61,6 @@ fun CustomCreateDialog(
     )
 }
 
-
-//@Composable
-//fun OneEditTextPasswordDialog(
-//    openDialog: Boolean,
-//    uiNote: UiNote,
-//    onDismiss: () -> Unit,
-//    onCorrectPasswordClick: (uiNote: UiNote) -> Unit,
-//) {
-//    var text by rememberSaveable { mutableStateOf("") }
-//    val isStartBtnEnabled by remember { derivedStateOf { text.isNotBlank() } }
-//    val startBtnColor = if (isStartBtnEnabled) MaterialTheme.colors.onBackground else Color.Gray
-//    var isError by remember { mutableStateOf(false) }
-//    var passwordVisible by remember { mutableStateOf(false) }
-//
-//    EtDialogWithTwoButtons(
-//        text = text,
-//        headerText = stringResource(id = R.string.enter_note_password),
-//        openDialog = openDialog,
-//        startBtnText = stringResource(id = R.string.enter),
-//        endBtnText = stringResource(id = R.string.cancel),
-//        textStyle = MaterialTheme.typography.h3.copy(color = MaterialTheme.colors.onBackground),
-//        onTextChange = { text = it },
-//        isError = isError,
-//        errorText = stringResource(id = R.string.wrong_password),
-//        startBtnEnabled = isStartBtnEnabled,
-//        dismissAfterClickStartBtn = false,
-//        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-//        trailingIcon = {
-//            ShowHideIcon(
-//                isVisible = passwordVisible,
-//                // TODO is the updated value not really read?
-//                onVisibilityChange = {
-//                    passwordVisible = !passwordVisible
-//                }
-//            )
-//        },
-//        startBtnStyle = MaterialTheme.typography.h3.copy(color = startBtnColor),
-//        onEnterBtnClick = {
-//            if (text != uiNote.password) isError = true
-//            else onCorrectPasswordClick(uiNote)
-//        },
-//        onDismiss = {
-//            text = ""
-//            onDismiss()
-//        },
-//    )
-//}
-
-
 @Composable
 fun CustomSetPasswordDialog(
     openDialog: Boolean,

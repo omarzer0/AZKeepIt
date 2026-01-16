@@ -3,8 +3,11 @@ package az.zero.azkeepit.data.repository
 import az.zero.azkeepit.data.hashing.SHA256PasswordHasher
 import az.zero.azkeepit.data.local.NoteDao
 import az.zero.azkeepit.data.local.entities.note.DbNote
+import az.zero.azkeepit.data.mappers.note.toDbNote
 import az.zero.azkeepit.data.mappers.note.toDomainNote
+import az.zero.azkeepit.ui.mappers.note.toDomainNote
 import az.zero.azkeepit.ui.mappers.note.toUiNote
+import az.zero.azkeepit.ui.models.note.UiNote
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,9 +26,12 @@ class NoteRepository @Inject constructor(
         noteDao.getNoteWithFolderById(noteId)?.toDomainNote()?.toUiNote()
 
 
-    suspend fun saveNote(isNewNote: Boolean, dbNote: DbNote) {
+    suspend fun saveNote(isNewNote: Boolean, uiNote: UiNote) {
         // TODO(improvement) Consider getting isNew from DB if the id doesn't exist = new
-        if (isNewNote) insertNote(dbNote.copy(hashedPassword = passwordHasher.hash(dbNote.hashedPassword)))
+        val dbNote = uiNote.toDomainNote().toDbNote()
+        if (isNewNote) insertNote(
+            dbNote.copy(hashedPassword = passwordHasher.hash(dbNote.hashedPassword))
+        )
         else updateNote(dbNote)
     }
 
@@ -47,8 +53,6 @@ class NoteRepository @Inject constructor(
 
     suspend fun moveNotesToFolder(folderId: Long, selectedNotesIds: MutableList<Long>) =
         noteDao.moveNotesToFolder(folderId, selectedNotesIds)
-
-    fun doHashPassword(enteredPassword: String) = passwordHasher.hash(enteredPassword)
 
     private suspend fun getStoredHashForNoteById(noteId: Long): String? =
         noteDao.getPasswordHash(noteId)

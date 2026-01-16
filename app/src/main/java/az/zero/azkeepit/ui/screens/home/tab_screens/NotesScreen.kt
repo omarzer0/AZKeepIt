@@ -97,6 +97,8 @@ private fun SuccessNotesScreen(
         onDeleteClick = viewModel::deleteSelectedNotes
     )
 
+    // TODO(FIXME) wierd animation when long click on a note and mote it to folder
+    //  --> the bottom sheet animation is delayed a bit
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
         sheetState = bottomState,

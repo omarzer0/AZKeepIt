@@ -11,5 +11,5 @@ data class DomainNote(
     val images: List<String>,
     val colorArgb: Int,
     val hashedPassword: String?,
-    val ownerFolder: DomainFolder?,
+    val ownerDomainFolder: DomainFolder?,
 )

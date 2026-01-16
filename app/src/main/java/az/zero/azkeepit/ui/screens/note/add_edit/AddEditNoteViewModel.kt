@@ -2,15 +2,13 @@ package az.zero.azkeepit.ui.screens.note.add_edit
 
 import android.net.Uri
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import az.zero.azkeepit.data.local.entities.note.DbNote
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
-import az.zero.azkeepit.domain.commons.INVALID_ID
+import az.zero.azkeepit.ui.mappers.note.toDomainNote
 import az.zero.azkeepit.ui.models.folder.UiFolder
 import az.zero.azkeepit.ui.models.note.UiNote
 import az.zero.azkeepit.ui.models.note.emptyUiNote
@@ -74,19 +72,9 @@ class AddEditNoteScreenViewModel @Inject constructor(
             return@launch
         }
 
-        val dbNote = DbNote(
-            title = state.value.note.title.trim(),
-            content = state.value.note.content.trim(),
-            isLocked = state.value.note.isLocked,
-            createdAt = state.value.note.createdAt,
-            images = state.value.note.images.map { it.toString() },
-            color = state.value.note.color.toArgb(),
-            hashedPassword = state.value.note.password,
-            ownerFolderId = state.value.note.ownerFolder?.folderId ?: INVALID_ID,
-            noteId = args.noteId
-        )
+        val uiNote = state.value.note
 
-        noteRepository.saveNote(isNewNote = isNewNote, dbNote = dbNote)
+        noteRepository.saveNote(isNewNote = isNewNote, uiNote = uiNote)
         shouldPopUp.emit(true)
     }
 
@@ -112,7 +100,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
     }
 
     fun addNoteToFolder(newUiFolder: UiFolder) = viewModelScope.launch {
-        localUiNote.emit(localUiNote.value.copy(ownerFolder = newUiFolder))
+        localUiNote.emit(localUiNote.value.copy(ownerUiFolder = newUiFolder))
     }
 
     fun changeSelectFolderDialogOpenState(isOpened: Boolean) = viewModelScope.launch {
@@ -150,7 +138,7 @@ class AddEditNoteScreenViewModel @Inject constructor(
     }
 
     fun removeNoteFromFolder() = viewModelScope.launch {
-        localUiNote.emit(localUiNote.value.copy(ownerFolder = null))
+        localUiNote.emit(localUiNote.value.copy(ownerUiFolder = null))
     }
 
     init {

@@ -137,7 +137,7 @@ private fun NoteTextSection(
 
             Text(
                 modifier = Modifier.weight(2f),
-                text = uiNote.ownerFolder?.name ?: "",
+                text = uiNote.ownerUiFolder?.name ?: "",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.End,

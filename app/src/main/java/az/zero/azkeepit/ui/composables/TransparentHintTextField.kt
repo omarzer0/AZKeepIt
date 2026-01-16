@@ -22,7 +22,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import az.zero.azkeepit.ui.theme.selectedColor
 
-@ExperimentalComposeUiApi
 @Composable
 fun TransparentHintTextField(
     modifier: Modifier = Modifier,

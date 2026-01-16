@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
-
 package az.zero.azkeepit.ui.screens.note.add_edit
 
 import android.content.Intent
@@ -28,7 +26,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -49,7 +46,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
@@ -162,7 +158,7 @@ fun AddEditNoteScreen(
                 isNoteLocked = state.note.isLocked,
                 isNewNote = state.isNoteNew,
                 isNoFolder = state.allFolders.isEmpty(),
-                doesNoteHasFolder = state.note.ownerFolder != null,
+                doesNoteHasFolder = state.note.ownerUiFolder != null,
                 currentlySelectedColor = note.color,
                 onLockOrUnlockClick = {
                     if (note.isLocked)
@@ -395,7 +391,7 @@ fun TimeWithSelectFolder(
 
         Text(
             modifier = Modifier.padding(vertical = 8.dp),
-            text = note.ownerFolder?.name ?: "",
+            text = note.ownerUiFolder?.name ?: "",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.body2.copy(

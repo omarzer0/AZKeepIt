@@ -20,10 +20,11 @@ data class UiNote(
     val color: Color,
     val password: String?,
     val isSelected: Boolean = false,
-    val ownerFolder: UiFolder? = null,
+    val ownerUiFolder: UiFolder? = null,
 )
 
 private val createdDate = JDateTimeUtil.now()
+
 val emptyUiNote = UiNote(
     noteId = INVALID_ID,
     title = "",
@@ -36,5 +37,5 @@ val emptyUiNote = UiNote(
     password = null,
     isSelected = false,
     isLocked = false,
-    ownerFolder = null
+    ownerUiFolder = null
 )

@@ -36,6 +36,7 @@ import az.zero.azkeepit.ui.models.note.UiNote
 import az.zero.azkeepit.ui.screens.SearchScreenDestination
 import az.zero.azkeepit.ui.screens.items.NoteItem
 
+// TODO(FEATURE) add the same long click functionality to the search screen notes
 @Composable
 fun SearchScreen(
     onBackPressed: () -> Unit,

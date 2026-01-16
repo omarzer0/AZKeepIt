@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import az.zero.azkeepit.data.local.entities.folder.DbFolder
 import az.zero.azkeepit.data.repository.FolderRepository
 import az.zero.azkeepit.data.repository.NoteRepository
+import az.zero.azkeepit.domain.commons.INVALID_ID
 import az.zero.azkeepit.ui.models.folder.UiFolder
 import az.zero.azkeepit.ui.models.note.UiNote
 import az.zero.azkeepit.util.JDateTimeUtil
@@ -34,7 +35,12 @@ class HomeViewModel @Inject constructor(
     private val selectedFolders = MutableStateFlow(mutableListOf<Long>())
 
     fun createFolder(folderName: String) = viewModelScope.launch {
-        folderRepository.insertFolder(DbFolder(folderName, JDateTimeUtil.now(), null))
+//        val uiFolder = UiFolder(
+//            folderId = INVALID_ID, // INVALID ID as the real ID will be given by the DB
+//            name = folderName,
+//            createdAt = JDateTimeUtil.now(),
+//        )
+        folderRepository.createNewFolder(folderName)
     }
 
     fun changeEditModeState(

@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterialApi::class)
-
 package az.zero.azkeepit.ui.screens.folder.details
 
 import androidx.activity.compose.BackHandler
@@ -17,7 +15,6 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -69,6 +66,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlin.reflect.typeOf
 
+// TODO(FEATURE) Add the same long click functionality to the folder detail screen notes
+// TODO(FIXME) The bottom sheet header is visible without any action and that shouldn't be the case
 @Composable
 fun FolderDetailsScreen(
     onBackPressed: () -> Unit,
@@ -110,7 +109,6 @@ fun FolderDetailsScreen(
     )
 
     ModalBottomSheetLayout(
-        modifier = Modifier.systemBarsPadding(),
         sheetElevation = 0.dp,
         sheetState = bottomState,
         sheetShape = RoundTopOnly(),
@@ -125,6 +123,7 @@ fun FolderDetailsScreen(
     ) {
         Scaffold(
             modifier = Modifier
+                .systemBarsPadding()
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background),
             topBar = {
@@ -290,7 +289,7 @@ fun FolderRenameDialog(
     )
 }
 
-// TODO remove this
+// TODO remove this if needed
 //object FolderDetailsScreenNavTypes {
 //    val typeMap = mapOf(
 //        typeOf<FolderDetailsScreenArgs>() to serializableNavType<FolderDetailsScreenArgs>()

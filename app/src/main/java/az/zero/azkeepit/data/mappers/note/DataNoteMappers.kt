@@ -8,7 +8,7 @@ import az.zero.azkeepit.data.mappers.folder.toDomainFolder
 import az.zero.azkeepit.domain.commons.INVALID_ID
 import az.zero.azkeepit.domain.models.note.DomainNote
 
-fun DbNote.toDomainNote(ownerFolder: DbFolder) = DomainNote(
+fun DbNote.toDomainNote(ownerDbFolder: DbFolder) = DomainNote(
     noteId = this.noteId ?: INVALID_ID,
     title = this.title,
     content = this.content,
@@ -17,7 +17,19 @@ fun DbNote.toDomainNote(ownerFolder: DbFolder) = DomainNote(
     images = this.images,
     colorArgb = this.color,
     hashedPassword = this.hashedPassword,
-    ownerFolder = ownerFolder.toDomainFolder(),
+    ownerDomainFolder = ownerDbFolder.toDomainFolder(),
+)
+
+fun DomainNote.toDbNote() = DbNote(
+    noteId = this.noteId,
+    title = this.title,
+    content = this.content,
+    isLocked = this.isLocked,
+    createdAt = this.createdAt,
+    images = this.images,
+    color = this.colorArgb,
+    hashedPassword = this.hashedPassword,
+    ownerFolderId = this.ownerDomainFolder?.folderId,
 )
 
 
@@ -30,7 +42,7 @@ fun DbNoteWithFolder.toDomainNote() = DomainNote(
     images = this.dbNote.images,
     colorArgb = this.dbNote.color,
     hashedPassword = this.dbNote.hashedPassword,
-    ownerFolder = this.dbFolder?.toDomainFolder()
+    ownerDomainFolder = this.dbFolder?.toDomainFolder()
 )
 
 fun DomainNote.toDbNoteWithFolder() = DbNoteWithFolder(
@@ -43,7 +55,7 @@ fun DomainNote.toDbNoteWithFolder() = DbNoteWithFolder(
         images = this.images,
         color = this.colorArgb,
         hashedPassword = this.hashedPassword,
-        ownerFolderId = this.ownerFolder?.folderId
+        ownerFolderId = this.ownerDomainFolder?.folderId
     ),
-    dbFolder = ownerFolder?.toDbFolder(),
+    dbFolder = ownerDomainFolder?.toDbFolder(),
 )

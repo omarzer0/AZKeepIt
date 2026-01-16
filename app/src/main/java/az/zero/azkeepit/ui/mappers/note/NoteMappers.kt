@@ -22,7 +22,7 @@ fun DomainNote.toUiNote(isSelected : Boolean = false) = UiNote(
     shortDateTime = JDateTimeUtil.toShortDateTimeFormat(this.createdAt),
     longDateTime = JDateTimeUtil.toLongDateTimeFormat(this.createdAt),
     isSelected = isSelected,
-    ownerFolder = this.ownerFolder?.toUiFolder()
+    ownerUiFolder = this.ownerDomainFolder?.toUiFolder()
 )
 
 fun UiNote.toDomainNote() = DomainNote(
@@ -34,5 +34,5 @@ fun UiNote.toDomainNote() = DomainNote(
     images = this.images.map { it.toString() },
     colorArgb = this.color.toArgb(),
     hashedPassword = this.password,
-    ownerFolder = this.ownerFolder?.toDomainFolder()
+    ownerDomainFolder = this.ownerUiFolder?.toDomainFolder()
 )
