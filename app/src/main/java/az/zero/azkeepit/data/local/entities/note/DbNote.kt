@@ -13,6 +13,9 @@ data class DbNote(
     val images: List<String>,
     val color: Int,
     val hashedPassword: String?,
+    /* TODO(improve) 0L instead of null is considered no set and Room will
+        auto generate it when annotated https://developer.android.com/reference/androidx/room/PrimaryKey#getAutoGenerate()
+    */
     @PrimaryKey(autoGenerate = true)
     val noteId: Long? = null,
 )

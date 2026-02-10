@@ -2,17 +2,10 @@ package az.zero.azkeepit.ui.composables
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -21,10 +14,14 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Tab
+import androidx.compose.material.TabPosition
+import androidx.compose.material.TabRow
+import androidx.compose.material.TabRowDefaults
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -50,7 +47,7 @@ fun TabPager(
     tabSelectorHeight: Dp = TabRowDefaults.IndicatorHeight,
     tabHostBackgroundColor: Color = MaterialTheme.colors.background,
     animateScrollToPage: Boolean = false,
-    isEditModeOn: Boolean = false,
+    isEditModeEnabled: Boolean = false,
     onTabChange: ((tabNumber: Int) -> Unit)? = null,
     content: @Composable (index: Int) -> Unit,
 ) {
@@ -61,7 +58,7 @@ fun TabPager(
 
     val coroutineScope = rememberCoroutineScope()
 
-    BackHandler(enabled = pagerState.currentPage != 0 && !isEditModeOn) {
+    BackHandler(enabled = pagerState.currentPage != 0 && !isEditModeEnabled) {
         coroutineScope.launch {
             pagerState.animateScrollToPage(0)
         }
@@ -77,7 +74,7 @@ fun TabPager(
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
-        AnimatedVisibility(visible = !isEditModeOn) {
+        AnimatedVisibility(visible = !isEditModeEnabled) {
             TabRow(
                 selectedTabIndex = pagerState.currentPage,
                 modifier = tabHostModifier,
@@ -119,7 +116,7 @@ fun TabPager(
 
         HorizontalPager(
             state = pagerState,
-            userScrollEnabled = !isEditModeOn,
+            userScrollEnabled = !isEditModeEnabled,
             modifier = Modifier.weight(1f),
         ) { index ->
             Column(

@@ -59,7 +59,7 @@ import az.zero.azkeepit.ui.composables.mirror
 import az.zero.azkeepit.ui.models.note.UiNote
 import az.zero.azkeepit.ui.screens.FolderDetailsScreenDestination
 import az.zero.azkeepit.ui.screens.items.NoteItem
-import az.zero.azkeepit.ui.screens.serializableNavType
+import az.zero.azkeepit.ui.screens.uriSafeSerializableNavType
 import az.zero.azkeepit.ui.theme.cardBgColor
 import az.zero.azkeepit.ui.theme.selectedColor
 import kotlinx.coroutines.launch
@@ -168,7 +168,7 @@ private fun SuccessFolderDetailsScreen(
         items(folderNotes) { uiNote ->
             NoteItem(
                 uiNote = uiNote,
-                isEditModeOn = false,
+                isEditModeEnabled = false,
                 onNoteClick = onNoteClick
             )
         }
@@ -303,7 +303,7 @@ data class FolderDetailsScreenArgs(
 ) {
     companion object {
         val typeMap = mapOf(
-            typeOf<FolderDetailsScreenArgs>() to serializableNavType<FolderDetailsScreenArgs>()
+            typeOf<FolderDetailsScreenArgs>() to uriSafeSerializableNavType<FolderDetailsScreenArgs>()
         )
 
         fun from(savedStateHandle: SavedStateHandle): FolderDetailsScreenDestination {

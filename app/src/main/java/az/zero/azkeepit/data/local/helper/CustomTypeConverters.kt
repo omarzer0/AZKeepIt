@@ -5,6 +5,7 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
+// TODO(improve) Don't create Gson object each time.
 @ProvidedTypeConverter
 class CustomTypeConverters {
 

@@ -27,11 +27,11 @@ import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import az.zero.azkeepit.R
@@ -53,8 +54,8 @@ import az.zero.azkeepit.ui.composables.TabPager
 import az.zero.azkeepit.ui.composables.clickableSafeClick
 import az.zero.azkeepit.ui.screens.HomeScreenDestination
 import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
-import az.zero.azkeepit.ui.screens.home.tab_screens.FolderScreen
-import az.zero.azkeepit.ui.screens.home.tab_screens.NotesScreen
+import az.zero.azkeepit.ui.screens.home.tab_screens.folder.FolderScreen
+import az.zero.azkeepit.ui.screens.home.tab_screens.note.NotesScreen
 import az.zero.azkeepit.ui.theme.selectedColor
 
 @Composable
@@ -67,18 +68,13 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val tabs = remember(Unit) { listOf("Notes", "Folders") }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-    val selectedNumber by remember(state) {
-        mutableStateOf(
-            if (state.currentTab == 0) state.selectedNotesNumber
-            else state.selectedFolderNumber
-        )
-    }
+    val tabs = rememberSaveable { listOf("Notes", "Folders") }
+    var selectedTab by rememberSaveable { mutableStateOf(0) }
 
-    BackHandler(enabled = state.isEditModeOn) {
-        viewModel.changeEditModeState(isActive = false)
+    BackHandler(enabled = state.isEditModeEnabled) {
+        if (state.isEditModeEnabled) viewModel.onEditModeChange(false)
     }
 
     var scrollUp by remember { mutableStateOf(true) }
@@ -94,8 +90,8 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(key1 = state.isEditModeOn) {
-        if (!state.isEditModeOn) scrollUp = true
+    LaunchedEffect(key1 = state.isEditModeEnabled) {
+        if (!state.isEditModeEnabled) scrollUp = true
     }
 
     Scaffold(
@@ -106,22 +102,24 @@ fun HomeScreen(
 
         topBar = {
             HomeAppBar(
-                selectedNumber = selectedNumber,
-                isEditModeOn = state.isEditModeOn,
+                selectedNumber = state.numberOfSelectedItemsForAction,
+                isEditModeOn = state.isEditModeEnabled,
                 onSearchClick = onSearchClick,
-                onClearSelectionClick = { viewModel.changeEditModeState(isActive = false) }
+                onClearSelectionClick = { viewModel.onEditModeChange(isActive = false) }
             )
         },
         floatingActionButton = {
             HomeFab(
                 modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
-                currentTab = state.currentTab,
-                isEditModeOn = state.isEditModeOn,
+                currentTab = selectedTab,
+                isEditModeOn = state.isEditModeEnabled,
                 isScrollingUp = isScrollingUp,
-                onAddNoteClick = { onNoteClick(null) },
 
-                // TODO 3: Update this
-                onAddFolderClick = { viewModel.changeCreateFolderDialogState(isOpened = true) }
+//                // TODO 3: Move the Fab inside the tabs
+                onAddNoteClick = {},
+                onAddFolderClick = {}
+//                onAddNoteClick = { onNoteClick(null) },
+//                onAddFolderClick = { viewModel.changeCreateFolderDialogState(isOpened = true) }
             )
         }
     ) { paddingValues ->
@@ -130,22 +128,32 @@ fun HomeScreen(
                 .padding(paddingValues)
         ) {
             TabPager(
+                tabs = tabs,
                 animateScrollToPage = true,
                 tabSelectorHeight = 4.dp,
                 tabSelectorColor = selectedColor,
                 selectedContentColor = selectedColor,
-                isEditModeOn = state.isEditModeOn,
-                tabs = tabs,
-                onTabChange = viewModel::changeCurrentTap
+                isEditModeEnabled = state.isEditModeEnabled,
+                onTabChange = { selectedTab = it }
             ) {
                 when (it) {
                     0 -> NotesScreen(
+                        isEditModeEnabled = state.isEditModeEnabled,
                         onNoteClick = onNoteClick,
-                        onNoteWithPasswordClick = onNoteWithPasswordClick
+                        onNoteWithPasswordClick = onNoteWithPasswordClick,
+                        onEditModeChange = { isEditModeEnabled ->
+                            viewModel.onEditModeChange(isActive = isEditModeEnabled)
+                        },
+                        onSelectedNotesNumberChange = viewModel::onNumberOfSelectedItemsForActionChange
                     )
 
                     1 -> FolderScreen(
+                        isEditModeOn = state.isEditModeEnabled,
                         onFolderClick = onFolderClick,
+                        onEditModeChange = { isEditModeEnabled ->
+                            viewModel.onEditModeChange(isActive = isEditModeEnabled)
+                        },
+                        onSelectedFoldersNumberChange = viewModel::onNumberOfSelectedItemsForActionChange
                     )
                 }
             }

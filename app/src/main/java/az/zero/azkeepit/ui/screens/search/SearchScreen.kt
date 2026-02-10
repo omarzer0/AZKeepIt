@@ -96,7 +96,7 @@ private fun SuccessSearchScreen(
         items(searchedUiNotes) { uiNote ->
             NoteItem(
                 uiNote = uiNote,
-                isEditModeOn = false,
+                isEditModeEnabled = false,
                 onNoteClick = {
                     if (uiNote.password == null) onNoteClick(uiNote.noteId)
                     else onNoteWithPasswordClick(uiNote.noteId)

@@ -1,4 +1,4 @@
-package az.zero.azkeepit.ui.screens.home.tab_screens
+package az.zero.azkeepit.ui.screens.home.tab_screens.folder
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -20,6 +20,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -32,17 +33,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import az.zero.azkeepit.R
 import az.zero.azkeepit.ui.composables.CustomCreateDialog
 import az.zero.azkeepit.ui.composables.DeleteDialog
+import az.zero.azkeepit.ui.models.folder.UiFolder
 import az.zero.azkeepit.ui.screens.folder.details.FolderDetailsScreenArgs
 import az.zero.azkeepit.ui.screens.home.BottomBarItem
-import az.zero.azkeepit.ui.screens.home.HomeUiState
-import az.zero.azkeepit.ui.screens.home.HomeViewModel
 import az.zero.azkeepit.ui.screens.items.FolderItem
 import az.zero.azkeepit.ui.theme.cardBgColor
 
 @Composable
 fun FolderScreen(
+    isEditModeOn: Boolean,
     onFolderClick: (FolderDetailsScreenArgs) -> Unit,
-    viewModel: HomeViewModel = hiltViewModel(),
+    onEditModeChange: (isActive: Boolean) -> Unit,
+    onSelectedFoldersNumberChange: (numberOfSelectedFolders: Int) -> Unit,
+    viewModel: FoldersListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -53,14 +56,24 @@ fun FolderScreen(
         onCreateClick = viewModel::createFolder
     )
 
-    when {
-        state.isFoldersLoading -> Unit
-        state.uiFolders.isEmpty() -> EmptyFolderScreen()
+    LaunchedEffect(state.selectedFoldersNumber) {
+        onSelectedFoldersNumberChange(state.selectedFoldersNumber)
+    }
 
+    when {
+        state.isLoading -> Unit
+        state.isEmpty -> EmptyFolderScreen()
         else -> SuccessFolderScreen(
+            isEditModeOn = isEditModeOn,
+            isDeleteFoldersDialogOpen = state.isDeleteFoldersDialogOpen,
+            isFolderActionsEnabled = state.isFolderActionsEnabled,
+            uiFolders = state.uiFolders,
             onFolderClick = onFolderClick,
-            state = state,
-            viewModel = viewModel,
+            onChangeDeleteFoldersState = viewModel::onChangeDeleteFoldersState,
+            deleteSelectedFolders = viewModel::deleteSelectedFolders,
+            onChangeEditModeState = onEditModeChange,
+            onAddOrRemoveFolderFromSelected = viewModel::onAddOrRemoveFolderFromSelected,
+            onClearSelectedFolders = viewModel::onClearSelectedFolders
         )
     }
 
@@ -69,16 +82,32 @@ fun FolderScreen(
 
 @Composable
 private fun SuccessFolderScreen(
+    isEditModeOn: Boolean,
+    isDeleteFoldersDialogOpen: Boolean,
+    isFolderActionsEnabled: Boolean,
+    uiFolders: List<UiFolder>,
     onFolderClick: (FolderDetailsScreenArgs) -> Unit,
-    state: HomeUiState,
-    viewModel: HomeViewModel,
+    onChangeDeleteFoldersState: (isOpen: Boolean) -> Unit,
+    deleteSelectedFolders: () -> Unit,
+    onChangeEditModeState: (isActive: Boolean) -> Unit,
+    onAddOrRemoveFolderFromSelected: (folderId: Long) -> Unit,
+    onClearSelectedFolders: () -> Unit
 ) {
 
+//    BackHandler(enabled = isEditModeOn) {
+//        if (isEditModeOn.not()) onClearSelectedFolders()
+//    }
+
+    LaunchedEffect(key1 = isEditModeOn) {
+        if (isEditModeOn.not()) onClearSelectedFolders()
+    }
+
+
     DeleteDialog(
-        openDialog = state.isDeleteFoldersDialogOpen,
+        openDialog = isDeleteFoldersDialogOpen,
         text = stringResource(id = R.string.are_you_sure_you_want_to_delete_all_notes_in_this_folder),
-        onDismiss = { viewModel.changeDeleteFoldersState(isOpened = false) },
-        onDeleteClick = viewModel::deleteSelectedFolders
+        onDismiss = { onChangeDeleteFoldersState(false) },
+        onDeleteClick = deleteSelectedFolders
     )
 
     Column(
@@ -92,19 +121,19 @@ private fun SuccessFolderScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            items(state.uiFolders, key = { it.folderId }) { uiFolder ->
+            items(uiFolders, key = { it.folderId }) { uiFolder ->
                 FolderItem(
                     uiFolder = uiFolder,
-                    isEditModeOn = state.isEditModeOn,
+                    isEditModeOn = isEditModeOn,
                     onLongClick = {
-                        if (!state.isEditModeOn) {
-                            viewModel.changeEditModeState(isActive = true)
-                            viewModel.addOrRemoveFolderFromSelected(folderId = uiFolder.folderId)
+                        if (!isEditModeOn) {
+                            onChangeEditModeState(true)
+                            onAddOrRemoveFolderFromSelected(uiFolder.folderId)
                         }
                     },
                     onFolderClick = {
-                        if (state.isEditModeOn) {
-                            viewModel.addOrRemoveFolderFromSelected(folderId = uiFolder.folderId)
+                        if (isEditModeOn) {
+                            onAddOrRemoveFolderFromSelected(uiFolder.folderId)
                         } else {
                             val args = FolderDetailsScreenArgs(
                                 id = uiFolder.folderId,
@@ -119,9 +148,9 @@ private fun SuccessFolderScreen(
         }
 
         FolderBottomActions(
-            isEditModeOn = state.isEditModeOn,
-            enabled = state.isFolderActionsEnabled,
-            onDeleteFoldersClick = { viewModel.changeDeleteFoldersState(isOpened = true) }
+            isEditModeOn = isEditModeOn,
+            enabled = isFolderActionsEnabled,
+            onDeleteFoldersClick = { onChangeDeleteFoldersState(true) }
         )
 
     }
